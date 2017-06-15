@@ -1,4 +1,4 @@
-"""setup file for coda, a partial wrapper package for pygame."""
+"""setup file for coda-kids, a partial wrapper package for pygame."""
 import setuptools
 
 def readme():
@@ -15,7 +15,7 @@ setuptools.setup(name='coda_kids',
                      'Programming Language :: Python :: 3',
                      'Intended Audience :: Education'
                  ],
-                 url='https://github.com/ADillon1/Python-Game-Projects',
+                 url='https://github.com/ADillon1/coda-kids',
                  author='Andrew Dillon',
                  author_email='AndrewDillon91@gmail.com',
                  license='MIT',
