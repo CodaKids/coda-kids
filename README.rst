@@ -12,3 +12,9 @@ following toolset:
 
 Python 3.5.2 with latest Pygame and Pylint.
 Visual Studio Code 1.11+ with the Python extension installed.
+
+0.2.0 Change log:
+fixed some formatting issues with the setup.py file.
+
+0.2.1 Change log:
+Reformatted some of the library utilities.

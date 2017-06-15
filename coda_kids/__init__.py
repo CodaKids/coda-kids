@@ -240,8 +240,8 @@ class Object:
         dist = (self.location - other_obj.location).length_squared()
         # if distance between objects is greater then 64^2
         if dist > 4096:
-            self.collision[coda.dir.DOWN] = self.collision[coda.dir.UP] = False
-            self.collision[coda.dir.LEFT] = self.collision[coda.dir.RIGHT] = False
+            self.collision[coda_kids.dir.DOWN] = self.collision[coda_kids.dir.UP] = False
+            self.collision[coda_kids.dir.LEFT] = self.collision[coda_kids.dir.RIGHT] = False
             return False
 
         #get transformed rectangles
@@ -251,10 +251,10 @@ class Object:
         if not rect1.colliderect(rect2):
             return False
 
-        self.collision[coda.dir.DOWN] = rect2.collidepoint((rect1.center[0] - rect1.width / 4, rect1.center[1] + rect1.height / 2)) or rect2.collidepoint((rect1.center[0] + rect1.width / 4, rect1.center[1] + rect1.height / 2))
-        self.collision[coda.dir.UP] = rect2.collidepoint((rect1.center[0] - rect1.width / 4, rect1.center[1] - rect1.height / 2)) or rect2.collidepoint((rect1.center[0] + rect1.width / 4, rect1.center[1] - rect1.height / 2))
-        self.collision[coda.dir.LEFT] = rect2.collidepoint((rect1.center[0] - rect1.width / 2, rect1.center[1] + rect1.height / 4)) or rect2.collidepoint((rect1.center[0] - rect1.width / 2, rect1.center[1] - rect1.height / 4))
-        self.collision[coda.dir.RIGHT] = rect2.collidepoint((rect1.center[0] + rect1.width / 2, rect1.center[1] + rect1.height / 4)) or rect2.collidepoint((rect1.center[0] + rect1.width / 2, rect1.center[1] - rect1.height / 4))
+        self.collision[coda_kids.dir.DOWN] = rect2.collidepoint((rect1.center[0] - rect1.width / 4, rect1.center[1] + rect1.height / 2)) or rect2.collidepoint((rect1.center[0] + rect1.width / 4, rect1.center[1] + rect1.height / 2))
+        self.collision[coda_kids.dir.UP] = rect2.collidepoint((rect1.center[0] - rect1.width / 4, rect1.center[1] - rect1.height / 2)) or rect2.collidepoint((rect1.center[0] + rect1.width / 4, rect1.center[1] - rect1.height / 2))
+        self.collision[coda_kids.dir.LEFT] = rect2.collidepoint((rect1.center[0] - rect1.width / 2, rect1.center[1] + rect1.height / 4)) or rect2.collidepoint((rect1.center[0] - rect1.width / 2, rect1.center[1] - rect1.height / 4))
+        self.collision[coda_kids.dir.RIGHT] = rect2.collidepoint((rect1.center[0] + rect1.width / 2, rect1.center[1] + rect1.height / 4)) or rect2.collidepoint((rect1.center[0] + rect1.width / 2, rect1.center[1] - rect1.height / 4))
 
         return True
 
@@ -265,7 +265,7 @@ class Object:
             # Snap obj1 left of obj2
             obj1.snap_to_object_x(obj2, coda.dir.LEFT);
         """
-        if facing == coda.dir.LEFT:
+        if facing == coda_kids.dir.LEFT:
             self.location.x = (other_obj.location.x +
                                other_obj.width() / 2 +
                                self.width() / 2)
@@ -281,7 +281,7 @@ class Object:
             # Snap obj1 left of obj2
             obj1.snap_to_object(obj2, coda.dir.LEFT);
         """
-        if facing == coda.dir.UP:
+        if facing == coda_kids.dir.UP:
             self.location.y = (other_obj.location.y +
                                other_obj.height() / 2 +
                                self.height() / 2)

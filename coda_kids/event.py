@@ -7,7 +7,7 @@ This event wrapper is meant to quiet some of those false positives,
 while providing a function interface for keyboard and mouse input.
 """
 import pygame
-import coda.dir
+import coda_kids.dir
 
 def listing():
     """
@@ -106,7 +106,7 @@ def mouse_position():
         data = coda.event.mouse_position();
     """
     pos = pygame.mouse.get_pos()
-    return coda.Vector2(pos[0], pos[1])
+    return coda_kids.Vector2(pos[0], pos[1])
 
 def key_down(event, key):
     """

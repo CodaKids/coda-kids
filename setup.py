@@ -6,7 +6,7 @@ def readme():
         return file.read()
 
 setuptools.setup(name='coda_kids',
-                 version='0.1',
+                 version='0.2.1',
                  description='Partial pygame wrapper and game programming framework.',
                  long_description=readme(),
                  classifiers=[
@@ -19,7 +19,7 @@ setuptools.setup(name='coda_kids',
                  author='Andrew Dillon',
                  author_email='AndrewDillon91@gmail.com',
                  license='MIT',
-                 packages=['coda_Kids'],
+                 packages=['coda_kids'],
                  install_requires=['pygame'],
                  include_package_data=True,
                  zip_safe=False)
