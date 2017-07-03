@@ -13,8 +13,15 @@ following toolset:
 Python 3.5.2 with latest Pygame and Pylint.
 Visual Studio Code 1.11+ with the Python extension installed.
 
-0.2.0 Change log:
-fixed some formatting issues with the setup.py file.
+Change Log:
 
-0.2.1 Change log:
-Reformatted some of the library utilities.
+0.2.2:
+1. Updated git repo and setup/url information.
+2. Added lerp to coda. [Feature in Alpha]
+3. Updated object class to properly scale objects with it's scale member.
+
+0.2.1:
+1. Reformatted some of the library utilities.
+
+0.2.0:
+1. Fixed some formatting issues with the setup.py file.

@@ -141,7 +141,7 @@ class Object:
         obj = coda.Object(IMAGE);
     """
     location = Vector2(0, 0)
-    scale = Vector2(1, 1)
+    scale = 1
     velocity = Vector2(0, 0)
 
     def __init__(self, image):
@@ -151,7 +151,7 @@ class Object:
         self.collision = [False] * 5
 
     def __setattr__(self, name, value):
-        if name == "location" or name == "scale" or name == "velocity":
+        if name == "location" or name == "velocity":
             self.__dict__[name] = pygame.math.Vector2(value[0], value[1])
         elif name == "rotation":
             self.__dict__[name] = value - 360 * int(value / 360)
@@ -164,7 +164,7 @@ class Object:
 
             rect = obj.get_transformed_rect();
         """
-        sprite = pygame.transform.rotate(self.sprite, self.rotation)
+        sprite = pygame.transform.rotozoom(self.sprite, self.rotation, self.scale)
         rect = sprite.get_rect()
         rect.center = self.location + self.velocity
         return rect
