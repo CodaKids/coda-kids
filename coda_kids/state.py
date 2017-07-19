@@ -1,5 +1,6 @@
 """This file contains functionality related to game state management."""
 import pygame
+import coda_kids.actions
 
 class Machine:
     """Game state machine class."""
@@ -22,13 +23,14 @@ class Machine:
         self.states[self.current]['initialize'](window)
 
         while True:
-            delta_time = clock.tick(60)
+            delta_time = clock.tick(60) / 1000
             if self.current != self.previous:
                 self.states[self.current]['cleanup']()
                 self.states[self.current]['initialize'](window)
                 self.previous = self.current
 
-            self.states[self.current]['update'](delta_time / 1000)
+            coda_kids.actions.update(delta_time)
+            self.states[self.current]['update'](delta_time)
             screen.fill(fill_color)
             self.states[self.current]['draw'](screen)
             pygame.display.flip()

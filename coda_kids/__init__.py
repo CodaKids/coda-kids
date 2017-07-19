@@ -15,16 +15,14 @@ following toolset:
 Python 3.5.2 with lastest Pygame and Pylint
 Visual Studio Code 1.11+ with the Python extension installed.
 """
-import time
-import sys
-import math
-import random
 import pygame
+
 import coda_kids.color
 import coda_kids.utilities
 import coda_kids.dir
 import coda_kids.event
 import coda_kids.state
+import coda_kids.actions
 
 def start(window_size, game_name):
     """
@@ -33,8 +31,8 @@ def start(window_size, game_name):
         SCREEN = coda.start((w, h), "Title");
     """
     pygame.init()
-    time.sleep(2)
-    random.seed(time.time())
+    coda_kids.utilities.time.sleep(2)
+    coda_kids.utilities.random.seed(coda_kids.utilities.time.time())
     pygame.display.set_caption(game_name)
     pygame.mixer.init()
     return pygame.display.set_mode((int(window_size[0]), int(window_size[1])))
@@ -45,7 +43,7 @@ def stop():
 
         coda.stop();
     """
-    sys.exit()
+    coda_kids.utilities.sys.exit()
 
 def Image(image_file_name):
     """
@@ -126,8 +124,8 @@ class SpriteSheet:
 
             obj.sprite = sheet.image_at(0);
         """
-        x = math.floor(index % self.columns) * self.rectangle.width
-        y = math.floor(index / self.columns) * self.rectangle.height
+        x = coda_kids.utilities.math.floor(index % self.columns) * self.rectangle.width
+        y = coda_kids.utilities.math.floor(index / self.columns) * self.rectangle.height
         self.rectangle.centerx = x + self.rectangle.width / 2
         self.rectangle.centery = y + self.rectangle.height / 2
         image = pygame.Surface(self.rectangle.size, pygame.SRCALPHA, 32).convert_alpha()
@@ -203,8 +201,8 @@ class Object:
             obj.add_velocity((0, 1), 1, 10); # increase upwards
         """
         epsilon = 1.0e-15
-        direction = Vector2(math.cos(math.radians(direction - 90)),
-                            math.sin(math.radians(direction - 90)))
+        direction = Vector2(coda_kids.utilities.math.cos(coda_kids.utilities.math.radians(direction - 90)),
+                            coda_kids.utilities.math.sin(coda_kids.utilities.math.radians(direction - 90)))
         if direction.x < epsilon and direction.x > 0:
             direction.x = 0
 
@@ -226,8 +224,8 @@ class Object:
 
             obj.set_velocity(45, 5); # left 5
         """
-        self.velocity = Vector2(-1 * math.cos(math.radians(degrees - 90)) * speed,
-                                math.sin(math.radians(degrees - 90)) * speed)
+        self.velocity = Vector2(-1 * coda_kids.utilities.math.cos(coda_kids.utilities.math.radians(degrees - 90)) * speed,
+                                coda_kids.utilities.math.sin(coda_kids.utilities.math.radians(degrees - 90)) * speed)
 
     def collides_with(self, other_obj):
         """
@@ -313,7 +311,7 @@ class Object:
             # draw the object
             obj.draw(SCREEN);
         """
-        sprite = pygame.transform.rotate(self.sprite, self.rotation)
+        sprite = pygame.transform.rotozoom(self.sprite, self.rotation, self.scale)
         rect = sprite.get_rect()
         self.location += self.velocity
         rect.center = self.location

@@ -17,8 +17,10 @@ Change Log:
 
 0.2.2:
 1. Updated git repo and setup/url information.
-2. Added lerp to coda. [Feature in Alpha]
+2. Added action system to coda for objects. [Feature in Alpha]
 3. Updated object class to properly scale objects with it's scale member.
+4. Moved standard library imports to coda.utilities
+
 
 0.2.1:
 1. Reformatted some of the library utilities.

@@ -1,0 +1,17 @@
+This file documents how to properly set up an enviornment to continue working on
+the coda kids framework, push updates, etc.
+
+Enviornment use.
+Source documentation: http://peterdowns.com/posts/first-time-with-pypi.html
+1. clone the repo
+2. Add the .pypirc file to your home directory C:\Users\%USERNAME% on windows
+    Contact myself or Ed for pypi account information.
+3. Install the coda-kids enviornment.
+4. Open a console in coda kids directory, run: 
+    python setup.py develop
+5. make your changes and test it with all 6 games that use the framework.
+6. Update README.md's change log with your changes.
+7. Update version number in setup.py
+6. push the changes to pypi using: 
+    python setup.py sdist upload -r pypi
+7. add, commit, and push the git repo.
