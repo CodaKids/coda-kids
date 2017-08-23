@@ -10,7 +10,7 @@ Source documentation: http://peterdowns.com/posts/first-time-with-pypi.html
 4. Open a console in coda kids directory, run: 
     python setup.py develop
 5. make your changes and test it with all 6 games that use the framework.
-6. Update README.md's change log with your changes.
+6. Update README.rst's change log with your changes.
 7. Update version number in setup.py
 6. push the changes to pypi using: 
     python setup.py sdist upload -r pypi

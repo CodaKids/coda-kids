@@ -6,7 +6,7 @@ def readme():
         return file.read()
 
 setuptools.setup(name='coda_kids',
-                 version='0.2.2',
+                 version='0.2.3',
                  description='Partial pygame wrapper and game programming framework.',
                  long_description=readme(),
                  classifiers=[

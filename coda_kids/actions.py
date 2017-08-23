@@ -1,5 +1,5 @@
 """
-This module contains methods for automatically 
+This module contains methods for automatically
 updating game object members between two different values.
 """
 # data used to store all lerps
@@ -27,7 +27,7 @@ class LerpData:
 
         self.time += delta_time / self.duration
         setattr(obj, self.member, lerp_iter(self.start, self.end, self.time))
-        if self.time >= 1:
+        if self.time >= 1 or getattr(obj, self.member) == self.end:
             setattr(obj, self.member, self.end)
             return True
         return False
@@ -55,6 +55,9 @@ def update(delta_time):
             to_delete.append(obj)
         elif lerp_list[0].update(obj, delta_time):
             lerp_list.pop(0)
+            # remove duplicates
+            while lerp_list and lerp_list[0].end == getattr(obj, lerp_list[0].member):
+                lerp_list.pop(0)
 
     for key in to_delete:
         del _data[key]
@@ -63,5 +66,5 @@ def clear(obj=None):
     """Clears the list of the given game object. If object is None, clear entire list."""
     if obj is None:
         _data.clear()
-    else:
+    elif obj in _data:
         del _data[obj]

@@ -81,6 +81,14 @@ def Vector2(x_value, y_value):
     """
     return pygame.math.Vector2(x_value, y_value)
 
+def start_draw(screen, fill_color):
+    """Begin drawing to the screen."""
+    screen.fill(fill_color)
+
+def end_draw():
+    """End drawing to screen."""
+    pygame.display.flip()
+
 class CountdownTimer:
     """
     Countdown timer class for timer logic.
@@ -329,13 +337,16 @@ class TextObject:
     def __init__(self, color_value, font_size, text):
         self.location = Vector2(0, 0)
         self.color = color_value
-        self.font = pygame.font.Font('freesansbold.ttf', font_size)
+        self.font_size = font_size
         self.text = text
         self.centered = False
 
     def __setattr__(self, name, value):
         if name == "location":
             self.__dict__[name] = Vector2(value[0], value[1])
+        elif name == "font_size":
+            self.__dict__[name] = value
+            self.font = pygame.font.Font('freesansbold.ttf', int(self.font_size))
         else:
             self.__dict__[name] = value
 
@@ -386,7 +397,7 @@ To do notes:
 
 1. Because of rotation set attribute, rotation might be unnecessary.
 2. Set and add velocity methods do not follow convention
-3. scale could be updated or removed.
-4. create animation system
-5. get rid of finite state machine. please. its so bad.
+3. create animation system
+4. get rid of finite state machine. please. its so bad.
+5. Add animation system for sprite sheets.
 """
