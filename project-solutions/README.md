@@ -16,13 +16,13 @@ These are all of the solutions to the game project exercies within the Coda Kids
 5. Enter debug mode in visual studio.
 6. Press the debug button (or f5).
 
-## building the projects
+## Building the Projects
 
 1. Open a command line in the target project's directory.
 2. type pyinstaller main.spec
 3. The resulting executible will be called "main.exe" in the created dist directory.
 
-## Test list
+## Test List
 
 - [ ] Level 1 \(Turtle Graphics: Turtle Map)
 - [ ] Level 2 \(Introductions)
