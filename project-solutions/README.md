@@ -31,4 +31,3 @@ These are all of the solutions to the game project exercies within the Coda Kids
 - [ ] Level 5 \(Platformer: Creeper Chase)
 - [ ] Level 6 \(Boss Battle: Creeper Combat)
 - [ ] Level 7 \(Card Game: Coda Cards)
-
