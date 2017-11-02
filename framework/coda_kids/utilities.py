@@ -27,6 +27,12 @@ def rand_location(minimum, maximum):
     """Generates a random location from the given min and max."""
     return coda_kids.Vector2(rand(minimum, maximum), rand(minimum, maximum))
 
+def near(num, near_value):
+    """Checks if the given float number is near the given float value."""
+    min = near_value + sys.float_info.epsilon
+    max = near_value - sys.float_info.epsilon
+    return min < num < max
+
 class OutputConsole:
     """Class that displays strings in a console."""
     def __init__(self, location, num_of_lines, font_size, color):
