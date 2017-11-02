@@ -20,10 +20,12 @@ PLAYER_START = 4
 COINS = 5
 
 PLAYER_START_HEALTH = 10
-PLAYER_ACCEL = 16
-GRAVITY_ACCEL = 98
-PLAYER_DECEL = 500
-PLAYER_MAX_SPEED = 64
+PLAYER_GROUND_ACCEL = 0.1
+GRAVITY_ACCEL = 0.8
+PLAYER_GROUND_DECEL = 0.8
+PLAYER_AIR_DECEL = 0.02
+PLAYER_MAX_SPEED = 256
+PLAYER_JUMP_ACCEL = PLAYER_MAX_SPEED
 
 TILE_SIZE = 16
 
@@ -39,8 +41,9 @@ class Data:
     coins = []
     player = coda.Object(PLAYER_IMAGE)
     player_health = PLAYER_START_HEALTH
-    player_max_speed = 100
     player_start_position = coda.Vector2(0, 0)
+    player_debug_position = coda.Vector2(0, 0)
+
     grounded = False
     can_fly = False
     level_num = 1
@@ -94,27 +97,36 @@ def update(delta_time):
         if coda.event.quit_game(event):
             coda.stop()
         elif coda.event.key_down(event, " ") and (MY.grounded or MY.level_num > 1):
-            MY.player.velocity.y = -12
+            print("jump!")
+            MY.player.velocity.y = -PLAYER_JUMP_ACCEL
             MY.grounded = False
 
+        if coda.event.key_down(event, "b"):
+            MY.debug = True
+
     if coda.event.key_held_down("a"):
-        MY.player.velocity.x = max(MY.player.velocity.x - PLAYER_ACCEL, -PLAYER_MAX_SPEED)
-    elif coda.event.key_held_down("d"):
-        MY.player.velocity.x = min(MY.player.velocity.x + PLAYER_ACCEL, PLAYER_MAX_SPEED)
-    elif MY.grounded:
-        if MY.player.velocity.x > 0:
-            MY.player.velocity.x = max(0, MY.player.velocity.x - PLAYER_DECEL)
-            print(MY.player.velocity.x)
-        elif MY.player.velocity.x < 0:
-            MY.player.velocity.x = min(0, MY.player.velocity.x + PLAYER_DECEL)
-            print(MY.player.velocity.x)
+        MY.player.velocity.x -= (PLAYER_MAX_SPEED - abs(MY.player.velocity.x)) * PLAYER_GROUND_ACCEL
+    elif MY.player.velocity.x < 0:
+        x_vel = MY.player.velocity.x
+        if MY.grounded:
+            MY.player.velocity.x = min(x_vel + (PLAYER_MAX_SPEED - abs(x_vel)) * PLAYER_GROUND_DECEL, 0)
+        else:
+            MY.player.velocity.x = min(x_vel + (PLAYER_MAX_SPEED - abs(x_vel)) * PLAYER_AIR_DECEL, 0)
+
+    if coda.event.key_held_down("d"):
+        MY.player.velocity.x += (PLAYER_MAX_SPEED - abs(MY.player.velocity.x)) * PLAYER_GROUND_ACCEL
+    elif MY.player.velocity.x > 0:
+        x_vel = MY.player.velocity.x
+        if MY.grounded:
+            MY.player.velocity.x = max(x_vel - (PLAYER_MAX_SPEED - abs(x_vel)) * PLAYER_GROUND_DECEL, 0)
+        else:
+            MY.player.velocity.x = max(x_vel - (PLAYER_MAX_SPEED - abs(x_vel)) * PLAYER_AIR_DECEL, 0)
+
     load = False
-    print(MY.grounded)
     if coda.event.key_held_down("w"):
         for door in MY.doors:
             if MY.player.collides_with(door):
                 load = True
-
     if load is True:
         MY.level_num += 1
         if MY.level_num < 4:
@@ -124,8 +136,12 @@ def update(delta_time):
         return
 
     # Gravity
-    if not MY.grounded:
-        MY.player.velocity.y = min(MY.player.velocity.y + GRAVITY_ACCEL, PLAYER_MAX_SPEED)
+    MY.player.velocity.y = min(MY.player.velocity.y + 48 * GRAVITY_ACCEL, 256)
+
+    print(str(MY.player.velocity.y) + " " + str(MY.grounded))
+
+    MY.player_debug_position = coda.Vector2(MY.player.location.x, MY.player.location.y)
+    MY.player.update(delta_time)
 
     # Check for hazard collisions
     for hazard in MY.hazards:
@@ -142,8 +158,6 @@ def update(delta_time):
             MY.coins.remove(coin)
             MY.player_health += 1
     
-    MY.player.update(delta_time)
-
     # check for wall collisions
     touching = False
     for wall in MY.walls:
@@ -182,7 +196,12 @@ def draw(screen):
     for door in MY.doors:
         door.draw(screen)
     # draw player
-    MY.player.draw(screen)
+    #MY.player.draw(screen)
+    if not MY.grounded:
+        temp = MY.player.location
+        MY.player.location = MY.player_debug_position
+        MY.player.draw(screen)
+        MY.player.location = temp
     # draw coins
     for coin in MY.coins:
         coin.draw(screen)
