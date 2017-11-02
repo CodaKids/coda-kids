@@ -140,7 +140,7 @@ def update(delta_time):
 
     print(str(MY.player.velocity.y) + " " + str(MY.grounded))
 
-    MY.player_debug_position = coda.Vector2(MY.player.location.x, MY.player.location.y)
+    
     MY.player.update(delta_time)
 
     # Check for hazard collisions
@@ -185,6 +185,8 @@ def update(delta_time):
     if not touching:
         MY.grounded = False
 
+    MY.player_debug_position = coda.Vector2(MY.player.location.x, MY.player.location.y)
+
 def draw(screen):
     """Draws the platformer state to the given screen."""
     # draw tilemap walls
@@ -197,11 +199,11 @@ def draw(screen):
         door.draw(screen)
     # draw player
     #MY.player.draw(screen)
-    if not MY.grounded:
-        temp = MY.player.location
-        MY.player.location = MY.player_debug_position
-        MY.player.draw(screen)
-        MY.player.location = temp
+    #if not MY.grounded:
+    temp = MY.player.location
+    MY.player.location = MY.player_debug_position
+    MY.player.draw(screen)
+    MY.player.location = temp
     # draw coins
     for coin in MY.coins:
         coin.draw(screen)
