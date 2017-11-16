@@ -32,6 +32,7 @@ Simply follow the instructions below for your target platform.
     - Second, it will install Pygame.
     - Third, it will install Visual Studio Code. Follow the prompts and accept all the defaults.
     - After the script runs, it will launch Visual Studio Code.
+    NOTE: 
 4. Important: You will need to update and restart Visual Studio Code after installation.
 5. Open Visual Studio Code and navigate to the Extensions tab.
 6. Search for, install, and finally enable the Python plugin for Visual Studio Code.
