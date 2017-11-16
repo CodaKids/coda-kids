@@ -5,16 +5,16 @@ coda_kids is a partial wrapper package around pygame. It's purpose is to
 make game development more accessible to a younger audiences
 of students. It provides inline documentation, wrappers for linter 
 unfriendly features, and provides utility functionality/classes such 
-as game objects and constants for common colors.
+as game objects and constants for common data such as colors and input.
 
 It is currently being designed for and tested with a series of
-game programming exercises for an educational book Coda Kids.
+game programming exercises for an educational textbook titled Coda Kids.
 
-The package was designed and implemented with and for the
+The package is being designed and implemented with and for the
 following toolset:
 
 Python 3.5.2 with latest Pygame and Pylint.
-Visual Studio Code 1.11+ with the Python extension installed.
+Latest Visual Studio Code (1.11+ as of writting) with the Python extension installed.
 
 Simple Example
 --------------
@@ -48,6 +48,12 @@ To Do
 
 Change Log
 ==========
+
+0.2.4
+-----
+
+- Added opinional 2d sprite animation class for use with objects.
+- Added update loop for game objects that applies velocity and updates animations.
 
 0.2.3
 -----
