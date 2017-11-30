@@ -31,10 +31,9 @@ Simply follow the instructions below for your target platform.
     - First, it will install Miniconda. This will take a couple of minutes.
     - Second, it will install Pygame.
     - Third, it will install Visual Studio Code. Follow the prompts and accept all the defaults.
-    - After the script runs, it will launch Visual Studio Code.
-    NOTE: 
-4. Important: You will need to update and restart Visual Studio Code after installation.
-5. Open Visual Studio Code and navigate to the Extensions tab.
+    - After the script runs, it will launch Visual Studio Code. 
+4. Follow the "Visual Studio Code Download" Link and download VS for your operating system.
+5. Install the downloaded VS code installer.
 6. Search for, install, and finally enable the Python plugin for Visual Studio Code.
 
 ### Linux
