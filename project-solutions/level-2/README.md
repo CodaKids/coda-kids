@@ -39,6 +39,3 @@ obj.draw(screen)
 
 #### def cleanup()
 This function should be provided for when the user wants to transition out of the state. Because python is whats called a garbage collected language, it's seldom necessary to use it to clean up variable data, however it can be useful for serializing information or other tasks necessary upon leaving a gameplay state (such as recording score to a file.)
-
-
-
