@@ -5,6 +5,12 @@ import coda_kids as coda
 IMAGE_BACKGROUND = coda.Image("background.jpg")
 IMAGE_PLAYER1 = coda.Image("player1.png")
 IMAGE_PLAYER2 = coda.Image("player2.png")
+SOUND_EXPLOSIONS = [coda.Sound("Explosion1.wav"),
+                    coda.Sound("Explosion2.wav")]
+
+SOUND_LASER = [coda.Sound("Laser_Shoot1.wav"),
+               coda.Sound("Laser_Shoot2.wav")]
+
 SPRITESHEET_PROJECTILE = [None,
                           coda.SpriteSheet("player1_projectile.png", (36, 24)),
                           coda.SpriteSheet("player2_projectile.png", (48, 48))]
@@ -111,8 +117,10 @@ def update(delta_time):
         if coda.event.quit_game(event):
             coda.stop()
         elif coda.event.key_down(event, " "):
+            SOUND_LASER[coda.utilities.rand(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(1)
         elif coda.event.key_down(event, coda.pygame.K_RETURN):
+            SOUND_LASER[coda.utilities.rand(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(2)
 
     #Process rotation movement for player 1
@@ -160,9 +168,11 @@ def update(delta_time):
             if MY.bullet_owner[i] == 1 and MY.bullets[i].collides_with(MY.player2):
                 MY.player2_hp = MY.player2_hp - 1
                 MY.bullets[i].active = False
+                SOUND_EXPLOSIONS[coda.utilities.rand(0, len(SOUND_EXPLOSIONS) - 1)].play()
             elif MY.bullet_owner[i] == 2 and MY.bullets[i].collides_with(MY.player1):
                 MY.player1_hp = MY.player1_hp - 1
                 MY.bullets[i].active = False
+                SOUND_EXPLOSIONS[coda.utilities.rand(0, len(SOUND_EXPLOSIONS) - 1)].play()
 
     # Check win condition
     if MY.player1_hp < 1:
