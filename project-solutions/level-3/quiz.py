@@ -12,13 +12,14 @@ FAKE_ANSWERS = coda.utilities.read_file("fake_answers.txt")
 # Modifiable Data
 class Data:
     """place changable state variables here."""
-    question_text = coda.TextObject(coda.color.WHITE, 24, "")
-    grade_text = coda.TextObject(coda.color.WHITE, 24, "")
+    question_text = coda.TextObject(coda.color.WHITE, 16, "")
+    grade_text = coda.TextObject(coda.color.WHITE, 16, "")
     buttons = []
     button_text = []
     correct_answer_index = 0
     question_number = 0
     answered_correctly = 0
+    last_answered_question = -1
 
 MY = Data()
 
@@ -27,7 +28,7 @@ def initialize(window):
     for index in range(4):
         MY.buttons.append(coda.Object(IMAGE_BUTTON))
         MY.buttons[index].location = (window.x / 2, window.y / 2 + index * 64)
-        obj = coda.TextObject(coda.color.BLACK, 24, "")
+        obj = coda.TextObject(coda.color.BLACK, 16, "")
         obj.centered = True
         obj.location = MY.buttons[index].location
         MY.button_text.append(obj)
@@ -38,7 +39,13 @@ def initialize(window):
 def set_up_question():
     """Function called by init to set up a question."""
     MY.correct_answer_index = coda.utilities.rand(0, 3)
-    question_index = coda.utilities.rand(0, len(QUESTIONS) - 1)
+    condition = True
+
+    while condition: # medium difficulty
+        question_index = coda.utilities.rand(0, len(QUESTIONS) - 1)
+        condition = Data.last_answered_question == question_index
+
+    Data.last_answered_question = question_index
     MY.question_number = MY.question_number + 1
     MY.question_text.text = QUESTIONS[question_index]
     for index in range(4):
@@ -58,6 +65,8 @@ def update(delta_time):
                 if MY.buttons[index].collides_with_point(coda.event.mouse_position()):
                     if index == MY.correct_answer_index:
                         MY.answered_correctly = MY.answered_correctly + 1
+
+                    # hard difficulty
                     MY.grade_text.text = "Grade: " + str(int(MY.answered_correctly / MY.question_number * 100)) + "%"
                     set_up_question()
                     break
