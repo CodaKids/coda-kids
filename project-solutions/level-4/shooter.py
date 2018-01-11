@@ -5,6 +5,7 @@ import coda_kids as coda
 IMAGE_BACKGROUND = coda.Image("background.jpg")
 IMAGE_PLAYER1 = coda.Image("player1.png")
 IMAGE_PLAYER2 = coda.Image("player2.png")
+IMAGE_ASTEROID = coda.Image("asteroid.png")
 SOUND_EXPLOSIONS = [coda.Sound("Explosion1.wav"),
                     coda.Sound("Explosion2.wav")]
 
@@ -32,12 +33,15 @@ class Data:
     player2 = coda.Object(IMAGE_PLAYER2)
     player2_hp = 1
     bullets = []
+    asteroids = []
     bullet_owner = []
     maxFrameTime = 0.05
     window = coda.Vector2(10, 10)
     background = coda.Object(IMAGE_BACKGROUND)
 
 MY = Data()
+
+
 
 def health_bar(screen, health, max_health, max_size, location):
     """Creates a health bar at the given position."""
@@ -91,6 +95,16 @@ def initialize(window):
         MY.bullet_owner.append(1)
         count = count + 1
 
+    count = 0
+    while count < 5:
+        obj = coda.Object(IMAGE_ASTEROID)
+        obj.location = coda.utilities.rand_location(0, MY.window.x)
+        obj.velocity = coda.utilities.rand_location(-50, 50)
+        obj.scale = coda.utilities.rand(1, 3)
+        obj.active = True
+        MY.asteroids.append(obj)
+        count = count + 1
+
 def fire_bullet(player_number):
     """fire a bullet for the player"""
     index = -1
@@ -108,6 +122,7 @@ def fire_bullet(player_number):
             MY.bullets[index].location = MY.player2.location
             MY.bullets[index].set_velocity(MY.player2.rotation, BULLET_SPEED)
             MY.bullets[index].rotation = MY.player2.rotation
+
         MY.bullet_owner[index] = player_number
         MY.bullets[index].sprite = PROJECTILE_ANIMATION[player_number]
 
@@ -150,11 +165,15 @@ def update(delta_time):
     MY.player1.update(delta_time)
     MY.player2.update(delta_time)
 
+    for i in range(len(MY.asteroids)):
+        if MY.asteroids[i].active:
+            MY.asteroids[i].update(delta_time)
+            screen_wrap(MY.asteroids[i], MY.window)
+
     # Check if players are outside of the screen!
     screen_wrap(MY.player1, MY.window)
     screen_wrap(MY.player2, MY.window)
 
-    print(delta_time)
     # Update bullets
     for i in range(len(MY.bullets)):
         # ignore if not active
@@ -164,6 +183,11 @@ def update(delta_time):
             if screen_wrap(MY.bullets[i], MY.window):
                 MY.bullets[i].active = False
                 continue
+
+            for j in range(len(MY.asteroids)):
+                if MY.bullets[i].collides_with(MY.asteroids[j]):
+                    MY.bullets[i].active = False
+            
             #check collisions
             if MY.bullet_owner[i] == 1 and MY.bullets[i].collides_with(MY.player2):
                 MY.player2_hp = MY.player2_hp - 1
@@ -173,6 +197,13 @@ def update(delta_time):
                 MY.player1_hp = MY.player1_hp - 1
                 MY.bullets[i].active = False
                 SOUND_EXPLOSIONS[coda.utilities.rand(0, len(SOUND_EXPLOSIONS) - 1)].play()
+
+    for asteroid in MY.asteroids:
+        if MY.player1.collides_with(asteroid):
+            MY.player1.velocity = coda.Vector2(0, 0)
+
+        if MY.player2.collides_with(asteroid):
+            MY.player2.velocity = coda.Vector2(0, 0)
 
     # Check win condition
     if MY.player1_hp < 1:
@@ -196,6 +227,11 @@ def draw(screen):
         if MY.bullets[i].active:
             MY.bullets[i].draw(screen)
 
+    for i in range(len(MY.asteroids)):
+        if MY.asteroids[i].active:
+            MY.asteroids[i].draw(screen)
+
 def cleanup():
     """Cleans up the Intro State."""
     MY.bullets = []
+    MY.asteroids = []
