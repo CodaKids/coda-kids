@@ -3,6 +3,7 @@ import turtle
 
 # Create our screen
 SCREEN = turtle.Screen()
+SCREEN.title("Napster Spacebook")
 SCREEN.setup(500, 500)
 SCREEN.bgpic("Background.png")
 turtle.penup()
