@@ -7,6 +7,9 @@ SCREEN.title("Napster Spacebook")
 SCREEN.setup(1280, 800)
 SCREEN.bgpic("Background.png")
 
+SCREEN.register_shape("car", ((-4, 10), (4, 10), (4, -10), (-4, -10)))
+turtle.shape("car")
+
 # Code is explained by the book
 turtle.penup()
 turtle.setx(460)
