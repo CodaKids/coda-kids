@@ -216,10 +216,12 @@ def draw(screen):
     MY.background.draw(screen)
     MY.player1.draw(screen)
     MY.player2.draw(screen)
-    rect = MY.player1.get_transformed_rect()
+    rect = MY.player1.sprite.surface().get_rect()
+    rect.center = MY.player1.location
     health_bar(screen, MY.player1_hp,
                PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
-    rect = MY.player2.get_transformed_rect()
+    rect = MY.player2.sprite.surface().get_rect()
+    rect.center = MY.player2.location
     health_bar(screen, MY.player2_hp,
                PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
 

@@ -3,7 +3,7 @@ import coda_kids as coda
 
 # setup
 WINDOW = coda.Vector2(1600, 900)
-SCREEN = coda.start(WINDOW, "Demo Project 3")
+SCREEN = coda.start(WINDOW, "Space Wars Tournament")
 
 # states
 import shooter
