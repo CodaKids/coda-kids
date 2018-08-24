@@ -27,9 +27,4 @@ turtle.forward(490)
 turtle.right(90)
 turtle.forward(250)
 
-# Happens every frame.
-# Loop no movement so that the program doesn't close at the end.
-# There's probably a better way to do this, but is it simpler/more understandable for students?
-RUNNING = True
-while RUNNING:
-    turtle.left(0)
+turtle.done()
