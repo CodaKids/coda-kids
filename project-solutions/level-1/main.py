@@ -5,7 +5,7 @@ import turtle
 SCREEN = turtle.Screen()
 SCREEN.title("Napster Spacebook")
 SCREEN.setup(1280, 800)
-SCREEN.bgpic("Background.png")
+SCREEN.bgpic("assets/Background.png")
 
 SCREEN.register_shape("car", ((-4, 10), (4, 10), (4, -10), (-4, -10)))
 turtle.shape("car")

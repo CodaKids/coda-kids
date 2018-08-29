@@ -2,19 +2,19 @@
 import coda_kids as coda
 
 #load sprites
-IMAGE_BACKGROUND = coda.Image("background.jpg")
-IMAGE_PLAYER1 = coda.Image("player1.png")
-IMAGE_PLAYER2 = coda.Image("player2.png")
-IMAGE_ASTEROID = coda.Image("asteroid.png")
-SOUND_EXPLOSIONS = [coda.Sound("Explosion1.wav"),
-                    coda.Sound("Explosion2.wav")]
+IMAGE_BACKGROUND = coda.Image("assets/background.jpg")
+IMAGE_PLAYER1 = coda.Image("assets/player1.png")
+IMAGE_PLAYER2 = coda.Image("assets/player2.png")
+IMAGE_ASTEROID = coda.Image("assets/asteroid.png")
+SOUND_EXPLOSIONS = [coda.Sound("assets/Explosion1.wav"),
+                    coda.Sound("assets/Explosion2.wav")]
 
-SOUND_LASER = [coda.Sound("Laser_Shoot1.wav"),
-               coda.Sound("Laser_Shoot2.wav")]
+SOUND_LASER = [coda.Sound("assets/Laser_Shoot1.wav"),
+               coda.Sound("assets/Laser_Shoot2.wav")]
 
 SPRITESHEET_PROJECTILE = [None,
-                          coda.SpriteSheet("player1_projectile.png", (36, 24)),
-                          coda.SpriteSheet("player2_projectile.png", (48, 48))]
+                          coda.SpriteSheet("assets/player1_projectile.png", (36, 24)),
+                          coda.SpriteSheet("assets/player2_projectile.png", (48, 48))]
 PROJECTILE_ANIMATION = [None,
                         coda.Animator(SPRITESHEET_PROJECTILE[1], 0.4),
                         coda.Animator(SPRITESHEET_PROJECTILE[2], 0.4)]

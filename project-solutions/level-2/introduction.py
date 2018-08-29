@@ -2,33 +2,33 @@
 import coda_kids as coda
 
 #load sprites constants
-IMAGE_BUTTON = coda.Image("button.png")
-IMAGE_SNAKE_1 = coda.Image("Snake_1.png")
-IMAGE_SNAKE_2 = coda.Image("Snake_2.png")
-IMAGE_SNAKE_3 = coda.Image("Snake_3.png")
-IMAGE_SNAKE_4 = coda.Image("Snake_4.png")
-IMAGE_SNAKE_5 = coda.Image("Snake_5.png")
+IMAGE_BUTTON = coda.Image("assets/button.png")
+IMAGE_SNAKE_1 = coda.Image("assets/Snake_1.png")
+IMAGE_SNAKE_2 = coda.Image("assets/Snake_2.png")
+IMAGE_SNAKE_3 = coda.Image("assets/Snake_3.png")
+IMAGE_SNAKE_4 = coda.Image("assets/Snake_4.png")
+IMAGE_SNAKE_5 = coda.Image("assets/Snake_5.png")
 
 SOUND_CHARACTER = [
     [
-        coda.Sound("Select_1.wav"),
-        coda.Sound("Select_2.wav")
+        coda.Sound("assets/Select_1.wav"),
+        coda.Sound("assets/Select_2.wav")
     ],
     [
-        coda.Sound("Select_1.wav"),
-        coda.Sound("Select_2.wav")
+        coda.Sound("assets/Select_1.wav"),
+        coda.Sound("assets/Select_2.wav")
     ],
     [
-        coda.Sound("Select_1.wav"),
-        coda.Sound("Select_2.wav")
+        coda.Sound("assets/Select_1.wav"),
+        coda.Sound("assets/Select_2.wav")
     ],
     [
-        coda.Sound("Select_1.wav"),
-        coda.Sound("Select_2.wav")
+        coda.Sound("assets/Select_1.wav"),
+        coda.Sound("assets/Select_2.wav")
     ],
     [
-        coda.Sound("Select_1.wav"),
-        coda.Sound("Select_2.wav")
+        coda.Sound("assets/Select_1.wav"),
+        coda.Sound("assets/Select_2.wav")
     ]
 ]
 

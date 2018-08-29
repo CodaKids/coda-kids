@@ -2,7 +2,7 @@
 import coda_kids as coda
 
 # load sprites
-IMAGE_BUTTON = coda.Image("button.png")
+IMAGE_BUTTON = coda.Image("assets/button.png")
 
 # modifiable data
 class Data:
