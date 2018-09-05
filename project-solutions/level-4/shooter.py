@@ -6,6 +6,7 @@ IMAGE_BACKGROUND = coda.Image("assets/background.jpg")
 IMAGE_PLAYER1 = coda.Image("assets/player1.png")
 IMAGE_PLAYER2 = coda.Image("assets/player2.png")
 IMAGE_ASTEROID = coda.Image("assets/asteroid.png")
+IMAGE_ASTEROID_2 = coda.Image("assets/asteroid2.png")
 SOUND_EXPLOSIONS = [coda.Sound("assets/Explosion1.wav"),
                     coda.Sound("assets/Explosion2.wav")]
 
@@ -97,10 +98,14 @@ def initialize(window):
 
     count = 0
     while count < 5:
-        obj = coda.Object(IMAGE_ASTEROID)
+        if (coda.utilities.rand(0, 1) == 0):
+            image = IMAGE_ASTEROID
+        else:
+            image = IMAGE_ASTEROID_2
+        obj = coda.Object(image)
         obj.location = coda.utilities.rand_location(0, MY.window.x)
         obj.velocity = coda.utilities.rand_location(-50, 50)
-        obj.scale = coda.utilities.rand(1, 3)
+        obj.scale = 2
         obj.active = True
         MY.asteroids.append(obj)
         count = count + 1
