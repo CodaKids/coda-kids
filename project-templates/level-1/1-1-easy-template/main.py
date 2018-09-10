@@ -24,7 +24,7 @@ turtle.pendown()
 # Copy the two lines Grafika gives you here.
 
 
-# Write a some more lines here to make the turtle follow Grafika's instructions.
+# Write some more lines here to make the turtle follow Grafika's instructions.
 
 
 # This line stops the window from closing once we make it to the end.
