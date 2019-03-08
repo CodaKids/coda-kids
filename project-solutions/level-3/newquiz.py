@@ -39,7 +39,6 @@ score = 0
 numberOfQuestions = 3
 while i <=(numberOfQuestions*5):
     randomize_answers(answerChoices)
-    answerChoices = {answer, wrongchoice1, wrongchoice2, wrongchoice3}
     #TODO: register click to chosen_answer
     #Have player write two if-statements:
     if chosen_answer == answer:
@@ -47,9 +46,12 @@ while i <=(numberOfQuestions*5):
         score += 1
     else:
         print("Not exactly :(")
+    #go to next question, and update our variables and array.
     i = i+5
     question = TRIVIA[i]
     answer = TRIVIA[i+1]
     wrongchoice1 = TRIVIA[i+2]
     wrongchoice2 = TRIVIA[i+3]
     wrongchoice3 = TRIVIA[i+4]
+    answerChoices = {answer, wrongchoice1, wrongchoice2, wrongchoice3}
+
