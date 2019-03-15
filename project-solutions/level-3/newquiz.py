@@ -31,7 +31,6 @@ wrongchoice2 = TRIVIA[3]
 
 answerChoices = [answer, wrongchoice1, wrongchoice2]
 
-#TODO: need to print to screen
 """Initialize Font Object"""
 pygame.init()
 myfont = pygame.font.SysFont(None, 35)
@@ -41,7 +40,6 @@ WIDTH = 638
 HEIGHT = 825
 SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
 running = True
-#TODO: function that registers clicks
 
 i = 0
 numberOfQuestions = 3
