@@ -32,6 +32,7 @@ wrongchoice2 = TRIVIA[3]
 answerChoices = [answer, wrongchoice1, wrongchoice2]
 
 """Initialize Font Object"""
+#We pick our text style and size.
 pygame.init()
 myfont = pygame.font.SysFont(None, 35)
 
