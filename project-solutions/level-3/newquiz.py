@@ -4,9 +4,11 @@ from os import path
 
 def getFile(fileName):
     """Returns the absolute path of a file."""
+    #This grabs your files from your folder.
     return path.join(path.dirname(__file__), fileName)
 
 def randomize_answers(answerChoices):
+    #This randomly shuffles the answers so it's not easy to tell which is the right answer.
     random.shuffle(answerChoices)
     return answerChoices
 
@@ -37,6 +39,7 @@ pygame.init()
 myfont = pygame.font.SysFont(None, 35)
 
 """Displays background to the screen"""
+#We set the background image of Mrs. Codala's classroom.
 WIDTH = 638
 HEIGHT = 825
 SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -66,7 +69,7 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if answer1Rect.collidepoint(mpos):
                 if answerChoices[0] == answer:
-                    print("Nice work! :)")
+                    print("That's correct!")
                     if i >= (numberOfQuestions * 4)-4:
                         running = False
                     else:
@@ -78,7 +81,7 @@ while running:
                         answerChoices = [answer, wrongchoice1, wrongchoice2]
                         randomize_answers(answerChoices)
                 else:
-                    print("Not exactly... :(")
+                    print("That's wrong.")
                     if i >= (numberOfQuestions * 4)-4:
                         running = False
                     else:
@@ -91,7 +94,7 @@ while running:
                         randomize_answers(answerChoices)
             if answer2Rect.collidepoint(mpos):
                 if answerChoices[1] == answer:
-                    print("Nice work! :)")
+                    print("That's correct!")
                     if i >= (numberOfQuestions * 4)-4:
                         running = False
                     else:
@@ -103,7 +106,7 @@ while running:
                         answerChoices = [answer, wrongchoice1, wrongchoice2]
                         randomize_answers(answerChoices)
                 else:
-                    print("Not exactly... :(")
+                    print("That's wrong.")
                     if i >= (numberOfQuestions * 4)-4:
                         running = False
                     else:
@@ -116,7 +119,7 @@ while running:
                         randomize_answers(answerChoices)
             if answer3Rect.collidepoint(mpos):
                 if answerChoices[2] == answer:
-                    print("Nice work! :)")
+                    print("That's correct!")
                     if i >= (numberOfQuestions * 4)-4:
                         running = False
                     else:
@@ -128,7 +131,7 @@ while running:
                         answerChoices = [answer, wrongchoice1, wrongchoice2]
                         randomize_answers(answerChoices)
                 else:
-                    print("Not exactly... :(")
+                    print("That's wrong.")
                     if i >= (numberOfQuestions * 4)-4:
                         running = False
                     else:
