@@ -24,7 +24,7 @@ def display_screen():
     answer_3_text = myfont.render(ANSWER_CHOICES[2], True, (255, 0, 0))
     answer_3_rect = answer_3_text.get_rect(topleft=(250,400))
     screen.blit(background, (0,0))
-    screen.blit(kodala, (0,0))
+    screen.blit(kodala, (480,270))
     screen.blit(question_text, question_rect)
     screen.blit(answer_1_text, answer_1_rect)
     screen.blit(answer_2_text, answer_2_rect)
