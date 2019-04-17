@@ -9,33 +9,33 @@ def get_file(fileName):
 """Loads the background and images"""
 background = pygame.image.load(get_file('assets/ClassroomBackground.png'))
 ann = pygame.image.load(get_file("assets/Ann.png"))
-ann = pygame.transform.scale(ann, (700,906))
+ann = pygame.transform.scale(ann, (725,906))
 beyo = pygame.image.load(get_file("assets/Beyo.png"))
-beyo = pygame.transform.scale(beyo, (700,906))
+beyo = pygame.transform.scale(beyo, (725,906))
 graphica = pygame.image.load(get_file("assets/Graphica.png"))
-graphica = pygame.transform.scale(graphica, (700,906))
+graphica = pygame.transform.scale(graphica, (725,906))
 ian_fib = pygame.image.load(get_file("assets/IanFib.png"))
-ian_fib = pygame.transform.scale(ian_fib, (700,906))
+ian_fib = pygame.transform.scale(ian_fib, (725,906))
 intell = pygame.image.load(get_file("assets/Intell.png"))
-intell = pygame.transform.scale(intell, (700,906))
+intell = pygame.transform.scale(intell, (725,906))
 java_lin = pygame.image.load(get_file("assets/JavaLin.png"))
-java_lin = pygame.transform.scale(java_lin, (700,906))
+java_lin = pygame.transform.scale(java_lin, (725,906))
 javo = pygame.image.load(get_file("assets/Javo.png"))
-javo = pygame.transform.scale(javo, (700,906))
+javo = pygame.transform.scale(javo, (725,906))
 jitter = pygame.image.load(get_file("assets/Jitter.png"))
-jitter = pygame.transform.scale(jitter, (700,906))
+jitter = pygame.transform.scale(jitter, (725,906))
 paul_python = pygame.image.load(get_file("assets/PaulPython.png"))
-paul_python = pygame.transform.scale(paul_python, (700,906))
+paul_python = pygame.transform.scale(paul_python, (725,906))
 quack = pygame.image.load(get_file("assets/Quack.png"))
-quack = pygame.transform.scale(quack, (700,906))
+quack = pygame.transform.scale(quack, (725,906))
 ram_rom = pygame.image.load(get_file("assets/Ram_Rom.png"))
-ram_rom = pygame.transform.scale(ram_rom, (700,906))
+ram_rom = pygame.transform.scale(ram_rom, (725,906))
 sbt = pygame.image.load(get_file("assets/SBT.png"))
-sbt = pygame.transform.scale(sbt, (700,906))
+sbt = pygame.transform.scale(sbt, (725,906))
 side_winder = pygame.image.load(get_file("assets/SideWinder.png"))
-side_winder = pygame.transform.scale(side_winder, (700,906))
+side_winder = pygame.transform.scale(side_winder, (725,906))
 syntax = pygame.image.load(get_file("assets/Syntax.png"))
-syntax = pygame.transform.scale(syntax, (700,906))
+syntax = pygame.transform.scale(syntax, (725,906))
 
 """Stores character text into variables"""
 text_ann  = "I am character 1!"
@@ -55,11 +55,11 @@ text_syntax = "I am character 14!"
 
 """Initialize Font Object"""
 pygame.init()
-myfont = pygame.font.SysFont(None, 35)
+myfont = pygame.font.SysFont('Arial', 20)
 
 """We assign our character and text variables"""
-current_character = ann
-current_text = text_ann
+#current_character = ann
+#current_text = text_ann
 
 """Displays character to the screen"""
 width = 638
@@ -153,7 +153,7 @@ while running:
     current_text = TEXT[i]
     screen.blit(background,(0,0))
     screen.blit(current_character, (0,0))
-    screen.blit(myfont.render(current_text, True, (255, 0, 0)), (235,250))
+    screen.blit(myfont.render(current_text, True, (0, 0, 0)), (235,250))
     pygame.display.flip()
     events = pygame.event.get()
     for event in events:
