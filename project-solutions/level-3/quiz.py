@@ -85,14 +85,10 @@ wrongchoice2 = TRIVIA[3]
 
 ANSWER_CHOICES = [answer, wrongchoice1, wrongchoice2]
 
-"""Initialize Font Object"""
+"""Initialize Font Objects"""
 #We pick our text style and size.
 pygame.init()
 myfont = pygame.font.SysFont('Arial', 35)
-
-i = 0
-number_of_questions = 3
-questions_answered = 0
 answer_1_text = myfont.render(ANSWER_CHOICES[0], True, (0, 0, 0))
 answer_1_rect = answer_1_text.get_rect(topleft=(200,230))
 answer_2_text = myfont.render(ANSWER_CHOICES[1], True, (0, 0, 0))
@@ -103,6 +99,10 @@ sample_click = myfont.render("Click here to start the game.", True, (0,0,0))
 sample_click_rect = sample_click.get_rect(topleft=(200,230))
 correct_text = myfont.render("That is correct.", True, (255,0,0))
 incorrect_text = myfont.render("That is incorrect.", True, (255,0,0))
+
+i = 0
+number_of_questions = 3
+questions_answered = 0
 display_intro_screen()
 running = False
 while running == False:
