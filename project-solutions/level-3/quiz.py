@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 from os import path
 
 def get_file(fileName):
@@ -12,23 +13,37 @@ def randomize_answers(answerChoices):
     random.shuffle(answerChoices)
     return answerChoices
 
-def display_screen():
+def display_question():
     #This is all of the code that loads the next question and Mrs. Kodala's reaction
     #and loads it to your screen.
-    question_text = myfont.render(question, True, (255, 0, 0))
-    question_rect = question_text.get_rect(topleft=(250,250))
-    answer_1_text = myfont.render(ANSWER_CHOICES[0], True, (255, 0, 0))
-    answer_1_rect = answer_1_text.get_rect(topleft=(250,300))
-    answer_2_text = myfont.render(ANSWER_CHOICES[1], True, (255, 0, 0))
-    answer_2_rect = answer_2_text.get_rect(topleft=(250,350))
-    answer_3_text = myfont.render(ANSWER_CHOICES[2], True, (255, 0, 0))
-    answer_3_rect = answer_3_text.get_rect(topleft=(250,400))
+    question_text = myfont.render(question, True, (0, 0, 0))
+    question_rect = question_text.get_rect(topleft=(200,150))
+    answer_1_text = myfont.render(ANSWER_CHOICES[0], True, (0, 0, 0))
+    answer_1_rect = answer_1_text.get_rect(topleft=(200,230))
+    answer_2_text = myfont.render(ANSWER_CHOICES[1], True, (0, 0, 0))
+    answer_2_rect = answer_2_text.get_rect(topleft=(200,300))
+    answer_3_text = myfont.render(ANSWER_CHOICES[2], True, (0, 0, 0))
+    answer_3_rect = answer_3_text.get_rect(topleft=(200,370))
     screen.blit(background, (0,0))
-    screen.blit(kodala, (480,270))
     screen.blit(question_text, question_rect)
     screen.blit(answer_1_text, answer_1_rect)
     screen.blit(answer_2_text, answer_2_rect)
     screen.blit(answer_3_text, answer_3_rect)
+    pygame.display.update()
+
+def display_intro_screen():
+    intro_text = myfont.render("Welcome to the Trivia Game!", True, (0,0,0))
+    sample_click = myfont.render("Click here to start.", True, (0,0,0))
+    sample_click_rect = sample_click.get_rect(topleft=(200,230))
+    screen.blit(background,(0,0))
+    screen.blit(intro_text, (200,150))
+    screen.blit(sample_click,sample_click_rect)
+    pygame.display.update()
+
+def display_end_screen():
+    kodala = end_game
+    screen.blit(background, (0,0))
+    screen.blit(kodala,(0,0))
     pygame.display.update()
 
 # Load Sprites
@@ -39,20 +54,19 @@ incorrect_a = pygame.image.load(get_file('IncorrectAnswerA.png'))
 incorrect_b = pygame.image.load(get_file('IncorrectAnswerB.png'))
 end_game = pygame.image.load(get_file('EndGame.png'))
 
-"""Displays background to the screen"""
-#We set the background image of Mrs. Codala's classroom.
+"""Set window size"""
+#We set the window size for our game.
 width = 960
 height = 540
 screen = pygame.display.set_mode((width,height))
-running = True
 
 #scaling the images to fit the screen size
 background = pygame.transform.scale(background, (960, 540))
-correct_a = pygame.transform.scale(correct_a, (480, 270))
-correct_b = pygame.transform.scale(correct_b, (480, 270))
-incorrect_a = pygame.transform.scale(incorrect_a, (480, 270))
-incorrect_b = pygame.transform.scale(incorrect_b, (480, 270))
-end_game = pygame.transform.scale(end_game, (480, 270))
+correct_a = pygame.transform.scale(correct_a, (960, 540))
+correct_b = pygame.transform.scale(correct_b, (960, 540))
+incorrect_a = pygame.transform.scale(incorrect_a, (960, 540))
+incorrect_b = pygame.transform.scale(incorrect_b, (960, 540))
+end_game = pygame.transform.scale(end_game, (960, 540))
 
 # Read file into an array
 TRIVIA = []
@@ -74,35 +88,47 @@ ANSWER_CHOICES = [answer, wrongchoice1, wrongchoice2]
 """Initialize Font Object"""
 #We pick our text style and size.
 pygame.init()
-myfont = pygame.font.SysFont(None, 35)
-
-"""Initializing Question and Answer Text Globally"""
-question_text = myfont.render(question, True, (255, 0, 0))
-question_rect = question_text.get_rect(topleft=(250,250))
-answer_1_text = myfont.render(ANSWER_CHOICES[0], True, (255, 0, 0))
-answer_1_rect = answer_1_text.get_rect(topleft=(250,300))
-answer_2_text = myfont.render(ANSWER_CHOICES[1], True, (255, 0, 0))
-answer_2_rect = answer_2_text.get_rect(topleft=(250,350))
-answer_3_text = myfont.render(ANSWER_CHOICES[2], True, (255, 0, 0))
-answer_3_rect = answer_3_text.get_rect(topleft=(250,400))
-
+myfont = pygame.font.SysFont('Arial', 35)
 
 i = 0
 number_of_questions = 3
 questions_answered = 0
-kodala = correct_a
+answer_1_text = myfont.render(ANSWER_CHOICES[0], True, (0, 0, 0))
+answer_1_rect = answer_1_text.get_rect(topleft=(200,230))
+answer_2_text = myfont.render(ANSWER_CHOICES[1], True, (0, 0, 0))
+answer_2_rect = answer_2_text.get_rect(topleft=(200,300))
+answer_3_text = myfont.render(ANSWER_CHOICES[2], True, (0, 0, 0))
+answer_3_rect = answer_3_text.get_rect(topleft=(200,370))
+sample_click = myfont.render("Click here to start the game.", True, (0,0,0))
+sample_click_rect = sample_click.get_rect(topleft=(200,230))
+correct_text = myfont.render("That is correct.", True, (255,0,0))
+incorrect_text = myfont.render("That is incorrect.", True, (255,0,0))
+display_intro_screen()
+running = False
+while running == False:
+    events = pygame.event.get()
+    for event in events:
+        mpos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if sample_click_rect.collidepoint(mpos):
+                running = True
 while running:
-    display_screen()
+    display_question()
     events = pygame.event.get()
     for event in events:
         mpos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
             if answer_1_rect.collidepoint(mpos):
                 if ANSWER_CHOICES[0] == answer:
-                    print("That's correct!")
+                    screen.blit(correct_text,(400,25))
                     kodala = correct_a
+                    screen.blit(kodala, (0,0))
+                    pygame.display.update()
+                    time.sleep(5)
                     if i >= (number_of_questions * 4)-4:
-                        kodala = end_game
+                        display_end_screen()
+                        time.sleep(5)
+                        running = False
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -112,10 +138,15 @@ while running:
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
                 else:
-                    print("That's wrong.")
+                    screen.blit(incorrect_text,(400,25))
                     kodala = incorrect_a
+                    screen.blit(kodala, (0,0))
+                    pygame.display.update()
+                    time.sleep(5)
                     if i >= (number_of_questions * 4)-4:
-                        kodala = end_game
+                        display_end_screen()
+                        time.sleep(5)
+                        running = False
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -126,10 +157,15 @@ while running:
                         randomize_answers(ANSWER_CHOICES)
             if answer_2_rect.collidepoint(mpos):
                 if ANSWER_CHOICES[1] == answer:
-                    print("That's correct!")
+                    screen.blit(correct_text,(400,25))
                     kodala = correct_b
+                    screen.blit(kodala, (0,0))
+                    pygame.display.update()
+                    time.sleep(5)
                     if i >= (number_of_questions * 4)-4:
-                        kodala = end_game
+                        display_end_screen()
+                        time.sleep(5)
+                        running = False
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -139,10 +175,15 @@ while running:
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
                 else:
-                    print("That's wrong.")
+                    screen.blit(incorrect_text,(400,25))
                     kodala = incorrect_b
+                    screen.blit(kodala,(0,0))
+                    pygame.display.update()
+                    time.sleep(5)
                     if i >= (number_of_questions * 4)-4:
-                        kodala = end_game
+                        display_end_screen()
+                        time.sleep(5)
+                        running = False
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -153,10 +194,15 @@ while running:
                         randomize_answers(ANSWER_CHOICES)
             if answer_3_rect.collidepoint(mpos):
                 if ANSWER_CHOICES[2] == answer:
-                    print("That's correct!")
+                    screen.blit(correct_text,(400,25))
                     kodala = correct_a
+                    screen.blit(kodala, (0,0))
+                    pygame.display.update()
+                    time.sleep(5)
                     if i >= (number_of_questions * 4)-4:
-                        kodala = end_game
+                        display_end_screen()
+                        time.sleep(5)
+                        running = False
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -166,10 +212,14 @@ while running:
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
                 else:
-                    print("That's wrong.")
+                    screen.blit(incorrect_text,(400,25))
                     kodala = incorrect_a
+                    screen.blit(kodala, (0,0))
+                    pygame.display.update()
+                    time.sleep(5)
                     if i >= (number_of_questions * 4)-4:
-                        kodala = end_game
+                        display_end_screen()
+                        running = False
                     else:
                         i = i+4
                         question = TRIVIA[i]
