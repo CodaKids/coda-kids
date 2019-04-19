@@ -3,6 +3,21 @@ import random
 import time
 from os import path
 
+"""Initialize Font Objects"""
+#We pick our text style and size.
+pygame.init()
+myfont = pygame.font.SysFont('Arial', 35)
+answer_1_text = myfont.render("                        ", True, (0, 0, 0))
+answer_1_rect = answer_1_text.get_rect(topleft=(200,230))
+answer_2_text = myfont.render("                         ", True, (0, 0, 0))
+answer_2_rect = answer_2_text.get_rect(topleft=(200,300))
+answer_3_text = myfont.render("                         ", True, (0, 0, 0))
+answer_3_rect = answer_3_text.get_rect(topleft=(200,370))
+sample_click = myfont.render("Click here to start the game.", True, (0,0,0))
+sample_click_rect = sample_click.get_rect(topleft=(200,230))
+correct_text = myfont.render("That is correct.", True, (0,128,0))
+incorrect_text = myfont.render("That is incorrect.", True, (255,0,0))
+
 def get_file(fileName):
     """Returns the absolute path of a file."""
     #This grabs your files from your folder.
@@ -85,21 +100,6 @@ wrongchoice2 = TRIVIA[3]
 
 ANSWER_CHOICES = [answer, wrongchoice1, wrongchoice2]
 
-"""Initialize Font Objects"""
-#We pick our text style and size.
-pygame.init()
-myfont = pygame.font.SysFont('Arial', 35)
-answer_1_text = myfont.render(ANSWER_CHOICES[0], True, (0, 0, 0))
-answer_1_rect = answer_1_text.get_rect(topleft=(200,230))
-answer_2_text = myfont.render(ANSWER_CHOICES[1], True, (0, 0, 0))
-answer_2_rect = answer_2_text.get_rect(topleft=(200,300))
-answer_3_text = myfont.render(ANSWER_CHOICES[2], True, (0, 0, 0))
-answer_3_rect = answer_3_text.get_rect(topleft=(200,370))
-sample_click = myfont.render("Click here to start the game.", True, (0,0,0))
-sample_click_rect = sample_click.get_rect(topleft=(200,230))
-correct_text = myfont.render("That is correct.", True, (255,0,0))
-incorrect_text = myfont.render("That is incorrect.", True, (255,0,0))
-
 i = 0
 number_of_questions = 3
 questions_answered = 0
@@ -120,7 +120,7 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if answer_1_rect.collidepoint(mpos):
                 if ANSWER_CHOICES[0] == answer:
-                    screen.blit(correct_text,(400,25))
+                    screen.blit(correct_text,(300,0))
                     kodala = correct_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
@@ -138,7 +138,7 @@ while running:
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
                 else:
-                    screen.blit(incorrect_text,(400,25))
+                    screen.blit(incorrect_text,(300,0))
                     kodala = incorrect_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
@@ -157,7 +157,7 @@ while running:
                         randomize_answers(ANSWER_CHOICES)
             if answer_2_rect.collidepoint(mpos):
                 if ANSWER_CHOICES[1] == answer:
-                    screen.blit(correct_text,(400,25))
+                    screen.blit(correct_text,(300,0))
                     kodala = correct_b
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
@@ -175,7 +175,7 @@ while running:
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
                 else:
-                    screen.blit(incorrect_text,(400,25))
+                    screen.blit(incorrect_text,(300,0))
                     kodala = incorrect_b
                     screen.blit(kodala,(0,0))
                     pygame.display.update()
@@ -194,7 +194,7 @@ while running:
                         randomize_answers(ANSWER_CHOICES)
             if answer_3_rect.collidepoint(mpos):
                 if ANSWER_CHOICES[2] == answer:
-                    screen.blit(correct_text,(400,25))
+                    screen.blit(correct_text,(300,0))
                     kodala = correct_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
@@ -212,7 +212,7 @@ while running:
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
                 else:
-                    screen.blit(incorrect_text,(400,25))
+                    screen.blit(incorrect_text,(300,0))
                     kodala = incorrect_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
