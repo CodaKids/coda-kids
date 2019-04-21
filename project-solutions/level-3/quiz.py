@@ -24,13 +24,12 @@ def get_file(fileName):
     return path.join(path.dirname(__file__), fileName)
 
 def randomize_answers(answerChoices):
-    #This randomly shuffles the answers so it's not easy to tell which is the right answer.
+    #This randomly shuffles the answers so the player doesn't know which one is the correct answer.
     random.shuffle(answerChoices)
     return answerChoices
 
 def display_question():
-    #This is all of the code that loads the next question and Mrs. Kodala's reaction
-    #and loads it to your screen.
+    #This code loads and displays the next question and Mrs. Codala's reaction.
     question_text = myfont.render(question, True, (0, 0, 0))
     question_rect = question_text.get_rect(topleft=(200,150))
     answer_1_text = myfont.render(ANSWER_CHOICES[0], True, (0, 0, 0))
@@ -47,6 +46,7 @@ def display_question():
     pygame.display.update()
 
 def display_intro_screen():
+    #This shows the intro text (so we only run it once, at the beginning).
     intro_text = myfont.render("Welcome to the Trivia Game!", True, (0,0,0))
     sample_click = myfont.render("Click here to start.", True, (0,0,0))
     sample_click_rect = sample_click.get_rect(topleft=(200,230))
@@ -56,12 +56,14 @@ def display_intro_screen():
     pygame.display.update()
 
 def display_end_screen():
+    #This shows the image of Mrs. Codala telling you the game is done.
     kodala = end_game
     screen.blit(background, (0,0))
     screen.blit(kodala,(0,0))
     pygame.display.update()
 
-# Load Sprites
+"""Load Sprites"""
+#We load the images and put them in variables.
 background = pygame.image.load(get_file('Background.png'))
 correct_a = pygame.image.load(get_file('CorrectAnswerA.png'))
 correct_b = pygame.image.load(get_file('CorrectAnswerB.png'))
@@ -69,13 +71,13 @@ incorrect_a = pygame.image.load(get_file('IncorrectAnswerA.png'))
 incorrect_b = pygame.image.load(get_file('IncorrectAnswerB.png'))
 end_game = pygame.image.load(get_file('EndGame.png'))
 
-"""Set window size"""
+"""Set Window Size"""
 #We set the window size for our game.
 width = 960
 height = 540
 screen = pygame.display.set_mode((width,height))
 
-#scaling the images to fit the screen size
+#Scaling the images to fit the screen size - to be removed
 background = pygame.transform.scale(background, (960, 540))
 correct_a = pygame.transform.scale(correct_a, (960, 540))
 correct_b = pygame.transform.scale(correct_b, (960, 540))
@@ -83,16 +85,15 @@ incorrect_a = pygame.transform.scale(incorrect_a, (960, 540))
 incorrect_b = pygame.transform.scale(incorrect_b, (960, 540))
 end_game = pygame.transform.scale(end_game, (960, 540))
 
-# Read file into an array
+#We pull each line of text from the file into a list.
 TRIVIA = []
 file = open(get_file('trivia.txt'), 'r')
 for line in file:
     TRIVIA.append(line.rstrip())
 
-#We now have an array that holds our questions, 
-#correct answers, and wrong answers, in that order. Let's 
-#create a variable for each of those characters to print
-#to the screen.
+#We now have a list that holds our current question, correct answer,
+#and the two wrong answers, in that order. We use these variables to 
+#display the text on the screen.
 question = TRIVIA[0]
 answer = TRIVIA[1]
 wrongchoice1 = TRIVIA[2]
@@ -103,9 +104,10 @@ ANSWER_CHOICES = [answer, wrongchoice1, wrongchoice2]
 i = 0
 number_of_questions = 3
 questions_answered = 0
-display_intro_screen()
+display_intro_screen() #Gets the screen ready.
 running = False
-while running == False:
+while running == False: 
+    #We're waiting for the player to click "Click here to start the game."
     events = pygame.event.get()
     for event in events:
         mpos = pygame.mouse.get_pos()
@@ -113,7 +115,7 @@ while running == False:
             if sample_click_rect.collidepoint(mpos):
                 running = True
 while running:
-    display_question()
+    display_question() #Displays the new question and the three answer choices.
     events = pygame.event.get()
     for event in events:
         mpos = pygame.mouse.get_pos()
