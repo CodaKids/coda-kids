@@ -131,7 +131,6 @@ while running:
                         display_end_screen()
                         time.sleep(5)
                         running = False
-                    #Copy from the book to move to the next question.
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -150,7 +149,6 @@ while running:
                         display_end_screen()
                         time.sleep(5)
                         running = False
-                    #Copy from the book to move to the next question.
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -170,6 +168,7 @@ while running:
                         display_end_screen()
                         time.sleep(5)
                         running = False
+                    #Copy from the book to move to the next question.
                     else:
                         i = i+4
                         question = TRIVIA[i]
@@ -188,6 +187,7 @@ while running:
                         display_end_screen()
                         time.sleep(5)
                         running = False
+                    #Copy from the book to move to the next question.
                     else:
                         i = i+4
                         question = TRIVIA[i]
