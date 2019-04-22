@@ -118,20 +118,20 @@ while running:
     display_question() #Displays the new question and the three answer choices.
     events = pygame.event.get()
     for event in events:
-        mpos = pygame.mouse.get_pos()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if answer_1_rect.collidepoint(mpos):
-                if ANSWER_CHOICES[0] == answer:
+        mpos = pygame.mouse.get_pos() 
+        if event.type == pygame.MOUSEBUTTONDOWN: #If the player clicks the mouse.
+            if answer_1_rect.collidepoint(mpos): #If the player clicks the first answer on the top.
+                if ANSWER_CHOICES[0] == answer: #If it's the correct answer.
                     screen.blit(correct_text,(300,0))
                     kodala = correct_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
                     time.sleep(5)
-                    if i >= (number_of_questions * 4)-4:
+                    if i >= (number_of_questions * 4)-4: #If it's the last question.
                         display_end_screen()
                         time.sleep(5)
                         running = False
-                    else:
+                    else: #If it's the not the last question, we display the next question.
                         i = i+4
                         question = TRIVIA[i]
                         answer = TRIVIA[i+1]
@@ -139,17 +139,17 @@ while running:
                         wrong_choice_2 = TRIVIA[i+3]
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
-                else:
+                else: #If it's an incorrect answer.
                     screen.blit(incorrect_text,(300,0))
                     kodala = incorrect_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
                     time.sleep(5)
-                    if i >= (number_of_questions * 4)-4:
+                    if i >= (number_of_questions * 4)-4: #If it's the last question.
                         display_end_screen()
                         time.sleep(5)
                         running = False
-                    else:
+                    else: #If it's the not the last question, we display the next question.
                         i = i+4
                         question = TRIVIA[i]
                         answer = TRIVIA[i+1]
@@ -157,19 +157,19 @@ while running:
                         wrong_choice_2 = TRIVIA[i+3]
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
-            if answer_2_rect.collidepoint(mpos):
-                if ANSWER_CHOICES[1] == answer:
+            if answer_2_rect.collidepoint(mpos): #If the player clicks the second answer.
+                if ANSWER_CHOICES[1] == answer: #If it's the correct answer.
                     screen.blit(correct_text,(300,0))
                     kodala = correct_b
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
                     time.sleep(5)
-                    if i >= (number_of_questions * 4)-4:
+                    if i >= (number_of_questions * 4)-4: #If it's the last question.
                         display_end_screen()
                         time.sleep(5)
                         running = False
                     #Copy from the book to move to the next question.
-                    else:
+                    else: #If it's the not the last question, we display the next question.
                         i = i+4
                         question = TRIVIA[i]
                         answer = TRIVIA[i+1]
@@ -177,18 +177,18 @@ while running:
                         wrong_choice_2 = TRIVIA[i+3]
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
-                else:
+                else: #If it's an incorrect answer.
                     screen.blit(incorrect_text,(300,0))
                     kodala = incorrect_b
                     screen.blit(kodala,(0,0))
                     pygame.display.update()
                     time.sleep(5)
-                    if i >= (number_of_questions * 4)-4:
+                    if i >= (number_of_questions * 4)-4: #If it's the last question.
                         display_end_screen()
                         time.sleep(5)
                         running = False
                     #Copy from the book to move to the next question.
-                    else:
+                    else: #If it's the not the last question, we display the next question.
                         i = i+4
                         question = TRIVIA[i]
                         answer = TRIVIA[i+1]
@@ -196,18 +196,18 @@ while running:
                         wrong_choice_2 = TRIVIA[i+3]
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
-            if answer_3_rect.collidepoint(mpos):
-                if ANSWER_CHOICES[2] == answer:
+            if answer_3_rect.collidepoint(mpos): #If the player clicks the third answer.
+                if ANSWER_CHOICES[2] == answer: #If it's the correct answer.
                     screen.blit(correct_text,(300,0))
                     kodala = correct_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
                     time.sleep(5)
-                    if i >= (number_of_questions * 4)-4:
+                    if i >= (number_of_questions * 4)-4: #If it's the last question.
                         display_end_screen()
                         time.sleep(5)
                         running = False
-                    else:
+                    else: #If it's the not the last question, we display the next question.
                         i = i+4
                         question = TRIVIA[i]
                         answer = TRIVIA[i+1]
@@ -215,16 +215,16 @@ while running:
                         wrong_choice_2 = TRIVIA[i+3]
                         ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
                         randomize_answers(ANSWER_CHOICES)
-                else:
+                else: #If it's an incorrect answer.
                     screen.blit(incorrect_text,(300,0))
                     kodala = incorrect_a
                     screen.blit(kodala, (0,0))
                     pygame.display.update()
                     time.sleep(5)
-                    if i >= (number_of_questions * 4)-4:
+                    if i >= (number_of_questions * 4)-4: #If it's the last question.
                         display_end_screen()
                         running = False
-                    else:
+                    else: #If it's the not the last question, we display the next question.
                         i = i+4
                         question = TRIVIA[i]
                         answer = TRIVIA[i+1]
