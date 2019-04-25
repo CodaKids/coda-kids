@@ -7,51 +7,37 @@ def get_file(fileName):
     return path.join(path.dirname(__file__), fileName)
 
 """Loads the background and images"""
-background = pygame.image.load(get_file('assets/ClassroomBackground.png'))
-ann = pygame.image.load(get_file("assets/Ann.png"))
-ann = pygame.transform.scale(ann, (725,906))
-beyo = pygame.image.load(get_file("assets/Beyo.png"))
-beyo = pygame.transform.scale(beyo, (725,906))
-graphica = pygame.image.load(get_file("assets/Graphica.png"))
-graphica = pygame.transform.scale(graphica, (725,906))
-ian_fib = pygame.image.load(get_file("assets/IanFib.png"))
-ian_fib = pygame.transform.scale(ian_fib, (725,906))
-intell = pygame.image.load(get_file("assets/Intell.png"))
-intell = pygame.transform.scale(intell, (725,906))
-java_lin = pygame.image.load(get_file("assets/JavaLin.png"))
-java_lin = pygame.transform.scale(java_lin, (725,906))
-javo = pygame.image.load(get_file("assets/Javo.png"))
-javo = pygame.transform.scale(javo, (725,906))
-jitter = pygame.image.load(get_file("assets/Jitter.png"))
-jitter = pygame.transform.scale(jitter, (725,906))
-paul_python = pygame.image.load(get_file("assets/PaulPython.png"))
-paul_python = pygame.transform.scale(paul_python, (725,906))
-quack = pygame.image.load(get_file("assets/Quack.png"))
-quack = pygame.transform.scale(quack, (725,906))
-ram_rom = pygame.image.load(get_file("assets/Ram_Rom.png"))
-ram_rom = pygame.transform.scale(ram_rom, (725,906))
-sbt = pygame.image.load(get_file("assets/SBT.png"))
-sbt = pygame.transform.scale(sbt, (725,906))
-side_winder = pygame.image.load(get_file("assets/SideWinder.png"))
-side_winder = pygame.transform.scale(side_winder, (725,906))
-syntax = pygame.image.load(get_file("assets/Syntax.png"))
-syntax = pygame.transform.scale(syntax, (725,906))
+background = pygame.image.load(get_file('assets/Background.png'))
+annie_conda = pygame.image.load(get_file("assets/Annie.png"))
+bayo_wolf = pygame.image.load(get_file("assets/Bayo.png"))
+grafika_turtle = pygame.image.load(get_file("assets/Grafika.png"))
+amphib_ian = pygame.image.load(get_file("assets/Ian.png"))
+intelli_scents = pygame.image.load(get_file("assets/Intelli.png"))
+java_lynn = pygame.image.load(get_file("assets/Java.png"))
+captain_javo = pygame.image.load(get_file("assets/Javo.png"))
+jitter_bug = pygame.image.load(get_file("assets/Jitter.png"))
+paul_python = pygame.image.load(get_file("assets/Paul.png"))
+quackintosh = pygame.image.load(get_file("assets/Quack.png"))
+ram_rom = pygame.image.load(get_file("assets/RamRom.png"))
+sb_turtle = pygame.image.load(get_file("assets/SBTurtle.png"))
+sidewinder = pygame.image.load(get_file("assets/Sidewinder.png"))
+syntax_turtle = pygame.image.load(get_file("assets/Syntax.png"))
 
 """Stores character text into variables"""
-text_ann  = "I am character 1!"
-text_beyo  = "I am character 2!"
-text_graphica  = "I am character 3!"
-text_ian_fib  = "I am character 4!"
-text_intell  = "I am character 5!"
-text_java_lin  = "I am character 6!"
-text_javo  = "I am character 7!"
-text_jitter  = "I am character 8!"
-text_paul_python  = "I am character 9!"
-text_quack = "I am character 10!"
-text_ram_rom = "I am character 11!"
-text_sbt = "I am character 12!"
-text_side_winder = "I am character 13!"
-text_syntax = "I am character 14!"
+text_annie_conda  = "I am Annie Conda!"
+text_bayo_wolf  = "I am Bayo Wolf!"
+text_grafika_turtle  = "I am Grafika Turtle!"
+text_amphib_ian  = "I am Amphib Ian!"
+text_intelli_scents  = "I am Intelli-Scents!"
+text_java_lynn  = "I am Java Lynn!"
+text_captain_javo  = "I am Captain Javo!"
+text_jitter_bug  = "I am Jitter Bug!"
+text_paul_python  = "I am Paul Python!"
+text_quackintosh = "I am Quackintosh!"
+text_ram_rom = "We are RAM & ROM!"
+text_sb_turtle = "I am SB Turtle!"
+text_sidewinder = "I am SideWinder!"
+text_syntax_turtle = "I am Syntax Turtle!"
 
 """Initialize Font Object"""
 pygame.init()
@@ -62,8 +48,8 @@ myfont = pygame.font.SysFont('Arial', 20)
 #current_text = text_ann
 
 """Displays character to the screen"""
-width = 638
-height = 825
+width = 600
+height = 800
 screen = pygame.display.set_mode((width,height))
 running = True
 
@@ -78,35 +64,35 @@ while running:
     for event in events:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
-                current_character = ann
-                current_text = text_ann
+                current_character = annie_conda
+                current_text = text_annie_conda
             if event.key == pygame.K_2:
-                current_character = beyo
-                current_text = text_beyo 
+                current_character = bayo_wolf
+                current_text = text_bayo_wolf
             if event.key == pygame.K_3:
-                current_character = graphica
-                current_text = text_graphica 
+                current_character = grafika_turtle
+                current_text = text_grafika
             if event.key == pygame.K_4:
-                current_character = ian_fib
-                current_text = text_ian_fib 
+                current_character = amphib_ian
+                current_text = text_amphib_ian 
             if event.key == pygame.K_5:
-                current_character = intell
-                current_text = text_intell
+                current_character = intelli_scents
+                current_text = text_intelli_scents
             if event.key == pygame.K_6:
-                current_character = java_lin
-                current_text = text_java_lin
+                current_character = java_lynn
+                current_text = text_java_lynn
             if event.key == pygame.K_7:
-                current_character = javo
-                current_text = text_javo
+                current_character = captain_javo
+                current_text = text_captain_javo
             if event.key == pygame.K_8:
-                current_character = jitter
-                current_text = text_jitter
+                current_character = jitter_bug
+                current_text = text_jitter_bug
             if event.key == pygame.K_9:
                 current_character = paul_python
                 current_text = text_paul_python
             if event.key == pygame.K_0:
-                current_character = quack
-                current_text = text_quack
+                current_character = quackintosh
+                current_text = text_quackintosh
             if event.key == pygame.K_q:
                 running = False
 pygame.quit()"""
@@ -116,34 +102,34 @@ pygame.quit()"""
 CHARACTERS = []
 TEXT = []
 #add characters and text to arrays
-CHARACTERS.append(ann)
-TEXT.append(text_ann)
-CHARACTERS.append(beyo)
-TEXT.append(text_beyo)
-CHARACTERS.append(graphica)
-TEXT.append(text_graphica)
-CHARACTERS.append(ian_fib)
-TEXT.append(text_ian_fib)
-CHARACTERS.append(intell)
-TEXT.append(text_intell)
-CHARACTERS.append(java_lin)
-TEXT.append(text_java_lin)
-CHARACTERS.append(javo)
-TEXT.append(text_javo)
-CHARACTERS.append(jitter)
-TEXT.append(text_jitter)
+CHARACTERS.append(annie_conda)
+TEXT.append(text_annie_conda)
+CHARACTERS.append(bayo_wolf)
+TEXT.append(text_bayo_wolf)
+CHARACTERS.append(grafika_turtle)
+TEXT.append(text_grafika_turtle)
+CHARACTERS.append(amphib_ian)
+TEXT.append(text_amphib_ian)
+CHARACTERS.append(intelli_scents)
+TEXT.append(text_intelli_scents)
+CHARACTERS.append(java_lynn)
+TEXT.append(text_java_lynn)
+CHARACTERS.append(captain_javo)
+TEXT.append(text_captain_javo)
+CHARACTERS.append(jitter_bug)
+TEXT.append(text_jitter_bug)
 CHARACTERS.append(paul_python)
 TEXT.append(text_paul_python)
-CHARACTERS.append(quack)
-TEXT.append(text_quack)
+CHARACTERS.append(quackintosh)
+TEXT.append(text_quackintosh)
 CHARACTERS.append(ram_rom)
 TEXT.append(text_ram_rom)
-CHARACTERS.append(sbt)
-TEXT.append(text_sbt)
-CHARACTERS.append(side_winder)
-TEXT.append(text_side_winder)
-CHARACTERS.append(syntax)
-TEXT.append(text_syntax)
+CHARACTERS.append(sb_turtle)
+TEXT.append(text_sb_turtle)
+CHARACTERS.append(sidewinder)
+TEXT.append(text_sidewinder)
+CHARACTERS.append(syntax_turtle)
+TEXT.append(text_syntax_turtle)
 
 running = True
 #start at the first character in the array
