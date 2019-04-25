@@ -77,14 +77,6 @@ width = 960
 height = 540
 screen = pygame.display.set_mode((width,height))
 
-#Scaling the images to fit the screen size - to be removed
-background = pygame.transform.scale(background, (960, 540))
-correct_a = pygame.transform.scale(correct_a, (960, 540))
-correct_b = pygame.transform.scale(correct_b, (960, 540))
-incorrect_a = pygame.transform.scale(incorrect_a, (960, 540))
-incorrect_b = pygame.transform.scale(incorrect_b, (960, 540))
-end_game = pygame.transform.scale(end_game, (960, 540))
-
 #We pull each line of text from the file into a list.
 TRIVIA = []
 file = open(get_file('trivia.txt'), 'r')
