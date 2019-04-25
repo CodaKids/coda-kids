@@ -1,5 +1,10 @@
-import pygame
+import pygame #Gives us our gaming functions
 from os import path
+
+"""Initialize Font Object"""
+#We pick our text style and size.
+pygame.init()
+myfont = pygame.font.SysFont('Arial', 20)
 
 def get_file(fileName):
     """Returns the absolute path of a file."""
@@ -38,10 +43,6 @@ text_ram_rom = "We are RAM & ROM!"
 text_sb_turtle = "I am SB Turtle!"
 text_sidewinder = "I am SideWinder!"
 text_syntax_turtle = "I am Syntax Turtle!"
-
-"""Initialize Font Object"""
-pygame.init()
-myfont = pygame.font.SysFont('Arial', 20)
 
 """We assign our character and text variables"""
 #current_character = ann
