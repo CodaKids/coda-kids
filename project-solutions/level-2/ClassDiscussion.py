@@ -45,8 +45,8 @@ text_sidewinder = "I am SideWinder!"
 text_syntax_turtle = "I am Syntax Turtle!"
 
 """We assign our character and text variables"""
-#current_character = ann
-#current_text = text_ann
+#current_character = annie_conda
+#current_text = text_annie_conda
 
 """Displays character to the screen"""
 width = 600
@@ -146,7 +146,7 @@ while running:
     for event in events:
         if event.type == pygame.KEYDOWN:
             #if pressed 1, go to next character
-            if event.key == pygame.K_1:
+            if event.key == pygame.K_RIGHT:
                 i = i+1
             #press q to quit
             if event.key == pygame.K_q:
