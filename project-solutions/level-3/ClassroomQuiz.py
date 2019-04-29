@@ -94,7 +94,7 @@ wrongchoice2 = TRIVIA[3]
 ANSWER_CHOICES = [answer, wrongchoice1, wrongchoice2]
 
 i = 0
-number_of_questions = 3
+number_of_questions = 8
 questions_answered = 0
 display_intro_screen() #Gets the screen ready.
 running = False
