@@ -12,7 +12,7 @@ def get_file(fileName):
     return path.join(path.dirname(__file__), fileName)
 
 """Loads the background and images"""
-background = pygame.image.load(get_file('assets/Background.png'))
+background = pygame.image.load(get_file("assets/Background.png"))
 annie_conda = pygame.image.load(get_file("assets/Annie.png"))
 bayo_wolf = pygame.image.load(get_file("assets/Bayo.png"))
 grafika_turtle = pygame.image.load(get_file("assets/Grafika.png"))
