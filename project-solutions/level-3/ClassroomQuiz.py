@@ -160,7 +160,14 @@ while running:
 #                        display_end_screen()
 #                        time.sleep(5)
 #                        running = False
-                    #Copy from the book to move to the next question.
+#                    else:
+#                        i = i+4
+#                        question = TRIVIA[i]
+#                        answer = TRIVIA[i+1]
+#                        wrong_choice_1 = TRIVIA[i+2]
+#                        wrong_choice_2 = TRIVIA[i+3]
+#                        ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
+#                        randomize_answers(ANSWER_CHOICES)    
 #                else: #If it's an incorrect answer.
 #                    screen.blit(incorrect_text,(300,0))
 #                    kodala = incorrect_b
@@ -171,5 +178,11 @@ while running:
 #                        display_end_screen()
 #                        time.sleep(5)
 #                        running = False
-                    #Copy from the book to move to the next question.
-#            if answer_3_rect.collidepoint(mpos): #If the player clicks the third answer.
+#                    else:
+#                        i = i+4
+#                        question = TRIVIA[i]
+#                        answer = TRIVIA[i+1]
+#                        wrong_choice_1 = TRIVIA[i+2]
+#                        wrong_choice_2 = TRIVIA[i+3]
+#                        ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
+#                        randomize_answers(ANSWER_CHOICES)    
