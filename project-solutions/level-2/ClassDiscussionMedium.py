@@ -69,36 +69,39 @@ while running:
                 current_character = bayo_wolf
                 current_text = text_bayo_wolf
             if event.key == pygame.K_3:
+                current_character = grafika_turtle
+                current_text = text_grafika_turtle
+            if event.key == pygame.K_4:
                 current_character = intelli_scents
                 current_text = text_intelli_scents
-            if event.key == pygame.K_4:
+            if event.key == pygame.K_5:
                 current_character = java_lynn
                 current_text = text_java_lynn 
-            if event.key == pygame.K_5:
+            if event.key == pygame.K_6:
                 current_character = captain_javo
                 current_text = text_captain_javo
-            if event.key == pygame.K_6:
+            if event.key == pygame.K_7:
                 current_character = jitter_bug
                 current_text = text_jitter_bug
-            if event.key == pygame.K_7:
+            if event.key == pygame.K_8:
                 current_character = paul_python
                 current_text = text_paul_python
-            if event.key == pygame.K_8:
+            if event.key == pygame.K_9:
                 current_character = quackintosh
                 current_text = text_quackintosh
-            if event.key == pygame.K_9:
+            if event.key == pygame.K_0:
                 current_character = sb_turtle
                 current_text = text_sb_turtle
-            if event.key == pygame.K_0:
+            if event.key == pygame.K_q:
                 current_character = sidewinder
                 current_text = text_sidewinder
-            if event.key == pygame.K_q:
+            if event.key == pygame.K_w:
                 current_character = syntax_turtle
                 current_text = text_syntax_turtle
-            if event.key == pygame.K_w:
+            if event.key == pygame.K_e:
                 current_character = ram_rom
                 current_text = text_ram_rom
-            if event.key == pygame.K_e:
+            if event.key == pygame.K_r:
                 current_character = amphib_ian
                 current_text = text_amphib_ian
 pygame.quit()
