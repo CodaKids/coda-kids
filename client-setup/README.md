@@ -35,6 +35,7 @@ Simply follow the instructions below for your target platform.
 4. Follow the "Visual Studio Code Download" Link and download VS for your operating system.
 5. Install the downloaded VS code installer.
 6. Search for, install, and finally enable the Python plugin for Visual Studio Code.
+7. Install coda_kids module by command line "python coda_kids install" in framework directory. coda_kids is a partial wrapper package around pygame. 
 
 ### Linux
 
