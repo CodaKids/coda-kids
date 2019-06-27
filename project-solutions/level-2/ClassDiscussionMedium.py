@@ -1,5 +1,6 @@
 import pygame #Gives us our gaming functions
 from os import path
+import textwrap
 
 """Initialize Font Object"""
 #We pick our text style and size.
@@ -10,6 +11,14 @@ def get_file(fileName):
     """Returns the absolute path of a file."""
     #This grabs your files from your folder.
     return path.join(path.dirname(__file__), fileName)
+
+def display_text(screen, current_text):
+    """Displays text to the screen"""
+    WRAPPED_TEXT = textwrap.wrap(current_text, 30)
+    y = 230
+    for i in range(len(WRAPPED_TEXT)):
+        screen.blit(myfont.render(WRAPPED_TEXT[i], True, (0, 0, 0)), (230,y))
+        y = y + 30
 
 """Loads the background and images"""
 background = pygame.image.load(get_file("assets/Background.png"))
@@ -57,7 +66,7 @@ running = True
 while running:
     screen.blit(background,(0,0))
     screen.blit(current_character, (0,0))
-    screen.blit(myfont.render(current_text, True, (0, 0, 0)), (235,250))
+    display_text(screen, current_text)
     pygame.display.flip()
     events = pygame.event.get()
     for event in events:
