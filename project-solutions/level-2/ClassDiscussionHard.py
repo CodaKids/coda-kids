@@ -13,10 +13,10 @@ def get_file(fileName):
     return path.join(path.dirname(__file__), fileName)
 
 def display_text(screen, current_text):
-    wrapped_text = textwrap.wrap(current_text, 30)
+    WRAPPED_TEXT = textwrap.wrap(current_text, 30)
     y = 230
-    for i in range(len(wrapped_text)):
-        screen.blit(myfont.render(wrapped_text[i], True, (0, 0, 0)), (230,y))
+    for i in range(len(WRAPPED_TEXT)):
+        screen.blit(myfont.render(WRAPPED_TEXT[i], True, (0, 0, 0)), (230,y))
         y = y + 30
 
 """Loads the background and images"""
