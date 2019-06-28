@@ -6,8 +6,10 @@ from init import *
 def update(delta_time):
     """Update method for shooter state."""
     for event in coda.event.listing():
+        #Checks if you closed the window.
         if coda.event.quit_game(event):
             coda.stop()
+        #If you shoot, it plays a sound.
         elif coda.event.key_down(event, " "):
             SOUND_LASER[coda.utilities.rand(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(1)
