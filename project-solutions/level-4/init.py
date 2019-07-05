@@ -1,8 +1,8 @@
 import coda_kids as coda
 
+
 #load sprites
 IMAGE_BACKGROUND = coda.Image("assets/background.jpg")
-IMAGE_GAMEOVE = coda.Image("assets/gameover.png")
 IMAGE_PLAYER1 = coda.Image("assets/player1.png")
 IMAGE_PLAYER2 = coda.Image("assets/player2.png")
 IMAGE_ASTEROID = coda.Image("assets/asteroid.png")
@@ -27,6 +27,10 @@ SHIP_ACCEL = 10
 BULLET_SPEED = 1000
 PLAYER_MAX_HP = 10
 
+# setup
+WINDOW = coda.Vector2(900, 500)
+SCREEN = coda.start(WINDOW, "Space Wars Tournament")
+
 class Data:
     """place changable state variables here."""
     player1 = coda.Object(IMAGE_PLAYER1)
@@ -44,9 +48,6 @@ MY = Data()
 
 def health_bar(screen, health, max_health, max_size, location):
     """Creates a health bar at the given position."""
-    if health < 0.0:
-        MY.background = coda.Object(IMAGE_GAMEOVE)
-
     if health > max_health - max_health * 0.25:
         bar_color = coda.color.GREEN
     elif health > max_health - max_health * 0.5:
@@ -131,3 +132,31 @@ def fire_bullet(player_number):
 
         MY.bullet_owner[index] = player_number
         MY.bullets[index].sprite = PROJECTILE_ANIMATION[player_number]
+
+
+def draw(screen):
+    """Draws the state to the given screen."""
+    MY.background.draw(screen)
+    MY.player1.draw(screen)
+    MY.player2.draw(screen)
+    rect = MY.player1.sprite.surface().get_rect()
+    rect.center = MY.player1.location
+    health_bar(screen, MY.player1_hp,
+               PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
+    rect = MY.player2.sprite.surface().get_rect()
+    rect.center = MY.player2.location
+    health_bar(screen, MY.player2_hp,
+               PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
+
+    for i in range(len(MY.bullets)):
+        if MY.bullets[i].active:
+            MY.bullets[i].draw(screen)
+
+    for i in range(len(MY.asteroids)):
+        if MY.asteroids[i].active:
+            MY.asteroids[i].draw(screen)
+
+def cleanup():
+    """Cleans up the Intro State."""
+    MY.bullets = []
+    MY.asteroids = []

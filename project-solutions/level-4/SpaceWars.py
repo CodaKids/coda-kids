@@ -90,29 +90,5 @@ def update(delta_time):
     elif MY.player2_hp < 1:
         coda.state.change(1)
 
-def draw(screen):
-    """Draws the state to the given screen."""
-    MY.background.draw(screen)
-    MY.player1.draw(screen)
-    MY.player2.draw(screen)
-    rect = MY.player1.sprite.surface().get_rect()
-    rect.center = MY.player1.location
-    health_bar(screen, MY.player1_hp,
-               PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
-    rect = MY.player2.sprite.surface().get_rect()
-    rect.center = MY.player2.location
-    health_bar(screen, MY.player2_hp,
-               PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
 
-    for i in range(len(MY.bullets)):
-        if MY.bullets[i].active:
-            MY.bullets[i].draw(screen)
 
-    for i in range(len(MY.asteroids)):
-        if MY.asteroids[i].active:
-            MY.asteroids[i].draw(screen)
-
-def cleanup():
-    """Cleans up the Intro State."""
-    MY.bullets = []
-    MY.asteroids = []

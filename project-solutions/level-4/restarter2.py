@@ -2,11 +2,13 @@
 import coda_kids as coda
 
 # load sprites
+IMAGE_GAMEOVER = coda.Image("assets/Game 4 Game Over Screen v6.2.png")
 IMAGE_BUTTON = coda.Image("assets/button.png")
 
 # modifiable data
 class Data:
     """place changable state variables here."""
+    gameoverbackground = coda.Object(IMAGE_GAMEOVER)
     restart_button = coda.Object(IMAGE_BUTTON)
     display_text = coda.TextObject(coda.color.WHITE, 24, "Player 2 wins! Play again?")
 
@@ -14,6 +16,7 @@ MY = Data()
 
 def initialize(window):
     """Initializes the restart menu state."""
+    MY.gameoverbackground.location = window / 2
     MY.restart_button.location = window / 2
 
 def update(delta_time):
@@ -27,6 +30,7 @@ def update(delta_time):
 
 def draw(screen):
     """Draws the restart menu state."""
+    MY.gameoverbackground.draw(screen)
     MY.restart_button.draw(screen)
     MY.display_text.draw(screen)
 
