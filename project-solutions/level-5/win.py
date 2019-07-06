@@ -2,7 +2,7 @@
 import coda_kids as coda
 
 #load sprites
-BUTTON_IMAGE = coda.Image("WinButton.png")
+BUTTON_IMAGE = coda.Image("assets/WinButton.png")
 
 class Data:
     Button = coda.Object(BUTTON_IMAGE)
