@@ -16,6 +16,11 @@ def update(delta_time):
         elif coda.event.key_down(event, coda.pygame.K_RETURN):
             SOUND_LASER[coda.utilities.rand(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(2)
+        elif coda.event.mouse_l_button_down(event):
+            if MY.restart_button.collides_with_point(coda.event.mouse_position()):
+                print ( "button is pressed")
+                coda.state.change(0)
+                MY.state = 0                
 
     #Process rotation movement for player 1
     if coda.event.key_held_down("a"):
@@ -87,8 +92,22 @@ def update(delta_time):
     # Check win condition
     if MY.player1_hp < 1:
         coda.state.change(2)
+        MY.state = 1
+        MY.display_text = coda.TextObject(coda.color.WHITE, 24, "Player 2 wins! Play again?")
+        
     elif MY.player2_hp < 1:
         coda.state.change(1)
+        MY.state = 2
+        MY.display_text = coda.TextObject(coda.color.WHITE, 24, "Player 1 wins! Play again?")
+
+# states
+import SpaceWars
+coda.state.Manager.register(SpaceWars)
+import restarter1
+coda.state.Manager.register(restarter1)
+import restarter2
+coda.state.Manager.register(restarter2)
 
 
-
+# run the game!
+coda.state.Manager.run(SCREEN, WINDOW, coda.color.BLACK)

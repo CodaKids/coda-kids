@@ -1,5 +1,8 @@
 import coda_kids as coda
 
+# setup
+WINDOW = coda.Vector2(900, 500)
+SCREEN = coda.start(WINDOW, "Space Wars Tournament")
 
 #load sprites
 IMAGE_BACKGROUND = coda.Image("assets/background.jpg")
@@ -19,6 +22,8 @@ SPRITESHEET_PROJECTILE = [None,
 PROJECTILE_ANIMATION = [None,
                         coda.Animator(SPRITESHEET_PROJECTILE[1], 0.4),
                         coda.Animator(SPRITESHEET_PROJECTILE[2], 0.4)]
+IMAGE_GAMEOVER = coda.Image("assets/Game 4 Game Over Screen v6.2.png")
+IMAGE_BUTTON = coda.Image("assets/button.png")
 
 # constants
 SHIP_ROTATE_SPEED = 120
@@ -43,6 +48,11 @@ class Data:
     maxFrameTime = 0.05
     window = coda.Vector2(10, 10)
     background = coda.Object(IMAGE_BACKGROUND)
+    """place changable state variables here."""
+    gameoverbackground = coda.Object(IMAGE_GAMEOVER)
+    restart_button = coda.Object(IMAGE_BUTTON)
+    display_text = coda.TextObject(coda.color.WHITE, 24, "")
+    state = 0
 
 MY = Data()
 
@@ -93,6 +103,10 @@ def initialize(window):
     count = 0
     MY.window = window
     MY.background.location = window / 2
+    if MY.state!=0:
+        MY.gameoverbackground.location = window / 2
+        MY.restart_button.location = window / 2
+        MY.display_text = coda.TextObject(coda.color.WHITE, 24, "")
     while count < 20:
         MY.bullets.append(coda.Object(PROJECTILE_ANIMATION[1]))
         MY.bullet_owner.append(1)
@@ -136,18 +150,20 @@ def fire_bullet(player_number):
 
 def draw(screen):
     """Draws the state to the given screen."""
+    #if MY.state == 0:
+    #    print ("draw functoin state==0")
     MY.background.draw(screen)
     MY.player1.draw(screen)
     MY.player2.draw(screen)
     rect = MY.player1.sprite.surface().get_rect()
     rect.center = MY.player1.location
     health_bar(screen, MY.player1_hp,
-               PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
+                PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
     rect = MY.player2.sprite.surface().get_rect()
     rect.center = MY.player2.location
     health_bar(screen, MY.player2_hp,
-               PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
-
+                PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
+    
     for i in range(len(MY.bullets)):
         if MY.bullets[i].active:
             MY.bullets[i].draw(screen)
@@ -155,8 +171,16 @@ def draw(screen):
     for i in range(len(MY.asteroids)):
         if MY.asteroids[i].active:
             MY.asteroids[i].draw(screen)
+    #else:
+    #    print ("draw functoin state!=0")
+    #    MY.gameoverbackground.draw(screen)
+    #    MY.restart_button.draw(screen)
+    #    MY.display_text.draw(screen)
 
 def cleanup():
     """Cleans up the Intro State."""
     MY.bullets = []
     MY.asteroids = []
+
+
+
