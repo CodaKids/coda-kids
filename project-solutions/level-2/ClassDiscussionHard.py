@@ -100,8 +100,8 @@ while running:
     screen.blit(current_character, (0,0))
     display_text(screen, current_text)
     pygame.display.flip()
-    events = pygame.event.get()
-    for event in events:
+    EVENTS = pygame.event.get()
+    for event in EVENTS:
         if event.type == pygame.KEYDOWN:
             #if pressed 1, go to next character
             if event.key == pygame.K_RIGHT:
