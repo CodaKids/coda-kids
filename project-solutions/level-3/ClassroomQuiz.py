@@ -100,16 +100,16 @@ display_intro_screen() #Gets the screen ready.
 running = False
 while running == False: 
     #We're waiting for the player to click "Click here to start the game."
-    events = pygame.event.get()
-    for event in events:
+    EVENTS = pygame.event.get()
+    for event in EVENTS:
         mpos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
             if sample_click_rect.collidepoint(mpos):
                 running = True
 while running:
     display_question() #Displays the new question and the three answer choices.
-    events = pygame.event.get()
-    for event in events:
+    EVENTS = pygame.event.get()
+    for event in EVENTS:
         mpos = pygame.mouse.get_pos() 
         if event.type == pygame.MOUSEBUTTONDOWN: #If the player clicks the mouse.
             if answer_1_rect.collidepoint(mpos): #If the player clicks the first answer on the top.
