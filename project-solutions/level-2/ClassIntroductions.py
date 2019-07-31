@@ -77,5 +77,9 @@ while running:
             #if event.key == pygame.K_2:
                 #current_character = bayo_wolf
                 #current_text = text_bayo_wolf
+                
+            #Copy the code here to add Grafika
+            
 #Type in the if statements and code for the rest of the classmates (#4-12).
+
 pygame.quit()
