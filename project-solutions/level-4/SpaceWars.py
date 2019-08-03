@@ -24,9 +24,9 @@ def update(delta_time):
 
     #Process rotation movement for player 1
     if coda.event.key_held_down("a"):
-        MY.player1.add_rotation(SHIP_ROTATE_SPEED * delta_time)
+        MY.player1.add_rotation(SHIP_ROTATE * delta_time)
     elif coda.event.key_held_down("d"):
-        MY.player1.add_rotation(-SHIP_ROTATE_SPEED * delta_time)
+        MY.player1.add_rotation(-SHIP_ROTATE * delta_time)
 
     #Process forward and backward movement of player 1
     if coda.event.key_held_down("w"):
@@ -36,9 +36,9 @@ def update(delta_time):
 
     #Process rotation movement for player 2
     if coda.event.key_held_down(coda.pygame.K_LEFT):
-        MY.player2.add_rotation(SHIP_ROTATE_SPEED * delta_time)
+        MY.player2.add_rotation(SHIP_ROTATE * delta_time)
     elif coda.event.key_held_down(coda.pygame.K_RIGHT):
-        MY.player2.add_rotation(-SHIP_ROTATE_SPEED * delta_time)
+        MY.player2.add_rotation(-SHIP_ROTATE * delta_time)
 
     #Process forward and backward movement of player 2
     if coda.event.key_held_down(coda.pygame.K_UP):

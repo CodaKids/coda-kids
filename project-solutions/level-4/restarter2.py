@@ -2,7 +2,7 @@
 import coda_kids as coda
 
 # load sprites
-IMAGE_GAMEOVER = coda.Image("assets/Game 4 Game Over Screen v6.2.png")
+IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
 IMAGE_BUTTON = coda.Image("assets/button.png")
 
 # modifiable data

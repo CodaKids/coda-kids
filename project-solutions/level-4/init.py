@@ -22,7 +22,7 @@ SPRITESHEET_PROJECTILE = [None,
 PROJECTILE_ANIMATION = [None,
                         coda.Animator(SPRITESHEET_PROJECTILE[1], 0.4),
                         coda.Animator(SPRITESHEET_PROJECTILE[2], 0.4)]
-IMAGE_GAMEOVER = coda.Image("assets/Game 4 Game Over Screen v6.2.png")
+IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
 IMAGE_BUTTON = coda.Image("assets/button.png")
 
 # constants
