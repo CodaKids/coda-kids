@@ -26,7 +26,7 @@ IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
 IMAGE_BUTTON = coda.Image("assets/button.png")
 
 # constants
-SHIP_ROTATE_SPEED = 120
+SHIP_ROTATE = 120
 SHIP_MAX_SPEED = 500
 SHIP_ACCEL = 10
 BULLET_SPEED = 1000
