@@ -1,49 +1,63 @@
 """General information on your module and what it does."""
 import coda_kids as coda
 from init import *
-
+import math
+import random
+import pygame
 
 def update(delta_time):
     """Update method for shooter state."""
-    for event in coda.event.listing():
+    for event in pygame.event.get():
         #Checks if you closed the window.
-        if coda.event.quit_game(event):
+        if event.type == pygame.QUIT:
             coda.stop()
         #If you shoot, it plays a sound.
-        elif coda.event.key_down(event, " "):
-            SOUND_LASER[coda.utilities.rand(0, len(SOUND_LASER) - 1)].play()
+        #elif coda.event.key_down(event, " "):
+        elif event.type == pygame.KEYDOWN and event.key == ord(" "):
+            SOUND_LASER[random.randint(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(1)
-        elif coda.event.key_down(event, coda.pygame.K_RETURN):
-            SOUND_LASER[coda.utilities.rand(0, len(SOUND_LASER) - 1)].play()
+        #elif coda.event.key_down(event, coda.pygame.K_RETURN):
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            SOUND_LASER[random.randint(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(2)
-        elif coda.event.mouse_l_button_down(event):
-            if MY.restart_button.collides_with_point(coda.event.mouse_position()):
+        #elif coda.event.mouse_l_button_down(event):
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            pos = pygame.mouse.get_pos()
+            if MY.restart_button.collides_with_point(pygame.math.Vector2(pos[0], pos[1])):
                 print ( "button is pressed")
                 coda.state.change(0)
                 MY.state = 0                
 
     #Process rotation movement for player 1
-    if coda.event.key_held_down("a"):
+    #if coda.event.key_held_down("a"):
+    if pygame.key.get_pressed()[ord("a")]:
         MY.player1.add_rotation(SHIP_ROTATE * delta_time)
-    elif coda.event.key_held_down("d"):
+    #elif coda.event.key_held_down("d"):
+    elif pygame.key.get_pressed()[ord("d")]:
         MY.player1.add_rotation(-SHIP_ROTATE * delta_time)
 
     #Process forward and backward movement of player 1
-    if coda.event.key_held_down("w"):
+    #if coda.event.key_held_down("w"):
+    if pygame.key.get_pressed()[ord("w")]:
         MY.player1.add_velocity(MY.player1.rotation, SHIP_ACCEL, SHIP_MAX_SPEED)
-    elif coda.event.key_held_down("s"):
+    #elif coda.event.key_held_down("s"):
+    elif pygame.key.get_pressed()[ord("s")]:
         MY.player1.add_velocity(MY.player1.rotation, -SHIP_ACCEL, SHIP_MAX_SPEED)
 
     #Process rotation movement for player 2
-    if coda.event.key_held_down(coda.pygame.K_LEFT):
+    #if coda.event.key_held_down(coda.pygame.K_LEFT):
+    if pygame.key.get_pressed()[pygame.K_LEFT]:
         MY.player2.add_rotation(SHIP_ROTATE * delta_time)
-    elif coda.event.key_held_down(coda.pygame.K_RIGHT):
+    #elif coda.event.key_held_down(coda.pygame.K_RIGHT):
+    elif pygame.key.get_pressed()[pygame.K_RIGHT]:
         MY.player2.add_rotation(-SHIP_ROTATE * delta_time)
 
     #Process forward and backward movement of player 2
-    if coda.event.key_held_down(coda.pygame.K_UP):
+    #if coda.event.key_held_down(coda.pygame.K_UP):
+    if pygame.key.get_pressed()[pygame.K_UP]:
         MY.player2.add_velocity(MY.player2.rotation, SHIP_ACCEL, SHIP_MAX_SPEED)
-    elif coda.event.key_held_down(coda.pygame.K_DOWN):
+    #elif coda.event.key_held_down(coda.pygame.K_DOWN):
+    elif pygame.key.get_pressed()[pygame.K_DOWN]:
         MY.player2.add_velocity(MY.player2.rotation, -SHIP_ACCEL, SHIP_MAX_SPEED)
 
     MY.player1.update(delta_time)
@@ -76,18 +90,18 @@ def update(delta_time):
             if MY.bullet_owner[i] == 1 and MY.bullets[i].collides_with(MY.player2):
                 MY.player2_hp = MY.player2_hp - 1
                 MY.bullets[i].active = False
-                SOUND_EXPLOSIONS[coda.utilities.rand(0, len(SOUND_EXPLOSIONS) - 1)].play()
+                SOUND_EXPLOSIONS[random.randint(0, len(SOUND_EXPLOSIONS) - 1)].play()
             elif MY.bullet_owner[i] == 2 and MY.bullets[i].collides_with(MY.player1):
                 MY.player1_hp = MY.player1_hp - 1
                 MY.bullets[i].active = False
-                SOUND_EXPLOSIONS[coda.utilities.rand(0, len(SOUND_EXPLOSIONS) - 1)].play()
+                SOUND_EXPLOSIONS[random.randint(0, len(SOUND_EXPLOSIONS) - 1)].play()
 
     for asteroid in MY.asteroids:
         if MY.player1.collides_with(asteroid):
-            MY.player1.velocity = coda.Vector2(0, 0)
+            MY.player1.velocity = pygame.math.Vector2(0, 0)
 
         if MY.player2.collides_with(asteroid):
-            MY.player2.velocity = coda.Vector2(0, 0)
+            MY.player2.velocity = pygame.math.Vector2(0, 0)
 
     # Check win condition
     if MY.player1_hp < 1:

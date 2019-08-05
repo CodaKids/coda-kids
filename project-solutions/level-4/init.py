@@ -1,7 +1,8 @@
 import coda_kids as coda
+import pygame
 
 # setup
-WINDOW = coda.Vector2(900, 500)
+WINDOW = pygame.math.Vector2(900, 500)
 SCREEN = coda.start(WINDOW, "Space Wars Tournament")
 
 #load sprites
@@ -33,7 +34,7 @@ BULLET_SPEED = 1000
 PLAYER_MAX_HP = 10
 
 # setup
-WINDOW = coda.Vector2(900, 500)
+WINDOW = pygame.math.Vector2(900, 500)
 SCREEN = coda.start(WINDOW, "Space Wars Tournament")
 
 class Data:
@@ -46,7 +47,7 @@ class Data:
     asteroids = []
     bullet_owner = []
     maxFrameTime = 0.05
-    window = coda.Vector2(10, 10)
+    window = pygame.math.Vector2(10, 10)
     background = coda.Object(IMAGE_BACKGROUND)
     """place changable state variables here."""
     gameoverbackground = coda.Object(IMAGE_GAMEOVER)
@@ -158,11 +159,11 @@ def draw(screen):
     rect = MY.player1.sprite.surface().get_rect()
     rect.center = MY.player1.location
     health_bar(screen, MY.player1_hp,
-                PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
+                PLAYER_MAX_HP, pygame.math.Vector2(rect.width, 10), rect.topleft)
     rect = MY.player2.sprite.surface().get_rect()
     rect.center = MY.player2.location
     health_bar(screen, MY.player2_hp,
-                PLAYER_MAX_HP, coda.Vector2(rect.width, 10), rect.topleft)
+                PLAYER_MAX_HP, pygame.math.Vector2(rect.width, 10), rect.topleft)
     
     for i in range(len(MY.bullets)):
         if MY.bullets[i].active:
