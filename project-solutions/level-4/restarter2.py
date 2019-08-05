@@ -1,9 +1,10 @@
 """General information on your module and what it does."""
 import coda_kids as coda
+from init import Manager
 
 # load sprites
 IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
-IMAGE_BUTTON = coda.Image("assets/button.png")
+IMAGE_BUTTON = coda.Image("assets/ReplayButton.png")
 
 # modifiable data
 class Data:
@@ -26,7 +27,7 @@ def update(delta_time):
             coda.stop()
         if coda.event.mouse_l_button_down(event):
             if MY.restart_button.collides_with_point(coda.event.mouse_position()):
-                coda.state.change(0)
+                Manager.current = 0
 
 def draw(screen):
     """Draws the restart menu state."""

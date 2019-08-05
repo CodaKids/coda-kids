@@ -1,30 +1,111 @@
 import coda_kids as coda
 import pygame
 
+#coda_kids constant
+WHITE = [225, 225, 225]
+BLACK = [0, 0, 0]
+YELLOW = [255, 255, 0]
+RED = [255, 0, 0]
+GREEN = [0, 128, 0, 128]
+BLUE = [0, 192, 255, 128]
+
+#coda_kids framework
+class TextObject:
+    """
+    Create an object that renders text. Assumes that the default font 
+    freesansbold exists in the project directory as a true type font.
+        #create a text object
+        title = TextObject(coda.color.RED, 12, "example");
+    """
+
+    def __init__(self, color_value, font_size, text):
+        self.location = pygame.math.Vector2(0, 0)
+        self.color = color_value
+        self.font_size = font_size
+        self.text = text
+        self.centered = False
+
+    def __setattr__(self, name, value):
+        if name == "location":
+            self.__dict__[name] = pygame.math.Vector2(value[0], value[1])
+        elif name == "font_size":
+            self.__dict__[name] = value
+            self.font = pygame.font.Font('freesansbold.ttf', int(self.font_size))
+        else:
+            self.__dict__[name] = value
+
+    def draw(self, screen):
+        """
+        Draws the object text to the screen.
+            text.draw(SCREEN);
+        """
+
+        obj = self.font.render(self.text, 1, self.color)
+        loc = pygame.math.Vector2(self.location.x, self.location.y)
+        if self.centered is True:
+            loc.x -= obj.get_rect().width / 2
+        screen.blit(obj, loc)
+
+
+class Machine:
+    """Game state machine class."""
+    def __init__(self):
+        self.current = 0
+        self.previous = 0
+        self.states = []
+
+    def register(self, module):
+        """Registers the state's init, update, draw, and cleanup functions."""
+        self.states.append({'initialize': module.initialize,
+                            'update': module.update,
+                            'draw': module.draw,
+                            'cleanup': module.cleanup})
+
+    def run(self, screen, window, fill_color):
+        """Runs the state given machine."""
+        clock = pygame.time.Clock()
+        # first run initialize!
+        self.states[self.current]['initialize'](window)
+
+        while True:
+            delta_time = clock.tick(60) / 1000
+            if self.current != self.previous:
+                self.states[self.current]['cleanup']()
+                self.states[self.current]['initialize'](window)
+                self.previous = self.current
+
+            coda.actions.update(delta_time)
+            self.states[self.current]['update'](delta_time)
+            screen.fill(fill_color)
+            self.states[self.current]['draw'](screen)
+            pygame.display.flip()
+
+Manager = Machine()
+
 # setup
 WINDOW = pygame.math.Vector2(900, 500)
 SCREEN = coda.start(WINDOW, "Space Wars Tournament")
 
 #load sprites
-IMAGE_BACKGROUND = coda.Image("assets/background.jpg")
-IMAGE_PLAYER1 = coda.Image("assets/player1.png")
-IMAGE_PLAYER2 = coda.Image("assets/player2.png")
-IMAGE_ASTEROID = coda.Image("assets/asteroid.png")
-IMAGE_ASTEROID_2 = coda.Image("assets/asteroid2.png")
+IMAGE_BACKGROUND = coda.Image("assets/Background.jpg")
+IMAGE_PLAYER1 = coda.Image("assets/Player1.png")
+IMAGE_PLAYER2 = coda.Image("assets/Player2.png")
+IMAGE_ASTEROID = coda.Image("assets/AsteroidLarge.png")
+IMAGE_ASTEROID_2 = coda.Image("assets/AsteroidSmall.png")
 SOUND_EXPLOSIONS = [coda.Sound("assets/Explosion1.wav"),
                     coda.Sound("assets/Explosion2.wav")]
 
-SOUND_LASER = [coda.Sound("assets/Laser_Shoot1.wav"),
-               coda.Sound("assets/Laser_Shoot2.wav")]
+SOUND_LASER = [coda.Sound("assets/LaserShoot1.wav"),
+               coda.Sound("assets/LaserShoot2.wav")]
 
 SPRITESHEET_PROJECTILE = [None,
-                          coda.SpriteSheet("assets/player1_projectile.png", (36, 24)),
-                          coda.SpriteSheet("assets/player2_projectile.png", (48, 48))]
+                          coda.SpriteSheet("assets/Player1Projectile.png", (36, 24)),
+                          coda.SpriteSheet("assets/Player2Projectile.png", (48, 48))]
 PROJECTILE_ANIMATION = [None,
                         coda.Animator(SPRITESHEET_PROJECTILE[1], 0.4),
                         coda.Animator(SPRITESHEET_PROJECTILE[2], 0.4)]
 IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
-IMAGE_BUTTON = coda.Image("assets/button.png")
+IMAGE_BUTTON = coda.Image("assets/ReplayButton.png")
 
 # constants
 SHIP_ROTATE = 120

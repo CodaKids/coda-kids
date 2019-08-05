@@ -1,5 +1,4 @@
 """General information on your module and what it does."""
-import coda_kids as coda
 from init import *
 import math
 import random
@@ -11,52 +10,40 @@ def update(delta_time):
         #Checks if you closed the window.
         if event.type == pygame.QUIT:
             coda.stop()
-        #If you shoot, it plays a sound.
-        #elif coda.event.key_down(event, " "):
+        #If you shoot, it plays a sound.        
         elif event.type == pygame.KEYDOWN and event.key == ord(" "):
             SOUND_LASER[random.randint(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(1)
-        #elif coda.event.key_down(event, coda.pygame.K_RETURN):
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
             SOUND_LASER[random.randint(0, len(SOUND_LASER) - 1)].play()
             fire_bullet(2)
-        #elif coda.event.mouse_l_button_down(event):
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             pos = pygame.mouse.get_pos()
             if MY.restart_button.collides_with_point(pygame.math.Vector2(pos[0], pos[1])):
-                print ( "button is pressed")
-                coda.state.change(0)
+                Manager.current = 0
                 MY.state = 0                
 
     #Process rotation movement for player 1
-    #if coda.event.key_held_down("a"):
     if pygame.key.get_pressed()[ord("a")]:
         MY.player1.add_rotation(SHIP_ROTATE * delta_time)
-    #elif coda.event.key_held_down("d"):
     elif pygame.key.get_pressed()[ord("d")]:
         MY.player1.add_rotation(-SHIP_ROTATE * delta_time)
 
     #Process forward and backward movement of player 1
-    #if coda.event.key_held_down("w"):
     if pygame.key.get_pressed()[ord("w")]:
         MY.player1.add_velocity(MY.player1.rotation, SHIP_ACCEL, SHIP_MAX_SPEED)
-    #elif coda.event.key_held_down("s"):
     elif pygame.key.get_pressed()[ord("s")]:
         MY.player1.add_velocity(MY.player1.rotation, -SHIP_ACCEL, SHIP_MAX_SPEED)
 
     #Process rotation movement for player 2
-    #if coda.event.key_held_down(coda.pygame.K_LEFT):
     if pygame.key.get_pressed()[pygame.K_LEFT]:
         MY.player2.add_rotation(SHIP_ROTATE * delta_time)
-    #elif coda.event.key_held_down(coda.pygame.K_RIGHT):
     elif pygame.key.get_pressed()[pygame.K_RIGHT]:
         MY.player2.add_rotation(-SHIP_ROTATE * delta_time)
 
     #Process forward and backward movement of player 2
-    #if coda.event.key_held_down(coda.pygame.K_UP):
     if pygame.key.get_pressed()[pygame.K_UP]:
         MY.player2.add_velocity(MY.player2.rotation, SHIP_ACCEL, SHIP_MAX_SPEED)
-    #elif coda.event.key_held_down(coda.pygame.K_DOWN):
     elif pygame.key.get_pressed()[pygame.K_DOWN]:
         MY.player2.add_velocity(MY.player2.rotation, -SHIP_ACCEL, SHIP_MAX_SPEED)
 
@@ -105,23 +92,23 @@ def update(delta_time):
 
     # Check win condition
     if MY.player1_hp < 1:
-        coda.state.change(2)
+        Manager.current = 2
         MY.state = 1
-        MY.display_text = coda.TextObject(coda.color.WHITE, 24, "Player 2 wins! Play again?")
+        MY.display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
         
     elif MY.player2_hp < 1:
-        coda.state.change(1)
+        Manager.current = 1
         MY.state = 2
-        MY.display_text = coda.TextObject(coda.color.WHITE, 24, "Player 1 wins! Play again?")
+        MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
 
 # states
 import SpaceWars
-coda.state.Manager.register(SpaceWars)
+Manager.register(SpaceWars)
 import restarter1
-coda.state.Manager.register(restarter1)
+Manager.register(restarter1)
 import restarter2
-coda.state.Manager.register(restarter2)
+Manager.register(restarter2)
 
 
 # run the game!
-coda.state.Manager.run(SCREEN, WINDOW, coda.color.BLACK)
+Manager.run(SCREEN, WINDOW, BLACK)
