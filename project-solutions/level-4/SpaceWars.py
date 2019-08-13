@@ -1,6 +1,5 @@
 """General information on your module and what it does."""
 from init import *
-import math
 import random
 import pygame
 
