@@ -22,6 +22,3 @@ class Card:
 annie_conda = Card('python', 'java', 'bash', "assets/AnnieConda.png")
 bayo_wolf = Card('scratch', 'turtle', 'java', "assets/BayoWolf.png")
 captain_javo = Card('java', 'scratch', 'python', "assets/CaptainJavo.png")
-
-
-
