@@ -1,4 +1,4 @@
-"""General information on your module and what it does."""
+"""General information on your module and what itwhit does."""
 from init import *
 import random
 import pygame
@@ -76,11 +76,11 @@ def update(delta_time):
             if MY.bullet_owner[i] == 1 and MY.bullets[i].collides_with(MY.player2):
                 MY.player2_hp = MY.player2_hp - 1
                 MY.bullets[i].active = False
-                SOUND_EXPLOSIONS[random.randint(0, len(SOUND_EXPLOSIONS) - 1)].play()
+                sound_explosions[random.randint(0, len(sound_explosions) - 1)].play()
             elif MY.bullet_owner[i] == 2 and MY.bullets[i].collides_with(MY.player1):
                 MY.player1_hp = MY.player1_hp - 1
                 MY.bullets[i].active = False
-                SOUND_EXPLOSIONS[random.randint(0, len(SOUND_EXPLOSIONS) - 1)].play()
+                sound_explosions[random.randint(0, len(sound_explosions) - 1)].play()
 
     for asteroid in MY.asteroids:
         if MY.player1.collides_with(asteroid):
@@ -93,12 +93,12 @@ def update(delta_time):
     if MY.player1_hp < 1:
         Manager.current = 2
         MY.state = 1
-        MY.display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
+        MY.display_text = TextObject(white, 24, "Player 2 wins! Play again?")
         
     elif MY.player2_hp < 1:
         Manager.current = 1
         MY.state = 2
-        MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
+        MY.display_text = TextObject(white, 24, "Player 1 wins! Play again?")
 
 # states
 import SpaceWars
