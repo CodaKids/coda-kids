@@ -22,20 +22,20 @@ def display_text(screen, current_text):
 
 """Loads the background and images"""
 background = pygame.image.load(get_file("assets/Background.png"))
-annie_conda = pygame.image.load(get_file("assets/Annie.png"))
-bayo_wolf = pygame.image.load(get_file("assets/Bayo.png"))
-grafika_turtle = pygame.image.load(get_file("assets/Grafika.png"))
-intelli_scents = pygame.image.load(get_file("assets/Intelli.png"))
-java_lynn = pygame.image.load(get_file("assets/Java.png"))
+annie_conda = pygame.image.load(get_file("assets/AnnieConda.png"))
+bayo_wolf = pygame.image.load(get_file("assets/BayoWolf.png"))
+grafika_turtle = pygame.image.load(get_file("assets/GrafikaTurtle.png"))
+intelli_scents = pygame.image.load(get_file("assets/IntelliScents.png"))
+java_lynn = pygame.image.load(get_file("assets/JavaLynn.png"))
 captain_javo = pygame.image.load(get_file("assets/CaptainJavo.png"))
-jitter_bug = pygame.image.load(get_file("assets/Jitter.png"))
-paul_python = pygame.image.load(get_file("assets/Paul.png"))
-quackintosh = pygame.image.load(get_file("assets/Quack.png"))
+jitter_bug = pygame.image.load(get_file("assets/JitterBug.png"))
+paul_python = pygame.image.load(get_file("assets/PaulPython.png"))
+quackintosh = pygame.image.load(get_file("assets/Quackintosh.png"))
 sb_turtle = pygame.image.load(get_file("assets/SBTurtle.png"))
 sidewinder = pygame.image.load(get_file("assets/SideWinder.png"))
-syntax_turtle = pygame.image.load(get_file("assets/Syntax.png"))
+syntax_turtle = pygame.image.load(get_file("assets/SyntaxTurtle.png"))
 ram_rom = pygame.image.load(get_file("assets/RAMROM.png"))
-amphib_ian = pygame.image.load(get_file("assets/IanFib.png"))
+amphib_ian = pygame.image.load(get_file("assets/AmphibIan.png"))
 
 """Stores character text into variables"""
 text_annie_conda  = "Hello! I'm Annie Conda. \nI come from Sanfran-Hissco, Cowlifornia. I've done a little coding. My favorite musician is Justin Timbersnake. I'm also partial to Hissy Elliott. My favorite Pigxar movie is Rattle-toulle. I love to make trivia games and word games. "
