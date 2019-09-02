@@ -11,10 +11,10 @@ def update(delta_time):
             coda.stop()
         #If you shoot, it plays a sound.        
         elif event.type == pygame.KEYDOWN and event.key == ord(" "):
-            SOUND_LASER[random.randint(0, len(SOUND_LASER) - 1)].play()
+            sound_laser[random.randint(0, len(sound_laser) - 1)].play()
             fire_bullet(1)
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-            SOUND_LASER[random.randint(0, len(SOUND_LASER) - 1)].play()
+            sound_laser[random.randint(0, len(sound_laser) - 1)].play()
             fire_bullet(2)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             pos = pygame.mouse.get_pos()
@@ -24,27 +24,27 @@ def update(delta_time):
 
     #Process rotation movement for player 1
     if pygame.key.get_pressed()[ord("a")]:
-        MY.player1.add_rotation(SHIP_ROTATE * delta_time)
+        MY.player1.add_rotation(ship_rotate * delta_time)
     elif pygame.key.get_pressed()[ord("d")]:
-        MY.player1.add_rotation(-SHIP_ROTATE * delta_time)
+        MY.player1.add_rotation(-ship_rotate * delta_time)
 
     #Process forward and backward movement of player 1
     if pygame.key.get_pressed()[ord("w")]:
-        MY.player1.add_velocity(MY.player1.rotation, SHIP_ACCEL, SHIP_MAX_SPEED)
+        MY.player1.add_velocity(MY.player1.rotation, ship_accel, ship_max_speed)
     elif pygame.key.get_pressed()[ord("s")]:
-        MY.player1.add_velocity(MY.player1.rotation, -SHIP_ACCEL, SHIP_MAX_SPEED)
+        MY.player1.add_velocity(MY.player1.rotation, -ship_accel, ship_max_speed)
 
     #Process rotation movement for player 2
     if pygame.key.get_pressed()[pygame.K_LEFT]:
-        MY.player2.add_rotation(SHIP_ROTATE * delta_time)
+        MY.player2.add_rotation(ship_rotate * delta_time)
     elif pygame.key.get_pressed()[pygame.K_RIGHT]:
-        MY.player2.add_rotation(-SHIP_ROTATE * delta_time)
+        MY.player2.add_rotation(-ship_rotate * delta_time)
 
     #Process forward and backward movement of player 2
     if pygame.key.get_pressed()[pygame.K_UP]:
-        MY.player2.add_velocity(MY.player2.rotation, SHIP_ACCEL, SHIP_MAX_SPEED)
+        MY.player2.add_velocity(MY.player2.rotation, ship_accel, ship_max_speed)
     elif pygame.key.get_pressed()[pygame.K_DOWN]:
-        MY.player2.add_velocity(MY.player2.rotation, -SHIP_ACCEL, SHIP_MAX_SPEED)
+        MY.player2.add_velocity(MY.player2.rotation, -ship_accel, ship_max_speed)
 
     MY.player1.update(delta_time)
     MY.player2.update(delta_time)

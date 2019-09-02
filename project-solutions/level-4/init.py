@@ -97,7 +97,7 @@ IMAGE_ASTEROID_2 = coda.Image("assets/AsteroidSmall.png")
 sound_explosions = [coda.Sound("assets/Explosion1.wav"),
                     coda.Sound("assets/Explosion2.wav")]
 
-SOUND_LASER = [coda.Sound("assets/LaserShoot1.wav"),
+sound_laser = [coda.Sound("assets/LaserShoot1.wav"),
                coda.Sound("assets/LaserShoot2.wav")]
 
 SPRITESHEET_PROJECTILE = [None,
@@ -110,9 +110,9 @@ IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
 IMAGE_BUTTON = coda.Image("assets/ReplayButton.png")
 
 # constants
-SHIP_ROTATE = 120
-SHIP_MAX_SPEED = 500
-SHIP_ACCEL = 10
+ship_rotate = 120
+ship_max_speed = 500
+ship_accel = 10
 BULLET_SPEED = 1000
 PLAYER_MAX_HP = 10
 
