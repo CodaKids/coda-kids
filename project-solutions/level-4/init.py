@@ -1,5 +1,7 @@
 import coda_kids as coda
 import pygame
+from types import ModuleType
+import sys
 
 #coda_kids constant
 WHITE = [225, 225, 225]
@@ -92,10 +94,10 @@ IMAGE_PLAYER1 = coda.Image("assets/Player1.png")
 IMAGE_PLAYER2 = coda.Image("assets/Player2.png")
 IMAGE_ASTEROID = coda.Image("assets/AsteroidLarge.png")
 IMAGE_ASTEROID_2 = coda.Image("assets/AsteroidSmall.png")
-SOUND_EXPLOSIONS = [coda.Sound("assets/Explosion1.wav"),
+sound_explosions = [coda.Sound("assets/Explosion1.wav"),
                     coda.Sound("assets/Explosion2.wav")]
 
-SOUND_LASER = [coda.Sound("assets/LaserShoot1.wav"),
+sound_laser = [coda.Sound("assets/LaserShoot1.wav"),
                coda.Sound("assets/LaserShoot2.wav")]
 
 SPRITESHEET_PROJECTILE = [None,
@@ -108,9 +110,9 @@ IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
 IMAGE_BUTTON = coda.Image("assets/ReplayButton.png")
 
 # constants
-SHIP_ROTATE = 120
-SHIP_MAX_SPEED = 500
-SHIP_ACCEL = 10
+ship_rotate = 120
+ship_max_speed = 500
+ship_accel = 10
 BULLET_SPEED = 1000
 PLAYER_MAX_HP = 10
 
@@ -265,4 +267,81 @@ def cleanup():
     MY.asteroids = []
 
 
+class restarter_player1:
+    # load sprites
+    IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
+    IMAGE_BUTTON = coda.Image("assets/ReplayButton.png")
 
+    # modifiable data
+    class Data:
+        """place changable state variables here."""
+        gameoverbackground = coda.Object(IMAGE_GAMEOVER)
+        restart_button = coda.Object(IMAGE_BUTTON)
+        display_text = coda.TextObject(coda.color.WHITE, 24, "Player 1 wins! Play again?")
+
+    MY = Data()
+
+    def initialize(window):
+        """Initializes the restart menu state."""
+        MY.gameoverbackground.location = window / 2
+        MY.restart_button.location = window / 2
+
+    def update(delta_time):
+        """Updates the restart menu state."""
+        for event in coda.event.listing():
+            if coda.event.quit_game(event):
+                coda.stop()
+            if coda.event.mouse_l_button_down(event):
+                if MY.restart_button.collides_with_point(coda.event.mouse_position()):
+                    Manager.current = 0
+
+    def draw(screen):
+        """Draws the restart menu state."""
+        MY.gameoverbackground.draw(screen)
+        MY.restart_button.draw(screen)
+        MY.display_text.draw(screen)
+
+    def cleanup():
+        """Cleans up the restart menu state."""
+
+class restarter_player2:
+    """General information on your module and what it does."""    
+
+    # load sprites
+    IMAGE_GAMEOVER = coda.Image("assets/GameOverBackground.png")
+    IMAGE_BUTTON = coda.Image("assets/ReplayButton.png")
+
+    # modifiable data
+    class Data:
+        """place changable state variables here."""
+        gameoverbackground = coda.Object(IMAGE_GAMEOVER)
+        restart_button = coda.Object(IMAGE_BUTTON)
+        display_text = coda.TextObject(coda.color.WHITE, 24, "Player 2 wins! Play again?")
+
+    MY = Data()
+
+    def initialize(window):
+        """Initializes the restart menu state."""
+        MY.gameoverbackground.location = window / 2
+        MY.restart_button.location = window / 2
+
+    def update(delta_time):
+        """Updates the restart menu state."""
+        for event in coda.event.listing():
+            if coda.event.quit_game(event):
+                coda.stop()
+            if coda.event.mouse_l_button_down(event):
+                if MY.restart_button.collides_with_point(coda.event.mouse_position()):
+                    Manager.current = 0
+
+    def draw(screen):
+        """Draws the restart menu state."""
+        MY.gameoverbackground.draw(screen)
+        MY.restart_button.draw(screen)
+        MY.display_text.draw(screen)
+
+    def cleanup():
+        """Cleans up the restart menu state."""
+
+r1=restarter_player1()
+r2=restarter_player2()
