@@ -1,5 +1,5 @@
 """General information on your module and what it does."""
-import coda_kids as coda
+import coda
 
 #load sprites
 BUTTON_IMAGE = coda.Image("assets/LoseButton.png")
@@ -15,12 +15,12 @@ def initialize(window):
 
 def update(delta_time):
     """Updates the lose menu state."""
-    for event in coda.event.listing():
-        if coda.event.quit_game(event):
+    for event in coda.listing():
+        if coda.quit_game(event):
             coda.stop()
-        elif coda.event.mouse_l_button_down(event):
-            if MY.Button.collides_with_point(coda.event.mouse_position()):
-                coda.state.change(0)
+        elif coda.mouse_l_button_down(event):
+            if MY.Button.collides_with_point(coda.mouse_position()):
+                coda.change(0)
 
 def draw(screen):
     """Draws the lose menu state."""

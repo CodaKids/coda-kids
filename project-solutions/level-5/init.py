@@ -1,5 +1,5 @@
 """General information on your module and what it does."""
-import coda_kids as coda
+import coda
 
 # global data
 WINDOW = coda.Vector2(800, 608)
@@ -57,11 +57,11 @@ MY = Data()
 def health_bar(screen, health, max_health, max_size, location):
     """Creates a health bar at the given position."""
     if health > max_health - max_health * 0.25:
-        bar_color = coda.color.GREEN
+        bar_color = coda.GREEN
     elif health > max_health - max_health * 0.5:
-        bar_color = coda.color.YELLOW
+        bar_color = coda.YELLOW
     else:
-        bar_color = coda.color.RED
+        bar_color = coda.RED
 
     width = max_size[0] * (health / max_health)
     coda.draw_rect(screen, bar_color, location, (width, max_size[1]))
@@ -69,7 +69,7 @@ def health_bar(screen, health, max_health, max_size, location):
 def load_level(level_name_as_string):
     """Cleans up resources and loads a specified level. Can be used to reload the same level."""
     cleanup()
-    MY.tilemap = coda.utilities.read_file("assets/"+level_name_as_string + ".txt")
+    MY.tilemap = coda.read_file("assets/"+level_name_as_string + ".txt")
     for row in range(len(MY.tilemap)):
         for column in range(len(MY.tilemap[row])):
             obj = coda.Object(TILE_IMAGES[int(MY.tilemap[row][column])])

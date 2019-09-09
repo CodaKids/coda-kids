@@ -1,5 +1,5 @@
 """General information on your module and what it does."""
-import coda_kids as coda
+import coda
 
 #load sprites
 BUTTON_IMAGE = coda.Image("assets/WinButton.png")

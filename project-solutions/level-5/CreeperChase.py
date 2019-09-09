@@ -1,19 +1,19 @@
 """General information on your module and what it does."""
-import coda_kids as coda
+import coda
 from init import *
 
 def update(delta_time):
     """Update method for platform state."""
-    for event in coda.event.listing():
-        if coda.event.quit_game(event):
+    for event in coda.listing():
+        if coda.quit_game(event):
             coda.stop()
-        elif coda.event.key_down(event, " ") and (MY.grounded or MY.level_num > 1):
+        elif coda.key_down(event, " ") and (MY.grounded or MY.level_num > 1):
             MY.player.velocity.y = -800
             MY.grounded = False
 
-    if coda.event.key_held_down("a"): # move left
+    if coda.key_held_down("a"): # move left
         MY.player.velocity.x = max(MY.player.velocity.x - PLAYER_ACCEL, -PLAYER_MAX_SPEED)
-    elif coda.event.key_held_down("d"): # move right
+    elif coda.key_held_down("d"): # move right
         MY.player.velocity.x = min(MY.player.velocity.x + PLAYER_ACCEL, PLAYER_MAX_SPEED)
     else:
         if MY.grounded: # decel
@@ -29,7 +29,7 @@ def update(delta_time):
     
     load = False
     print(MY.grounded)
-    if coda.event.key_held_down("w"):
+    if coda.key_held_down("w"):
         for door in MY.doors:
             if MY.player.collides_with(door):
                 load = True
@@ -39,7 +39,7 @@ def update(delta_time):
         if MY.level_num < 4:
             load_level("level" + str(MY.level_num))
         else:
-            coda.state.change(2)
+            coda.change(2)
         return
 
     # Gravity
@@ -50,7 +50,7 @@ def update(delta_time):
         if MY.player.collides_with(hazard):
             MY.player_health -= 2
             if MY.player_health <= 0:
-                coda.state.change(1)
+                coda.change(1)
             else:
                 MY.player.location = MY.player_start_position
                 MY.player.set_velocity(0, 0)
@@ -66,23 +66,23 @@ def update(delta_time):
     touching = False
     for wall in MY.walls:
         if MY.player.collides_with(wall):
-            if MY.player.collision[coda.dir.DOWN]:
-                MY.player.snap_to_object_y(wall, coda.dir.DOWN)
+            if MY.player.collision[coda.DOWN]:
+                MY.player.snap_to_object_y(wall, coda.DOWN)
                 MY.player.velocity.y = 0
                 MY.grounded = touching = True
                 continue
-            if MY.player.collision[coda.dir.LEFT]:
-                MY.player.snap_to_object_x(wall, coda.dir.LEFT)
+            if MY.player.collision[coda.LEFT]:
+                MY.player.snap_to_object_x(wall, coda.LEFT)
                 MY.player.velocity.x = 0
                 touching = True
                 continue
-            if MY.player.collision[coda.dir.RIGHT]:
-                MY.player.snap_to_object_x(wall, coda.dir.RIGHT)
+            if MY.player.collision[coda.RIGHT]:
+                MY.player.snap_to_object_x(wall, coda.RIGHT)
                 MY.player.velocity.x = 0
                 touching = True
                 continue
-            if MY.player.collision[coda.dir.UP]:
-                MY.player.snap_to_object_y(wall, coda.dir.UP)
+            if MY.player.collision[coda.UP]:
+                MY.player.snap_to_object_y(wall, coda.UP)
                 MY.player.velocity.y = 0
                 touching = True
                 continue
@@ -90,12 +90,12 @@ def update(delta_time):
         MY.grounded = False
 
 # states
-import CreepyChase
-coda.state.Manager.register(CreepyChase)
+import CreeperChase
+coda.Manager.register(CreeperChase)
 import lose
-coda.state.Manager.register(lose)
+coda.Manager.register(lose)
 import win
-coda.state.Manager.register(win)
+coda.Manager.register(win)
 
 # run the game!
-coda.state.Manager.run(SCREEN, WINDOW, coda.color.BLUE)
+coda.Manager.run(SCREEN, WINDOW, coda.BLUE)

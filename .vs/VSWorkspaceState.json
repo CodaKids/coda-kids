@@ -1,10 +1,16 @@
 {
   "ExpandedNodes": [
     "",
+    "\\framework",
+    "\\framework\\coda_kids",
     "\\project-solutions",
-    "\\project-solutions\\level-7",
-    "\\project-solutions\\level-7\\assets"
+    "\\project-solutions\\level-2\\ClassIntroductionsChallenge1_Solution",
+    "\\project-solutions\\level-2\\ClassIntroductionsChallenge2_Solution",
+    "\\project-solutions\\level-2\\ClassIntroductions_Solution",
+    "\\project-solutions\\level-4",
+    "\\project-solutions\\level-5",
+    "\\project-solutions\\level-7"
   ],
-  "SelectedNode": "\\project-solutions\\level-7\\assets\\JavaLynn.png",
+  "SelectedNode": "\\project-solutions\\level-5\\CreeperChase.py",
   "PreviewInSolutionExplorer": false
 }
