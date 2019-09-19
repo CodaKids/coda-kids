@@ -19,6 +19,8 @@ RIGHT = 1
 UP = 2
 DOWN = 3
 
+# data used to store all lerps
+_data = {}
 
 #coda_kids framework
 class TextObject:
@@ -57,6 +59,24 @@ class TextObject:
             loc.x -= obj.get_rect().width / 2
         screen.blit(obj, loc)
 
+def update(delta_time):
+    """
+    Update all of the lerps. Auto removes lerps when done.
+    Called internally by the state manager.
+    """
+    to_delete = []
+    for (obj, lerp_list) in _data.items():
+        if not lerp_list:
+            to_delete.append(obj)
+        elif lerp_list[0].update(obj, delta_time):
+            lerp_list.pop(0)
+            # remove duplicates
+            while lerp_list and lerp_list[0].end == getattr(obj, lerp_list[0].member):
+                lerp_list.pop(0)
+
+    for key in to_delete:
+        del _data[key]
+
 
 class Machine:
     """Game state machine class."""
@@ -85,7 +105,7 @@ class Machine:
                 self.states[self.current]['initialize'](window)
                 self.previous = self.current
 
-            coda.actions.update(delta_time)
+            update(delta_time)
             self.states[self.current]['update'](delta_time)
             screen.fill(fill_color)
             self.states[self.current]['draw'](screen)
@@ -313,7 +333,7 @@ class Object:
             obj.add_velocity((0, 1), 1, 10); # increase upwards
         """
         epsilon = 1.0e-15
-        direction = Vector2(math.cos(math.radians(direction - 90)),
+        direction = pygame.math.Vector2(math.cos(math.radians(direction - 90)),
                             math.sin(math.radians(direction - 90)))
         if direction.x < epsilon and direction.x > 0:
             direction.x = 0
@@ -321,7 +341,7 @@ class Object:
         if direction.y < epsilon and direction.y > 0:
             direction.y = 0
 
-        vel = Vector2(-1 * direction.x * speed, direction.y * speed)
+        vel = pygame.math.Vector2(-1 * direction.x * speed, direction.y * speed)
 
         self.velocity += vel
         distance_sq = self.velocity.length()
@@ -336,7 +356,7 @@ class Object:
 
             obj.set_velocity(45, 5); # left 5
         """
-        self.velocity = Vector2(-1 * math.cos(math.radians(degrees - 90)) * speed,
+        self.velocity = pygame.math.Vector2(-1 * math.cos(math.radians(degrees - 90)) * speed,
                                 math.sin(math.radians(degrees - 90)) * speed)
 
     def collides_with(self, other_obj):
@@ -446,7 +466,7 @@ def rand(minimum, maximum):
 
 def rand_location(minimum, maximum):
     """Generates a random location from the given min and max."""
-    return Vector2(rand(minimum, maximum), rand(minimum, maximum))
+    return pygame.math.Vector2(rand(minimum, maximum), rand(minimum, maximum))
 
 def quit_game(event):
     """
@@ -476,7 +496,7 @@ def mouse_position():
         data = coda.event.mouse_position();
     """
     pos = pygame.mouse.get_pos()
-    return Vector2(pos[0], pos[1])
+    return pygame.math.Vector2(pos[0], pos[1])
 
 Manager = Machine()
 

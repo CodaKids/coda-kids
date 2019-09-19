@@ -93,12 +93,12 @@ def update(delta_time):
     if MY.player1_hp < 1:
         Manager.current = 2
         MY.state = 1
-        MY.display_text = TextObject(white, 24, "Player 2 wins! Play again?")
+        MY.display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
         
     elif MY.player2_hp < 1:
         Manager.current = 1
         MY.state = 2
-        MY.display_text = TextObject(white, 24, "Player 1 wins! Play again?")
+        MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
 
 # states
 import SpaceWars
