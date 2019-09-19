@@ -8,7 +8,7 @@ def update(delta_time):
     for event in pygame.event.get():
         #Checks if you closed the window.
         if event.type == pygame.QUIT:
-            coda.stop()
+            stop()
         #If you shoot, it plays a sound.        
         elif event.type == pygame.KEYDOWN and event.key == ord(" "):
             sound_laser[random.randint(0, len(sound_laser) - 1)].play()
