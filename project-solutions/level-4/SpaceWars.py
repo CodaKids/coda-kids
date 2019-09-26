@@ -1,6 +1,6 @@
-"""General information on your module and what itwhit does."""
+"""Runs the Init.py file and imports the libraries."""
 from init import *
-import random
+import randomR
 import pygame
 
 def update(delta_time):
