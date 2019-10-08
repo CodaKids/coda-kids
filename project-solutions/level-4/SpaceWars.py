@@ -1,12 +1,12 @@
-"""Runs the Init.py file and imports the libraries."""
+"""Runs the Init.py file and imports the libraries"""
 from init import *
 import randomR
 import pygame
 
 def update(delta_time):
-    """The Update method checks for all the key presses and button clicks."""
+    """The Update method checks for all the key presses and button clicks"""
     for event in pygame.event.get():
-        #Checks if you closed the window.
+        #Checks if you closed the window
         if event.type == pygame.QUIT:
             stop()
         #Fires the two ships' weapons        
