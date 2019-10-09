@@ -33,6 +33,7 @@ def update(delta_time):
     #Moves the Player 1 ship forward and backward
     if pygame.key.get_pressed()[ord("w")]:
         MY.player1.add_velocity(MY.player1.rotation, ship_accel, ship_max_speed)
+    #TODO: Copy the code here for the Player 1 ship to move backward
     elif pygame.key.get_pressed()[ord("s")]:
         MY.player1.add_velocity(MY.player1.rotation, -ship_accel, ship_max_speed)
 
