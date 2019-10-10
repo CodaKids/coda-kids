@@ -38,6 +38,7 @@ def update(delta_time):
         MY.player1.add_velocity(MY.player1.rotation, -ship_accel, ship_max_speed)
 
     #Rotates the Player 2 Nocturn ship
+    #TODO: Write the code here to rotate the Player 2 ship
     if pygame.key.get_pressed()[pygame.K_LEFT]:
         MY.player2.add_rotation(ship_rotate * delta_time)
     elif pygame.key.get_pressed()[pygame.K_RIGHT]:
