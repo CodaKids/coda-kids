@@ -77,14 +77,7 @@ def update(delta_time):
                     MY.bullets[i].active = False
             
             #check collisions
-            if MY.bullet_owner[i] == 1 and MY.bullets[i].collides_with(MY.player2):
-                MY.player2_hp = MY.player2_hp - 1
-                MY.bullets[i].active = False
-                sound_explosions[random.randint(0, len(sound_explosions) - 1)].play()
-            elif MY.bullet_owner[i] == 2 and MY.bullets[i].collides_with(MY.player1):
-                MY.player1_hp = MY.player1_hp - 1
-                MY.bullets[i].active = False
-                sound_explosions[random.randint(0, len(sound_explosions) - 1)].play()
+            check_collision(i)
 
     for asteroid in MY.asteroids:
         if MY.player1.collides_with(asteroid):
