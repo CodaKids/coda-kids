@@ -1,3 +1,5 @@
+#============================================================
+#PART 1: IMPORTING DEPENDENCIES AND ASSIGNING GLOBAL VARIABLES
 import pygame
 from types import ModuleType
 import sys
@@ -23,7 +25,8 @@ DOWN = 3
 # data used to store all lerps
 _data = {}
 
-#coda_kids framework
+#============================================================
+#PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
 class TextObject:
     """
     Create an object that renders text. Assumes that the default font 
@@ -499,15 +502,16 @@ def mouse_position():
     pos = pygame.mouse.get_pos()
     return pygame.math.Vector2(pos[0], pos[1])
 
-"""Setup for the SpaceWars game"""
-#initialize state manager
+#============================================================
+#PART 3: SETUP FOR THE SPACEWARS GAME
+#Initializes the state manager
 Manager = Machine()
 
-#initialize the game window and game screen
+#Initializes the game window and game screen
 WINDOW = pygame.math.Vector2(900, 500)
 SCREEN = start(WINDOW, "Space Wars Tournament")
 
-#load sprites, sounds, and images
+#Loads sprites, sounds, and images
 IMAGE_BACKGROUND = Image("assets/Background.jpg")
 IMAGE_PLAYER1 = Image("assets/Player1.png")
 IMAGE_PLAYER2 = Image("assets/Player2.png")
@@ -535,7 +539,7 @@ ship_accel = 10
 BULLET_SPEED = 1000
 PLAYER_MAX_HP = 10
 
-#Load the changeable data for gameplay
+#Loads the changeable data for gameplay
 class Data:
     player1 = Object(IMAGE_PLAYER1)
     player1_hp = 1
@@ -552,7 +556,7 @@ class Data:
     display_text = TextObject(WHITE, 24, "")
     state = 0
 
-#Initialize the data
+#Initializes the data
 MY = Data()
 
 def health_bar(screen, health, max_health, max_size, location):
