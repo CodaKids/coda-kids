@@ -1,6 +1,6 @@
 """Runs the Init.py file and imports the libraries"""
 from init import *
-import randomR
+import random
 import pygame
 
 def update(delta_time):
