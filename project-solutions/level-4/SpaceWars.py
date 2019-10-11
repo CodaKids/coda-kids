@@ -23,7 +23,7 @@ def update(delta_time):
                 Manager.current = 0
                 MY.state = 0                
 
-    #Rotates the Player 1 Monarch ship
+    #Rotates the Player 1 ship
     if pygame.key.get_pressed()[ord("a")]:
         MY.player1.add_rotation(ship_rotate * delta_time)
     #TODO: Copy the code here for the Player 1 ship to rotate clockwise
@@ -37,7 +37,7 @@ def update(delta_time):
     elif pygame.key.get_pressed()[ord("s")]:
         MY.player1.add_velocity(MY.player1.rotation, -ship_accel, ship_max_speed)
 
-    #Rotates the Player 2 Nocturn ship
+    #Rotates the Player 2 ship
     #TODO: Write the code here to rotate the Player 2 ship
     if pygame.key.get_pressed()[pygame.K_LEFT]:
         MY.player2.add_rotation(ship_rotate * delta_time)
