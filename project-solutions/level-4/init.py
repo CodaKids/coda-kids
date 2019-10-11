@@ -6,7 +6,7 @@ import time
 import random
 from os import path
 
-#coda_kids constant
+#Global color values
 WHITE = [225, 225, 225]
 BLACK = [0, 0, 0]
 YELLOW = [255, 255, 0]
@@ -14,6 +14,7 @@ RED = [255, 0, 0]
 GREEN = [0, 128, 0, 128]
 BLUE = [0, 192, 255, 128]
 
+#Global direction variables
 LEFT = 0
 RIGHT = 1
 UP = 2
@@ -28,7 +29,7 @@ class TextObject:
     Create an object that renders text. Assumes that the default font 
     freesansbold exists in the project directory as a true type font.
         #create a text object
-        title = TextObject(coda.color.RED, 12, "example");
+        title = TextObject(color.RED, 12, "example");
     """
 
     def __init__(self, color_value, font_size, text):
@@ -77,7 +78,6 @@ def update(delta_time):
     for key in to_delete:
         del _data[key]
 
-
 class Machine:
     """Game state machine class."""
     def __init__(self):
@@ -115,7 +115,7 @@ def start(window_size, game_name):
     """
     Initializes the library and returns a pygame screen. Call this first!
 
-        SCREEN = coda.start((w, h), "Title");
+        SCREEN = start((w, h), "Title");
     """
     pygame.init()
     time.sleep(2)
@@ -128,7 +128,7 @@ def stop():
     """
     Stops pygame and closes the window immediately.
 
-        coda.stop();
+        stop();
     """
     sys.exit()
 
@@ -138,6 +138,7 @@ def get_file(fileName):
     return path.join(path.dirname(__file__), fileName)
 
 class Image:
+    """Loads an image object"""
     def __init__(self, image_file_name):
         if image_file_name is not None:
             self.data = pygame.image.load(get_file(image_file_name)).convert_alpha()
@@ -154,7 +155,7 @@ def Sound(sound_file_name):
     """
     Loads and returns a sound file with the given file name.
 
-        SOUND = coda.Image("Example.wav");
+        SOUND = Sound("Example.wav");
     """
     return pygame.mixer.Sound(get_file(sound_file_name))
 
@@ -162,7 +163,7 @@ class SpriteSheet:
     """
     Sprite sheet class for managing sprite animations.
 
-        sheet = coda.SpriteSheet("image.png", (16, 16));
+        sheet = SpriteSheet("image.png", (16, 16));
     """
 
     def __init__(self, filename, frame_size):
@@ -199,7 +200,7 @@ class SpriteSheet:
         return self.columns * self.rows
 
 class Animator:
-
+    """Animator class for animation functions"""
     def __init__(self, sheet, duration_seconds):
         self.sheet = sheet
         self.frame_num = 0
@@ -263,7 +264,7 @@ class Object:
     """
     Object class used to organize and track common game object data, such as location and appearance.
 
-        obj = coda.Object(IMAGE);
+        obj = Object(IMAGE);
     """
     location = pygame.math.Vector2(0, 0)
     scale = 1
@@ -472,9 +473,9 @@ def quit_game(event):
     """
     Checks for quit game event.
 
-        for event in coda.event.listing():
-            if coda.event.quit_game(event):
-                coda.stop();
+        for event in event.listing():
+            if event.quit_game(event):
+                stop();
     """
     return event.type == pygame.QUIT
 
@@ -483,8 +484,8 @@ def mouse_l_button_down(event):
     """
     Checks if the left mouse button was clicked.
 
-        for event in coda.event.listing():
-            if coda.event.mouse_l_button_down(event):
+        for event in event.listing():
+            if event.mouse_l_button_down(event):
                 do_things();
     """
     return event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
@@ -493,26 +494,28 @@ def mouse_position():
     """
     Returns the position of the mouse as a tuple.
 
-        data = coda.event.mouse_position();
+        data = event.mouse_position();
     """
     pos = pygame.mouse.get_pos()
     return pygame.math.Vector2(pos[0], pos[1])
 
+"""Setup for the SpaceWars game"""
+#initialize state manager
 Manager = Machine()
 
-# setup
+#initialize the game window and game screen
 WINDOW = pygame.math.Vector2(900, 500)
 SCREEN = start(WINDOW, "Space Wars Tournament")
 
-#load sprites
+#load sprites, sounds, and images
 IMAGE_BACKGROUND = Image("assets/Background.jpg")
 IMAGE_PLAYER1 = Image("assets/Player1.png")
 IMAGE_PLAYER2 = Image("assets/Player2.png")
 IMAGE_ASTEROID = Image("assets/AsteroidLarge.png")
 IMAGE_ASTEROID_2 = Image("assets/AsteroidSmall.png")
+
 sound_explosions = [Sound("assets/Explosion1.wav"),
                     Sound("assets/Explosion2.wav")]
-
 sound_laser = [Sound("assets/LaserShoot1.wav"),
                Sound("assets/LaserShoot2.wav")]
 
@@ -525,19 +528,15 @@ PROJECTILE_ANIMATION = [None,
 IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
 IMAGE_BUTTON = Image("assets/ReplayButton.png")
 
-# constants
+# constants for movement and gameplay
 ship_rotate = 120
 ship_max_speed = 500
 ship_accel = 10
 BULLET_SPEED = 1000
 PLAYER_MAX_HP = 10
 
-# setup
-WINDOW = pygame.math.Vector2(900, 500)
-SCREEN = start(WINDOW, "Space Wars Tournament")
-
+#Load the changeable data for gameplay
 class Data:
-    """place changable state variables here."""
     player1 = Object(IMAGE_PLAYER1)
     player1_hp = 1
     player2 = Object(IMAGE_PLAYER2)
@@ -548,12 +547,12 @@ class Data:
     maxFrameTime = 0.05
     window = pygame.math.Vector2(10, 10)
     background = Object(IMAGE_BACKGROUND)
-    """place changable state variables here."""
     gameoverbackground = Object(IMAGE_GAMEOVER)
     restart_button = Object(IMAGE_BUTTON)
     display_text = TextObject(WHITE, 24, "")
     state = 0
 
+#Initialize the data
 MY = Data()
 
 def health_bar(screen, health, max_health, max_size, location):
@@ -647,9 +646,8 @@ def fire_bullet(player_number):
         MY.bullet_owner[index] = player_number
         MY.bullets[index].sprite = PROJECTILE_ANIMATION[player_number]
 
-
 def draw(screen):
-    """Draws the state to the given screen."""
+    """Draws the state to the given screen for SpaceWars."""
     MY.background.draw(screen)
     MY.player1.draw(screen)
     MY.player2.draw(screen)
@@ -671,11 +669,12 @@ def draw(screen):
             MY.asteroids[i].draw(screen)
 
 def cleanup():
-    """Cleans up the Intro State."""
+    """Cleans up the Intro State for SpaceWars."""
     MY.bullets = []
     MY.asteroids = []
 
 class restarter_player1:
+    """Restarter class to be loaded if Player 1 wins."""
     # load sprites
     IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
     IMAGE_BUTTON = Image("assets/ReplayButton.png")
@@ -713,8 +712,7 @@ class restarter_player1:
         """Cleans up the restart menu state."""
 
 class restarter_player2:
-    """General information on your module and what it does."""    
-
+    """Restarter class to be loaded if Player 2 wins."""    
     # load sprites
     IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
     IMAGE_BUTTON = Image("assets/ReplayButton.png")
@@ -750,6 +748,3 @@ class restarter_player2:
 
     def cleanup():
         """Cleans up the restart menu state."""
-
-r1=restarter_player1()
-r2=restarter_player2()
