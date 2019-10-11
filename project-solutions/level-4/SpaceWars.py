@@ -107,11 +107,8 @@ def update(delta_time):
 # states
 import SpaceWars
 Manager.register(SpaceWars)
-import restarter1
-Manager.register(restarter1)
-import restarter2
-Manager.register(restarter2)
-
+Manager.register(restarter_player1)
+Manager.register(restarter_player2)
 
 # run the game!
 Manager.run(SCREEN, WINDOW, BLACK)
