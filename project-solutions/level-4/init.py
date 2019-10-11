@@ -650,8 +650,6 @@ def fire_bullet(player_number):
 
 def draw(screen):
     """Draws the state to the given screen."""
-    #if MY.state == 0:
-    #    print ("draw functoin state==0")
     MY.background.draw(screen)
     MY.player1.draw(screen)
     MY.player2.draw(screen)
@@ -671,17 +669,11 @@ def draw(screen):
     for i in range(len(MY.asteroids)):
         if MY.asteroids[i].active:
             MY.asteroids[i].draw(screen)
-    #else:
-    #    print ("draw functoin state!=0")
-    #    MY.gameoverbackground.draw(screen)
-    #    MY.restart_button.draw(screen)
-    #    MY.display_text.draw(screen)
 
 def cleanup():
     """Cleans up the Intro State."""
     MY.bullets = []
     MY.asteroids = []
-
 
 class restarter_player1:
     # load sprites

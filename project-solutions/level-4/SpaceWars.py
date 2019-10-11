@@ -1,4 +1,4 @@
-"""General information on your module and what itwhit does."""
+"""General information on your module and what it does."""
 from init import *
 import random
 import pygame
@@ -71,7 +71,7 @@ def update(delta_time):
             for j in range(len(MY.asteroids)):
                 if MY.bullets[i].collides_with(MY.asteroids[j]):
                     MY.bullets[i].active = False
-            
+        
             #check collisions
             if MY.bullet_owner[i] == 1 and MY.bullets[i].collides_with(MY.player2):
                 MY.player2_hp = MY.player2_hp - 1
@@ -91,13 +91,13 @@ def update(delta_time):
 
     # Check win condition
     if MY.player1_hp < 1:
-        Manager.current = 2
+        Manager.current = 1
         MY.state = 1
         MY.display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
         
     elif MY.player2_hp < 1:
         Manager.current = 1
-        MY.state = 2
+        MY.state = 1
         MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
 
 # states
@@ -107,7 +107,6 @@ import restarter1
 Manager.register(restarter1)
 import restarter2
 Manager.register(restarter2)
-
 
 # run the game!
 Manager.run(SCREEN, WINDOW, BLACK)

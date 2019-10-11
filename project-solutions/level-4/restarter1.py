@@ -6,10 +6,10 @@ IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
 IMAGE_BUTTON = Image("assets/ReplayButton.png")
 
 # modifiable data
-class Data:
+class Data():
     """place changable state variables here."""
     gameoverbackground = Object(IMAGE_GAMEOVER)
-    restart_button =Object(IMAGE_BUTTON)
+    restart_button = Object(IMAGE_BUTTON)
     display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
 
 MY = Data()
