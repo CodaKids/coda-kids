@@ -87,15 +87,8 @@ def update(delta_time):
             MY.player2.velocity = pygame.math.Vector2(0, 0)
 
     # Check win condition
-    if MY.player1_hp < 1:
-        Manager.current = 2
-        MY.state = 1
-        MY.display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
-        
-    elif MY.player2_hp < 1:
-        Manager.current = 1
-        MY.state = 2
-        MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
+    check_win()
+
 
 # states
 import SpaceWars

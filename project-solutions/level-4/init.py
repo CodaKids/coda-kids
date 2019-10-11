@@ -759,3 +759,15 @@ def check_collision(i):
         MY.player1_hp = MY.player1_hp - 1
         MY.bullets[i].active = False
         sound_explosions[random.randint(0, len(sound_explosions) - 1)].play()
+
+def check_win():
+    """Check win condition and change state if a player has won the game"""
+    if MY.player1_hp < 1:
+        Manager.current = 2
+        MY.state = 1
+        MY.display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
+        
+    elif MY.player2_hp < 1:
+        Manager.current = 1
+        MY.state = 2
+        MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
