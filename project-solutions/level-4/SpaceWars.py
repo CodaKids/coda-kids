@@ -44,7 +44,7 @@ def update(delta_time):
     elif pygame.key.get_pressed()[pygame.K_RIGHT]:
         MY.player2.add_rotation(-ship_rotate * delta_time)
 
-    #Moves the Player 2 ship forward and backward
+    #TODO: Write the code here to move the Player 2 ship
     if pygame.key.get_pressed()[pygame.K_UP]:
         MY.player2.add_velocity(MY.player2.rotation, ship_accel, ship_max_speed)
     elif pygame.key.get_pressed()[pygame.K_DOWN]:
