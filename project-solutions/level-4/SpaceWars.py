@@ -50,24 +50,15 @@ def update(delta_time):
     MY.player1.update(delta_time)
     MY.player2.update(delta_time)
 
-    for i in range(len(MY.asteroids)):
-        if MY.asteroids[i].active:
-            MY.asteroids[i].update(delta_time)
-            screen_wrap(MY.asteroids[i], MY.window)
-
     # Checks if players are outside of the screen
     screen_wrap(MY.player1, MY.window)
     screen_wrap(MY.player2, MY.window)
 
-    # Checks if bullets have been fired and returns if they have or have not
+    # Checks if bullets have been fired and updates their behavior on screen
     update_bullets(delta_time)
-
-    for asteroid in MY.asteroids:
-        if MY.player1.collides_with(asteroid):
-            MY.player1.velocity = pygame.math.Vector2(0, 0)
-
-        if MY.player2.collides_with(asteroid):
-            MY.player2.velocity = pygame.math.Vector2(0, 0)
+    
+    # Updates asteroid objects on screen
+    update_asteroids(delta_time)
 
     # Check win condition
     check_win()   

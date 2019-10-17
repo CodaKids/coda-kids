@@ -825,3 +825,13 @@ def update_bullets(delta_time):
                     MY.bullets[i].active = False
             #check collisions
             check_collision(i)
+
+def update_asteroids(delta_time):
+    for asteroid in MY.asteroids:
+        if asteroid.active:
+            asteroid.update(delta_time)
+            screen_wrap(asteroid, MY.window)
+        if MY.player1.collides_with(asteroid):
+            MY.player1.velocity = pygame.math.Vector2(0, 0)
+        if MY.player2.collides_with(asteroid):
+            MY.player2.velocity = pygame.math.Vector2(0, 0)
