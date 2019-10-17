@@ -802,8 +802,26 @@ def check_win():
         MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
 
 def check_replay_click(event):
+    """Check to see if the replay button has been clicked"""
     if mouse_l_button_down(event):
         pos = mouse_position()
         if MY.restart_button.collides_with_point(Object(pos[0], pos[1])):
             Manager.current = 0
             MY.state = 0  
+
+def update_bullets(delta_time):
+    """Update the bullets and check for collisions"""
+    # Update bullets
+    for i in range(len(MY.bullets)):
+        # ignore if not active
+        if MY.bullets[i].active:
+            MY.bullets[i].update(delta_time)
+            # Destroy bullets that hit the screen edge.
+            if screen_wrap(MY.bullets[i], MY.window):
+                MY.bullets[i].active = False
+                continue
+            for j in range(len(MY.asteroids)):
+                if MY.bullets[i].collides_with(MY.asteroids[j]):
+                    MY.bullets[i].active = False
+            #check collisions
+            check_collision(i)

@@ -59,22 +59,8 @@ def update(delta_time):
     screen_wrap(MY.player1, MY.window)
     screen_wrap(MY.player2, MY.window)
 
-    # Update bullets
-    for i in range(len(MY.bullets)):
-        # ignore if not active
-        if MY.bullets[i].active:
-            MY.bullets[i].update(delta_time)
-            # Destroy bullets that hit the screen edge.
-            if screen_wrap(MY.bullets[i], MY.window):
-                MY.bullets[i].active = False
-                continue
-
-            for j in range(len(MY.asteroids)):
-                if MY.bullets[i].collides_with(MY.asteroids[j]):
-                    MY.bullets[i].active = False
-            
-            #check collisions
-            check_collision(i)
+    # Checks if bullets have been fired and returns if they have or have not
+    update_bullets(delta_time)
 
     for asteroid in MY.asteroids:
         if MY.player1.collides_with(asteroid):
