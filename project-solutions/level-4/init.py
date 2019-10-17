@@ -502,6 +502,31 @@ def mouse_position():
     pos = pygame.mouse.get_pos()
     return pygame.math.Vector2(pos[0], pos[1])
 
+def key_down(event, key):
+    """
+    Checks if the keyboard key is pressed.
+
+        for ev in coda.event.listing():
+            # Space key pressed.
+            if event.key_down(ev, " "):
+                do_things();
+    """
+    if isinstance(key, str):
+        return event.type == pygame.KEYDOWN and event.key == ord(key)
+    return event.type == pygame.KEYDOWN and event.key == key
+
+def key_held_down(key):
+    """
+    Checks if a key is being held down over multiple frames.
+
+        # 'a' key held down.
+        if coda.key_held_down("a"):
+            do_things();
+    """
+    if isinstance(key, str):
+        return pygame.key.get_pressed()[ord(key)]
+    return pygame.key.get_pressed()[key]
+
 #============================================================
 #PART 3: SETUP FOR THE SPACEWARS GAME
 #Initializes the state manager
@@ -775,3 +800,10 @@ def check_win():
         Manager.current = 1
         MY.state = 2
         MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
+
+def check_replay_click(event):
+    if mouse_l_button_down(event):
+        pos = mouse_position()
+        if MY.restart_button.collides_with_point(Object(pos[0], pos[1])):
+            Manager.current = 0
+            MY.state = 0  

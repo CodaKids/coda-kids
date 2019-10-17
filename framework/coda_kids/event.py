@@ -118,7 +118,7 @@ def key_down(event, key):
                 do_things();
     """
     if isinstance(key, str):
-        return event.type == pygame.KEYDOWN and event.key == ord(key)
+        return event.type == pygame.KEYDOWN and event.key == key
     return event.type == pygame.KEYDOWN and event.key == key
 
 def key_up(event, key):
