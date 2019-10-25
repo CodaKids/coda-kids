@@ -702,7 +702,7 @@ def cleanup():
     MY.bullets = []
     MY.asteroids = []
 
-class restarter_player1:
+class GameOver:
     """Restarter class to be loaded if Player 1 wins."""
     # load sprites
     IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
@@ -731,52 +731,14 @@ class restarter_player1:
                 if MY.restart_button.collides_with_point(mouse_position()):
                     Manager.current = 0
 
-    def draw(screen):
-        """Draws the restart menu state."""
-        MY.gameoverbackground.draw(screen)
-        MY.restart_button.draw(screen)
-        MY.display_text.draw(screen)
-
     def cleanup():
         """Cleans up the restart menu state."""
-
-class restarter_player2:
-    """Restarter class to be loaded if Player 2 wins."""    
-    # load sprites
-    IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
-    IMAGE_BUTTON = Image("assets/ReplayButton.png")
-
-    # modifiable data
-    class Data:
-        """place changable state variables here."""
-        gameoverbackground = Object(IMAGE_GAMEOVER)
-        restart_button = Object(IMAGE_BUTTON)
-        display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
-
-    MY = Data()
-
-    def initialize(window):
-        """Initializes the restart menu state."""
-        MY.gameoverbackground.location = window / 2
-        MY.restart_button.location = window / 2
-
-    def update(delta_time):
-        """Updates the restart menu state."""
-        for event in pygame.event.get():
-            if quit_game(event):
-                stop()
-            if mouse_l_button_down(event):
-                if MY.restart_button.collides_with_point(mouse_position()):
-                    Manager.current = 0
 
     def draw(screen):
         """Draws the restart menu state."""
         MY.gameoverbackground.draw(screen)
         MY.restart_button.draw(screen)
         MY.display_text.draw(screen)
-
-    def cleanup():
-        """Cleans up the restart menu state."""
 
 def check_collision(i):
     """Checks for bullet collision and responds appropriately in SpaceWars"""
@@ -792,13 +754,13 @@ def check_collision(i):
 def check_win():
     """Check win condition and change state if a player has won the game"""
     if MY.player1_hp < 1:
-        Manager.current = 2
+        Manager.current = 1
         MY.state = 1
         MY.display_text = TextObject(WHITE, 24, "Player 2 wins! Play again?")
         
     elif MY.player2_hp < 1:
         Manager.current = 1
-        MY.state = 2
+        MY.state = 1
         MY.display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
 
 def check_replay_click(event):
@@ -827,6 +789,7 @@ def update_bullets(delta_time):
             check_collision(i)
 
 def update_asteroids(delta_time):
+    """Updates the position of the asteroids in the game window."""
     for asteroid in MY.asteroids:
         if asteroid.active:
             asteroid.update(delta_time)
@@ -835,3 +798,11 @@ def update_asteroids(delta_time):
             MY.player1.velocity = pygame.math.Vector2(0, 0)
         if MY.player2.collides_with(asteroid):
             MY.player2.velocity = pygame.math.Vector2(0, 0)
+
+def update_players(delta_time):
+    """Updates the position of the players in the game window."""
+    MY.player1.update(delta_time)
+    MY.player2.update(delta_time)
+
+    screen_wrap(MY.player1, MY.window)
+    screen_wrap(MY.player2, MY.window)

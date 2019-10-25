@@ -46,13 +46,9 @@ def update(delta_time):
         MY.player2.add_velocity(MY.player2.rotation, ship_accel, ship_max_speed)
     elif key_held_down(pygame.K_DOWN):
         MY.player2.add_velocity(MY.player2.rotation, -ship_accel, ship_max_speed)
-
-    MY.player1.update(delta_time)
-    MY.player2.update(delta_time)
-
-    # Checks if players are outside of the screen
-    screen_wrap(MY.player1, MY.window)
-    screen_wrap(MY.player2, MY.window)
+    
+    # Updates player objects on screen
+    update_players(delta_time)
 
     # Checks if bullets have been fired and updates their behavior on screen
     update_bullets(delta_time)
@@ -67,8 +63,7 @@ def update(delta_time):
 # states
 import SpaceWars
 Manager.register(SpaceWars)
-Manager.register(restarter_player1)
-Manager.register(restarter_player2)
+Manager.register(GameOver)
 
 # run the game!
 Manager.run(SCREEN, WINDOW, BLACK)
