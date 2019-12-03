@@ -1,12 +1,17 @@
-"""General information on your module and what it does."""
-import coda_kids as coda
+"""This file is used to set up and register the state machine. Always run the project from here!"""
+import pygame
+
+Manager = Machine()
+
+WINDOW = pygame.math.Vector2(800, 608)
+SCREEN = start(WINDOW, "Boss Battle")
 
 #load sprites constants
-BOSS_IMAGE = coda.Image("boss.png")
-PROJECTILE_IMAGE = coda.Image("projectile.png")
-PLAYER_ATTACK_1_IMAGE = coda.Image("attack_1.png")
-PLAYER_ATTACK_2_IMAGE = coda.Image("attack_2.png")
-PLAYER_ATTACK_3_IMAGE = coda.Image("attack_3.png")
+BOSS_IMAGE = Image("assets/boss.png")
+PROJECTILE_IMAGE = Image("assets/projectile.png")
+PLAYER_ATTACK_1_IMAGE = Image("assets/attack_1.png")
+PLAYER_ATTACK_2_IMAGE = Image("assets/attack_2.png")
+PLAYER_ATTACK_3_IMAGE = Image("assets/attack_3.png")
 
 #constants
 PLAYER = 0
@@ -16,15 +21,15 @@ TILE_SIZE = 32
 
 class Data:
     """Modifiable data"""
-    tilesheet = coda.SpriteSheet("tileset.png", (32, 32))
-    player_sheet = coda.SpriteSheet("player_sheet.png", (42, 48))
+    tilesheet = SpriteSheet("assets/tileset.png", (32, 32))
+    player_sheet = SpriteSheet("assets/player_sheet.png", (42, 48))
     tilemap = []
     floors = []
     walls = []
-    player_start_position = coda.Vector2(0, 0)
-    boss_start_position = coda.Vector2(0, 0)
-    player = coda.Object(tilesheet.image_at(0))
-    boss = coda.Object(BOSS_IMAGE)
+    player_start_position = pygame.math.Vector2(0, 0)
+    boss_start_position = pygame.math.Vector2(0, 0)
+    player = Object(tilesheet.image_at(0))
+    boss = Object(BOSS_IMAGE)
     player_health = 100
     boss_health = 300
     player_dir = coda.dir.UP
@@ -37,7 +42,7 @@ class Data:
     state = 0
     last_state = 2
     player_text = coda.TextObject(coda.color.BLACK, 24, "Player: ")
-    player_hitbox = coda.Object(PROJECTILE_IMAGE)
+    player_hitbox = Object(PROJECTILE_IMAGE)
     index = 0
     boss_logic = coda.StateMachine()
     player_logic = coda.StateMachine()
@@ -64,8 +69,8 @@ def load_level(level_name_as_string):
     for row in range(len(MY.tilemap)):
         for column in range(len(MY.tilemap[row])):
             tile_value = int(MY.tilemap[row][column])
-            obj = coda.Object(MY.tilesheet.image_at(tile_value))
-            obj.location = coda.Vector2(column * TILE_SIZE + 16, row * TILE_SIZE + 16)
+            obj = Object(MY.tilesheet.image_at(tile_value))
+            obj.location = pygame.math.Vector2(column * TILE_SIZE + 16, row * TILE_SIZE + 16)
             if tile_value == GRASS:
                 MY.floors.append(obj)
             else:
@@ -183,7 +188,7 @@ def initialize(window):
     MY.boss.location = window / 2
     count = 0
     while count < 100:
-        MY.bullets.append(coda.Object(PROJECTILE_IMAGE))
+        MY.bullets.append(Object(PROJECTILE_IMAGE))
         MY.bullet_owner.append(BOSS)
         count += 1
 
@@ -215,7 +220,7 @@ def update(delta_time):
         x_value = MY.player.location.x + temp
         y_value = MY.player.location.y
 
-    MY.player_hitbox.location = coda.Vector2(x_value, y_value)
+    MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
 
     for wall in MY.walls:
         if MY.player.collides_with(wall):
@@ -276,4 +281,4 @@ def draw(screen):
 
 def cleanup():
     """Cleans up the Intro State."""
-
+  
