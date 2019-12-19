@@ -1,5 +1,441 @@
 """This file is used to set up and register the state machine. Always run the project from here!"""
 import pygame
+import random
+import time
+from os import path
+import math
+import sys
+
+# colors
+WHITE = [225, 225, 225]
+BLACK = [0, 0, 0]
+YELLOW = [255, 255, 0]
+RED = [255, 0, 0]
+GREEN = [0, 128, 0, 128]
+BLUE = [0, 192, 255, 128]
+
+# directions
+LEFT = 0
+RIGHT = 1
+UP = 2
+DOWN = 3
+
+def start(window, name):
+    """Initialize pygame and random seed."""
+    pygame.init()
+    random.seed(time.time())
+    pygame.display.set_caption(name)
+    return pygame.display.set_mode((int(window[0]), int(window[1])))
+
+def stop():
+    """
+    Stops pygame and closes the window immediately.
+        coda.stop();
+    """
+    sys.exit()
+
+def draw_rect(screen, color, top_left, size):
+    """
+    Draw's a rectangle with the given values. Doesn't return.
+        coda.draw_rect(SCREEN, (r, g, b, a), (0, 0), (10, 10));
+    """
+    pygame.draw.rect(screen, color, (top_left[0], top_left[1], size[0], size[1]))
+
+def key_down(event, key):
+    """
+    Checks if the keyboard key is pressed.
+        for ev in coda.event.listing():
+            # Space key pressed.
+            if coda.event.key_down(ev, " "):
+                do_things();
+    """
+    if isinstance(key, str):
+        return event.type == pygame.KEYDOWN and event.key == key
+    return event.type == pygame.KEYDOWN and event.key == key
+
+def key_held_down(key):
+    """
+    Checks if a key is being held down over multiple frames.
+        # 'a' key held down.
+        if coda.key_held_down("a"):
+            do_things();
+    """
+    if isinstance(key, str):
+        return pygame.key.get_pressed()[ord(key)]
+    return pygame.key.get_pressed()[key]
+
+def listing():
+    """
+    Returns a list of all events currently in the event system.
+        for event in coda.event.listing():
+            if coda.event.quit_game(event):
+                coda.stop();
+    """
+    return pygame.event.get()
+
+def quit_game(event):
+    """
+    Checks for quit game event.
+        for event in coda.event.listing():
+            if coda.event.quit_game(event):
+                coda.stop();
+    """
+    return event.type == pygame.QUIT
+
+def get_file(fileName):
+    """Returns the absolute path of a file."""
+    #This grabs your files from your folder.
+    return path.join(path.dirname(__file__), fileName)
+
+def read_file(filename):
+    """Read a file line by line and return it as an array of strings."""
+    # Create an empty array.
+    array = []
+    # Open our file for read.
+    file = open(filename, 'r')
+
+    # put all the lines in an array
+    for line in file:
+        array.append(line.rstrip())
+
+    return array
+
+class Machine:
+    """Game state machine class."""
+    def __init__(self):
+        self.current = 0
+        self.previous = 0
+        self.states = []
+
+    def register(self, module):
+        """Registers the state's init, update, draw, and cleanup functions."""
+        self.states.append({'initialize': module.initialize,
+                            'update': module.update,
+                            'draw': module.draw,
+                            'cleanup': module.cleanup})
+
+    def run(self, screen, window, fill_color):
+        """Runs the state given machine."""
+        clock = pygame.time.Clock()
+        # first run initialize!
+        self.states[self.current]['initialize'](window)
+
+        while True:
+            delta_time = clock.tick(60) / 1000
+            if self.current != self.previous:
+                self.states[self.current]['cleanup']()
+                self.states[self.current]['initialize'](window)
+                self.previous = self.current
+
+            update(delta_time)
+            self.states[self.current]['update'](delta_time)
+            screen.fill(fill_color)
+            self.states[self.current]['draw'](screen)
+            pygame.display.flip()
+
+class Image:
+    """Loads an image object"""
+    def __init__(self, image_file_name):
+        if image_file_name is not None:
+            self.data = pygame.image.load(get_file(image_file_name)).convert_alpha()
+        else:
+            self.data = None
+
+    def update(self, dt):
+        return
+
+    def surface(self):
+        return self.data
+
+class SpriteSheet:
+    """
+    Sprite sheet class for managing sprite animations.
+
+        sheet = SpriteSheet("image.png", (16, 16));
+    """
+
+    def __init__(self, filename, frame_size):
+        self.sheet = pygame.image.load(get_file(filename)).convert_alpha()
+        rect = self.sheet.get_rect()
+        self.columns = rect.width / frame_size[0]
+        self.rows = rect.height / frame_size[1]
+        rect.width = frame_size[0]
+        rect.height = frame_size[1]
+        self.rectangle = rect
+
+    def image_at(self, index):
+        """
+        Get an image at the given 0 based index.
+
+            obj.sprite = sheet.image_at(0);
+        """
+        x = math.floor(index % self.columns) * self.rectangle.width
+        y = math.floor(index / self.columns) * self.rectangle.height
+        self.rectangle.centerx = x + self.rectangle.width / 2
+        self.rectangle.centery = y + self.rectangle.height / 2
+        image = Image(None)
+        image.data = pygame.Surface(self.rectangle.size, pygame.SRCALPHA, 32).convert_alpha()
+        image.data.blit(self.sheet, (0, 0), self.rectangle)
+        return image
+
+    def num_frames(self):
+        """
+        Return the number of frames of animation for the given sheet.
+
+            size = sheet.num_frames();
+        return self.columns * self.rows
+        """
+        return self.columns * self.rows
+
+class Object:
+    """
+    Object class used to organize and track common game object data, such as location and appearance.
+
+        obj = Object(IMAGE);
+    """
+    location = pygame.math.Vector2(0, 0)
+    scale = 1
+    velocity = pygame.math.Vector2(0, 0)
+
+    def __init__(self, image):
+        self.sprite = image
+        self.rotation = 0
+        self.active = False
+        self.collision = [False] * 5
+
+    def __setattr__(self, name, value):
+        if name == "location" or name == "velocity":
+            self.__dict__[name] = pygame.math.Vector2(value[0], value[1])
+        elif name == "rotation":
+            self.__dict__[name] = value - 360 * int(value / 360)
+        elif name == "sprite":
+            if isinstance(value, Image):
+                self.__dict__[name] = value
+            elif isinstance(value, Animator):
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def get_transformed_rect(self):
+        """
+        Returns a transformed version of the object sprite. Generally for internal use only.
+
+            rect = obj.get_transformed_rect();
+        """
+        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.rotation, self.scale)
+        rect = sprite.get_rect()
+        rect.center = self.location
+        return rect
+
+    def width(self):
+        """
+        Gets the width of the object in reference to it's image data.
+
+            width = obj.width();
+        """
+        rect = self.get_transformed_rect()
+        return rect.width
+
+    def height(self):
+        """
+        Gets the height of the object in reference to it's image data.
+
+            height = obj.height();
+        """
+        rect = self.get_transformed_rect()
+        return rect.height
+
+    def add_rotation(self, degrees):
+        """
+        Add to the existing rotation of an object in degrees. Positive is clockwise.
+
+            obj.add_rotation(90);
+        """
+        self.rotation = self.rotation + degrees
+        self.rotation = self.rotation - 360 * int(self.rotation /360)
+
+    def add_velocity(self, direction, speed, max_speed):
+        """
+        Add velocity to the object with the given direction and speed.
+
+            obj.add_velocity((0, 1), 1, 10); # increase upwards
+        """
+        epsilon = 1.0e-15
+        direction = pygame.math.Vector2(math.cos(math.radians(direction - 90)),
+                            math.sin(math.radians(direction - 90)))
+        if direction.x < epsilon and direction.x > 0:
+            direction.x = 0
+
+        if direction.y < epsilon and direction.y > 0:
+            direction.y = 0
+
+        vel = pygame.math.Vector2(-1 * direction.x * speed, direction.y * speed)
+
+        self.velocity += vel
+        distance_sq = self.velocity.length()
+
+        if distance_sq > max_speed:
+            self.velocity.normalize_ip()
+            self.velocity *= max_speed
+
+    def set_velocity(self, degrees, speed):
+        """
+        set velocity of the object with the given angle and speed.
+
+            obj.set_velocity(45, 5); # left 5
+        """
+        self.velocity = pygame.math.Vector2(-1 * math.cos(math.radians(degrees - 90)) * speed,
+                                math.sin(math.radians(degrees - 90)) * speed)
+
+    def collides_with(self, other_obj):
+        """
+        Check if this object collides with the given object.
+
+            if obj1.collides_with(obj2):
+                do_things();
+        """
+        # check for early rejection.
+        dist = (self.location - other_obj.location).length_squared()
+        # if distance between objects is greater then 64^2
+        if dist > 4096:
+            self.collision[DOWN] = self.collision[UP] = False
+            self.collision[LEFT] = self.collision[RIGHT] = False
+            return False
+
+        #get transformed rectangles
+        rect1 = self.get_transformed_rect()
+        rect2 = other_obj.get_transformed_rect()
+
+        if not rect1.colliderect(rect2):
+            return False
+
+        self.collision[DOWN] = rect2.collidepoint((rect1.center[0] - rect1.width / 4, rect1.center[1] + rect1.height / 2)) or rect2.collidepoint((rect1.center[0] + rect1.width / 4, rect1.center[1] + rect1.height / 2))
+        self.collision[UP] = rect2.collidepoint((rect1.center[0] - rect1.width / 4, rect1.center[1] - rect1.height / 2)) or rect2.collidepoint((rect1.center[0] + rect1.width / 4, rect1.center[1] - rect1.height / 2))
+        self.collision[LEFT] = rect2.collidepoint((rect1.center[0] - rect1.width / 2, rect1.center[1] + rect1.height / 4)) or rect2.collidepoint((rect1.center[0] - rect1.width / 2, rect1.center[1] - rect1.height / 4))
+        self.collision[RIGHT] = rect2.collidepoint((rect1.center[0] + rect1.width / 2, rect1.center[1] + rect1.height / 4)) or rect2.collidepoint((rect1.center[0] + rect1.width / 2, rect1.center[1] - rect1.height / 4))
+
+        return True
+
+    def snap_to_object_x(self, other_obj, facing):
+        """
+        Snaps the object to the left or right of the other object given.
+
+            # Snap obj1 left of obj2
+            obj1.snap_to_object_x(obj2, LEFT);
+        """
+        if facing == LEFT:
+            self.location.x = (other_obj.location.x +
+                               other_obj.width() / 2 +
+                               self.width() / 2)
+        else:
+            self.location.x = (other_obj.location.x -
+                               (other_obj.width() / 2 +
+                                self.width() / 2))
+
+    def snap_to_object_y(self, other_obj, facing):
+        """
+        Snaps the object to the left or right of the other object given.
+
+            # Snap obj1 left of obj2
+            obj1.snap_to_object(obj2, LEFT);
+        """
+        if facing == UP:
+            self.location.y = (other_obj.location.y +
+                               other_obj.height() / 2 +
+                               self.height() / 2)
+        else:
+            self.location.y = (other_obj.location.y -
+                               (other_obj.height() / 2 +
+                                self.height() / 2))
+
+    def collides_with_point(self, point):
+        """
+        Check if this object collides with the given position.
+
+            # point
+            obj.collides_with_point(10, 10);
+
+            # Mouse position
+            obj.collides_with_point(coda.event.mouse_position());
+        """
+        sprite = pygame.transform.rotate(self.sprite.surface(), self.rotation)
+        rect = sprite.get_rect()
+        location = self.location + self.velocity
+        rect.center = location
+        return rect.collidepoint(point)
+
+    def update(self, delta_time):
+        self.location += self.velocity * delta_time
+        self.sprite.update(delta_time)
+
+    def draw(self, screen):
+        """
+        draws the object to the screen.
+
+            # draw the object
+            obj.draw(SCREEN);
+        """
+        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.rotation, self.scale)
+        rect = sprite.get_rect()
+        rect.center = self.location
+        screen.blit(sprite, rect)
+
+class CountdownTimer:
+    """
+    Countdown timer class for timer logic.
+        timer = CountdownTimer(seconds);
+        if (timer.tick(delta_time)):
+            do_things();
+    """
+    def __init__(self, max_time):
+        """Initialize the timer with the given values."""
+        self.max_time = max_time
+        self.current_time = 0
+
+    def tick(self, delta_time):
+        """update timer and check if finished."""
+        self.current_time += delta_time
+        if self.current_time >= self.max_time:
+            return True
+        return False
+
+class TextObject:
+    """
+    Create an object that renders text. Assumes that the default font 
+    freesansbold exists in the project directory as a true type font.
+        #create a text object
+        title = TextObject(color.RED, 12, "example");
+    """
+
+    def __init__(self, color_value, font_size, text):
+        self.location = pygame.math.Vector2(0, 0)
+        self.color = color_value
+        self.font_size = font_size
+        self.text = text
+        self.centered = False
+
+    def __setattr__(self, name, value):
+        if name == "location":
+            self.__dict__[name] = pygame.math.Vector2(value[0], value[1])
+        elif name == "font_size":
+            self.__dict__[name] = value
+            self.font = pygame.font.Font('freesansbold.ttf', int(self.font_size))
+        else:
+            self.__dict__[name] = value
+
+    def draw(self, screen):
+        """
+        Draws the object text to the screen.
+            text.draw(SCREEN);
+        """
+
+        obj = self.font.render(self.text, 1, self.color)
+        loc = pygame.math.Vector2(self.location.x, self.location.y)
+        if self.centered is True:
+            loc.x -= obj.get_rect().width / 2
+        screen.blit(obj, loc)
+
+
 
 Manager = Machine()
 
@@ -32,39 +468,39 @@ class Data:
     boss = Object(BOSS_IMAGE)
     player_health = 100
     boss_health = 300
-    player_dir = coda.dir.UP
-    timer1 = coda.CountdownTimer(0.1)
-    timer3 = coda.CountdownTimer(0.1)
+    player_dir = UP
+    timer1 = CountdownTimer(0.1)
+    timer3 = CountdownTimer(0.1)
     numberOfBullets = 0
     bullets = []
     bullet_owner = []
     rotation_speed = 180
     state = 0
     last_state = 2
-    player_text = coda.TextObject(coda.color.BLACK, 24, "Player: ")
+    player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(PROJECTILE_IMAGE)
     index = 0
-    boss_logic = coda.StateMachine()
-    player_logic = coda.StateMachine()
+    boss_logic = Machine()
+    player_logic = Machine()
 
 MY = Data()
 
 def health_bar(screen, health, max_health, max_size, location):
     """Creates a health bar at the given position."""
     if health > max_health - max_health * 0.25:
-        bar_color = coda.color.GREEN
+        bar_color = GREEN
     elif health > max_health - max_health * 0.5:
-        bar_color = coda.color.YELLOW
+        bar_color = YELLOW
     else:
-        bar_color = coda.color.RED
+        bar_color = RED
 
     width = max_size[0] * (health / max_health)
-    coda.draw_rect(screen, bar_color, location, (width, max_size[1]))
+    draw_rect(screen, bar_color, location, (width, max_size[1]))
 
 def load_level(level_name_as_string):
     """Cleans up resources and loads a specified level. Can be used to reload the same level."""
     cleanup()
-    MY.tilemap = coda.utilities.read_file(level_name_as_string + ".txt")
+    MY.tilemap = read_file(level_name_as_string + ".txt")
     obj = MY.player
     for row in range(len(MY.tilemap)):
         for column in range(len(MY.tilemap[row])):
@@ -94,7 +530,7 @@ def fire_bullet(player_number, degrees, speed):
         MY.bullet_owner[index] = player_number
 
 def boss_wait_init(state, delta_time):
-    state.timer = coda.CountdownTimer(3)
+    state.timer = CountdownTimer(3)
     state.previous = state.owner.previous_state
 
 def boss_wait_update(state, delta_time):
@@ -125,7 +561,7 @@ def boss_laser_update(state, delta_time):
         state.owner.current_state = 2
 
 def player_attack_init(state, delta_time):
-    state.timer = coda.CountdownTimer(0.2)
+    state.timer = CountdownTimer(0.2)
     MY.player_hitbox.active = True
 
 def player_attack_update(state, delta_time):
@@ -140,37 +576,37 @@ def player_attack_update(state, delta_time):
         MY.player.sprite = PLAYER_ATTACK_3_IMAGE
 
 def player_move_init(state, delta_time):
-    state.timer = coda.CountdownTimer(0.1)
+    state.timer = CountdownTimer(0.1)
     state.index = 0
     state.offset = 0
 
 def player_move_update(state, delta_time):
-    if coda.event.key_held_down("w"):
+    if key_held_down("w"):
         MY.player.location.y -= 200 * delta_time
-        MY.player_dir = coda.dir.UP
+        MY.player_dir = UP
         state.offset = 0
-    elif coda.event.key_held_down("s"):
+    elif key_held_down("s"):
         MY.player.location.y += 200 * delta_time
-        MY.player_dir = coda.dir.DOWN
+        MY.player_dir = DOWN
         state.offset = 6
 
-    if coda.event.key_held_down("a"):
+    if key_held_down("a"):
         MY.player.location.x -= 200 * delta_time
-        MY.player_dir = coda.dir.LEFT
+        MY.player_dir = LEFT
         state.offset = 4
-    elif coda.event.key_held_down("d"):
+    elif key_held_down("d"):
         MY.player.location.x += 200 * delta_time
-        MY.player_dir = coda.dir.RIGHT
+        MY.player_dir = RIGHT
         state.offset = 2
 
-    moving = (coda.event.key_held_down("d") or coda.event.key_held_down("a") or
-              coda.event.key_held_down("s") or coda.event.key_held_down("w"))
+    moving = (key_held_down("d") or key_held_down("a") or
+              key_held_down("s") or key_held_down("w"))
 
     if moving and state.timer.tick(delta_time):
         state.index = (state.index + 1) % 2
-        state.timer = coda.CountdownTimer(0.1)
+        state.timer = CountdownTimer(0.1)
     elif not moving:
-        state.timer = coda.CountdownTimer(0.1)
+        state.timer = CountdownTimer(0.1)
 
     MY.player.sprite = MY.player_sheet.image_at(state.index + state.offset)
 
@@ -194,10 +630,10 @@ def initialize(window):
 
 def update(delta_time):
     """Update method for boss battle state."""
-    for event in coda.event.listing():
-        if coda.event.quit_game(event):
-            coda.stop()
-        elif coda.event.key_down(event, " "):
+    for event in listing():
+        if quit_game(event):
+            stop()
+        elif key_down(event, " "):
             MY.player_logic.current_state = 1
 
     x_value = 0
@@ -207,16 +643,16 @@ def update(delta_time):
     MY.boss_logic.update(delta_time)
     MY.player_logic.update(delta_time)
 
-    if MY.player_dir == coda.dir.UP:
+    if MY.player_dir == UP:
         x_value = MY.player.location.x
         y_value = MY.player.location.y - temp
-    elif MY.player_dir == coda.dir.DOWN:
+    elif MY.player_dir == DOWN:
         x_value = MY.player.location.x
         y_value = MY.player.location.y + temp
-    elif MY.player_dir == coda.dir.LEFT:
+    elif MY.player_dir == LEFT:
         x_value = MY.player.location.x - temp
         y_value = MY.player.location.y
-    elif MY.player_dir == coda.dir.RIGHT:
+    elif MY.player_dir == RIGHT:
         x_value = MY.player.location.x + temp
         y_value = MY.player.location.y
 
@@ -224,17 +660,17 @@ def update(delta_time):
 
     for wall in MY.walls:
         if MY.player.collides_with(wall):
-            if MY.player.collision[coda.dir.DOWN]:
-                MY.player.snap_to_object_y(wall, coda.dir.DOWN)
+            if MY.player.collision[DOWN]:
+                MY.player.snap_to_object_y(wall, DOWN)
                 continue
-            if MY.player.collision[coda.dir.LEFT]:
-                MY.player.snap_to_object_x(wall, coda.dir.LEFT)
+            if MY.player.collision[LEFT]:
+                MY.player.snap_to_object_x(wall, LEFT)
                 continue
-            if MY.player.collision[coda.dir.RIGHT]:
-                MY.player.snap_to_object_x(wall, coda.dir.RIGHT)
+            if MY.player.collision[RIGHT]:
+                MY.player.snap_to_object_x(wall, RIGHT)
                 continue
-            if MY.player.collision[coda.dir.UP]:
-                MY.player.snap_to_object_y(wall, coda.dir.UP)
+            if MY.player.collision[UP]:
+                MY.player.snap_to_object_y(wall, UP)
                 continue
 
     count = -1

@@ -2,6 +2,6 @@
 from init import *
 import pygame
 
-import BossFight
-Manager.register(BossFight)
+import BossBattle
+Manager.register(BossBattle)
 Manager.run(SCREEN, WINDOW, BLACK)
