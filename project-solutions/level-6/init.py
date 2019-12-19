@@ -1,4 +1,4 @@
-"""This file is used to set up and register the state machine. Always run the project from here!"""
+"""This file is used to set up and register the state machine."""
 import pygame
 import random
 import time
