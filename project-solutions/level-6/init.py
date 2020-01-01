@@ -1,4 +1,5 @@
-"""This file is used to set up and register the state machine."""
+#============================================================
+#PART 1: IMPORTING DEPENDENCIES AND ASSIGNING GLOBAL VARIABLES
 import pygame
 import random
 import time
@@ -20,6 +21,10 @@ RIGHT = 1
 UP = 2
 DOWN = 3
 
+_data = {}
+
+#============================================================
+#PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
 def start(window, name):
     """Initialize pygame and random seed."""
     pygame.init()
@@ -99,6 +104,24 @@ def read_file(filename):
         array.append(line.rstrip())
 
     return array
+
+def update(delta_time):
+    """
+    Update all of the lerps. Auto removes lerps when done.
+    Called internally by the state manager.
+    """
+    to_delete = []
+    for (obj, lerp_list) in _data.items():
+        if not lerp_list:
+            to_delete.append(obj)
+        elif lerp_list[0].update(obj, delta_time):
+            lerp_list.pop(0)
+            # remove duplicates
+            while lerp_list and lerp_list[0].end == getattr(obj, lerp_list[0].member):
+                lerp_list.pop(0)
+
+    for key in to_delete:
+        del _data[key]
 
 class Machine:
     """Game state machine class."""
@@ -435,8 +458,8 @@ class TextObject:
             loc.x -= obj.get_rect().width / 2
         screen.blit(obj, loc)
 
-
-
+#============================================================
+#PART 3: SETUP FOR THE BOSS BATTLE GAME
 Manager = Machine()
 
 WINDOW = pygame.math.Vector2(800, 608)
@@ -480,8 +503,8 @@ class Data:
     player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(PROJECTILE_IMAGE)
     index = 0
-    boss_logic = Machine()
-    player_logic = Machine()
+    # boss_logic = Machine()
+    # player_logic = Machine()
 
 MY = Data()
 
@@ -497,8 +520,9 @@ def health_bar(screen, health, max_health, max_size, location):
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
 
+"""
 def load_level(level_name_as_string):
-    """Cleans up resources and loads a specified level. Can be used to reload the same level."""
+   # Cleans up resources and loads a specified level. Can be used to reload the same level.
     cleanup()
     MY.tilemap = read_file(level_name_as_string + ".txt")
     obj = MY.player
@@ -511,6 +535,7 @@ def load_level(level_name_as_string):
                 MY.floors.append(obj)
             else:
                 MY.walls.append(obj)
+"""
 
 def fire_bullet(player_number, degrees, speed):
     """fire a bullet for the player"""
@@ -612,14 +637,15 @@ def player_move_update(state, delta_time):
 
 def initialize(window):
     """Initializes the Introduction class."""
+    """
     MY.boss_logic.add_state(None, boss_explosion_update)
     MY.boss_logic.add_state(None, boss_laser_update)
     MY.boss_logic.add_state(boss_wait_init, boss_wait_update)
 
     MY.player_logic.add_state(player_move_init, player_move_update)
     MY.player_logic.add_state(player_attack_init, player_attack_update)
-
-    load_level("level1")
+    """
+    # load_level("level1")
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
     count = 0
@@ -627,72 +653,6 @@ def initialize(window):
         MY.bullets.append(Object(PROJECTILE_IMAGE))
         MY.bullet_owner.append(BOSS)
         count += 1
-
-def update(delta_time):
-    """Update method for boss battle state."""
-    for event in listing():
-        if quit_game(event):
-            stop()
-        elif key_down(event, " "):
-            MY.player_logic.current_state = 1
-
-    x_value = 0
-    y_value = 0
-    temp = 35
-
-    MY.boss_logic.update(delta_time)
-    MY.player_logic.update(delta_time)
-
-    if MY.player_dir == UP:
-        x_value = MY.player.location.x
-        y_value = MY.player.location.y - temp
-    elif MY.player_dir == DOWN:
-        x_value = MY.player.location.x
-        y_value = MY.player.location.y + temp
-    elif MY.player_dir == LEFT:
-        x_value = MY.player.location.x - temp
-        y_value = MY.player.location.y
-    elif MY.player_dir == RIGHT:
-        x_value = MY.player.location.x + temp
-        y_value = MY.player.location.y
-
-    MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
-
-    for wall in MY.walls:
-        if MY.player.collides_with(wall):
-            if MY.player.collision[DOWN]:
-                MY.player.snap_to_object_y(wall, DOWN)
-                continue
-            if MY.player.collision[LEFT]:
-                MY.player.snap_to_object_x(wall, LEFT)
-                continue
-            if MY.player.collision[RIGHT]:
-                MY.player.snap_to_object_x(wall, RIGHT)
-                continue
-            if MY.player.collision[UP]:
-                MY.player.snap_to_object_y(wall, UP)
-                continue
-
-    count = -1
-    for bullet in MY.bullets:
-        count += 1
-        if bullet.active:
-            if MY.bullet_owner[count] == BOSS and bullet.collides_with(MY.player):
-                MY.player_health -= 5
-                bullet.active = False
-                continue
-            elif MY.bullet_owner[count] == PLAYER and bullet.collides_with(MY.boss):
-                MY.boss_health -= 5
-                bullet.active = False
-                continue
-            for wall in MY.walls:
-                if bullet.collides_with(wall):
-                    bullet.active = False
-                    continue
-
-    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
-        MY.boss_health -= 10
-        MY.player_hitbox.active = False
 
 def draw(screen):
     """Draws the state to the given screen."""
@@ -718,3 +678,10 @@ def draw(screen):
 def cleanup():
     """Cleans up the Intro State."""
   
+def update_player(delta_time):
+    """Updates the position of the players in the game window."""
+    MY.player.update(delta_time)
+
+def update_boss(delta_time):
+    """Updates the position of the boss in the game window."""
+    MY.player.update(delta_time)
