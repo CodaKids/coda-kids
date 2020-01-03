@@ -69,24 +69,6 @@ def key_held_down(key):
         return pygame.key.get_pressed()[ord(key)]
     return pygame.key.get_pressed()[key]
 
-def listing():
-    """
-    Returns a list of all events currently in the event system.
-        for event in coda.event.listing():
-            if coda.event.quit_game(event):
-                coda.stop();
-    """
-    return pygame.event.get()
-
-def quit_game(event):
-    """
-    Checks for quit game event.
-        for event in coda.event.listing():
-            if coda.event.quit_game(event):
-                coda.stop();
-    """
-    return event.type == pygame.QUIT
-
 def get_file(fileName):
     """Returns the absolute path of a file."""
     #This grabs your files from your folder.

@@ -4,28 +4,26 @@ import pygame
 
 def update(delta_time):
     """Update method for boss battle state."""
-    for event in listing():
-        if quit_game(event):
+    for event in pygame.event.get():
+        # Checks if you closed the window
+        if event.type == pygame.QUIT:
             stop()
-        """elif key_down(event, " "):
-            MY.player_logic.current_state = 1"""
-
+    
     x_value = 0
     y_value = 0
-    temp = 35
+    velocity = 200
 
-    if MY.player_dir == UP:
-        x_value = MY.player.location.x
-        y_value = MY.player.location.y - temp
-    elif MY.player_dir == DOWN:
-        x_value = MY.player.location.x
-        y_value = MY.player.location.y + temp
-    elif MY.player_dir == LEFT:
-        x_value = MY.player.location.x - temp
-        y_value = MY.player.location.y
-    elif MY.player_dir == RIGHT:
-        x_value = MY.player.location.x + temp
-        y_value = MY.player.location.y
+    # Moves the player forward and backward
+    if key_held_down(pygame.K_UP):
+        MY.player.location.y -= velocity * delta_time
+    elif key_held_down(pygame.K_DOWN):
+        MY.player.location.y += velocity * delta_time
+
+    # Moves the player left and right
+    if key_held_down(pygame.K_LEFT):
+        MY.player.location.x -= velocity * delta_time
+    elif key_held_down(pygame.K_RIGHT):
+        MY.player.location.x += velocity * delta_time
 
     MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
 
@@ -69,6 +67,9 @@ def update(delta_time):
 
     update_boss(delta_time)
 
+# States
 import BossBattle
 Manager.register(BossBattle)
+
+# Run the game
 Manager.run(SCREEN, WINDOW, BLACK)
