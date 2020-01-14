@@ -27,7 +27,7 @@ def update(delta_time):
         MY.player.location.x += 200 * delta_time
         MY.player_dir = RIGHT
 
-    MY.player.sprite = MY.player_sheet.image_at()
+    #MY.player.sprite = MY.player_sheet.image_at()
 
     MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
 
