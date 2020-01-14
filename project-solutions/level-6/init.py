@@ -23,6 +23,9 @@ DOWN = 3
 
 _data = {}
 
+x_value = 0
+y_value = 0
+
 #============================================================
 #PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
 def start(window, name):
@@ -473,7 +476,7 @@ class Data:
     boss = Object(BOSS_IMAGE)
     player_health = 100
     boss_health = 300
-    player_dir = UP
+    player_dir = DOWN
     timer1 = CountdownTimer(0.1)
     timer3 = CountdownTimer(0.1)
     numberOfBullets = 0
@@ -518,6 +521,8 @@ def load_level(level_name_as_string):
             else:
                 MY.walls.append(obj)
 """
+def attack():
+    pass
 
 def fire_bullet(player_number, degrees, speed):
     """fire a bullet for the player"""

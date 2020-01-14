@@ -8,22 +8,26 @@ def update(delta_time):
         # Checks if you closed the window
         if event.type == pygame.QUIT:
             stop()
-    
-    x_value = 0
-    y_value = 0
-    velocity = 200
+        elif key_down(event, pygame.K_SPACE):
+            attack()
 
     # Moves the player forward and backward
     if key_held_down(pygame.K_UP):
-        MY.player.location.y -= velocity * delta_time
+        MY.player.location.y -= 200 * delta_time
+        MY.player_dir = UP
     elif key_held_down(pygame.K_DOWN):
-        MY.player.location.y += velocity * delta_time
+        MY.player.location.y += 200 * delta_time
+        MY.player_dir = DOWN
 
     # Moves the player left and right
     if key_held_down(pygame.K_LEFT):
-        MY.player.location.x -= velocity * delta_time
+        MY.player.location.x -= 200 * delta_time
+        MY.player_dir = LEFT
     elif key_held_down(pygame.K_RIGHT):
-        MY.player.location.x += velocity * delta_time
+        MY.player.location.x += 200 * delta_time
+        MY.player_dir = RIGHT
+
+    MY.player.sprite = MY.player_sheet.image_at()
 
     MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
 
