@@ -1,10 +1,6 @@
 import pygame
 from os import path
 
-def get_file(fileName):
-    """Returns the absolute path of a file."""
-    #This grabs the image files from your folder.
-    return path.join(path.dirname(__file__), fileName)
 
 DECK = []
 
