@@ -3,14 +3,6 @@ from init import *
 import pygame
 
 def update(delta_time):
-    """Update method for boss battle state."""
-    for event in pygame.event.get():
-        # Checks if you closed the window
-        if event.type == pygame.QUIT:
-            stop()
-        elif key_down(event, pygame.K_SPACE):
-            attack()
-
     # Moves the player forward and backward
     if key_held_down(pygame.K_UP):
         MY.player.location.y -= 200 * delta_time
@@ -45,6 +37,13 @@ def update(delta_time):
             if MY.player.collision[UP]:
                 MY.player.snap_to_object_y(wall, UP)
                 continue
+    
+    if key_held_down(pygame.K_SPACE):
+        pass
+
+    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        MY.boss_health -= 10
+        MY.player_hitbox.active = False
 
     count = -1
     for bullet in MY.bullets:
@@ -63,11 +62,9 @@ def update(delta_time):
                     bullet.active = False
                     continue
 
-    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
-        MY.boss_health -= 10
-        MY.player_hitbox.active = False
-
     update_player(delta_time)
+
+    check_stop()
 
 # States
 import BossBattle

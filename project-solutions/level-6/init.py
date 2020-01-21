@@ -42,6 +42,12 @@ def stop():
     """
     sys.exit()
 
+def check_stop():
+    for event in pygame.event.get():
+        # Checks if you closed the window
+        if event.type == pygame.QUIT:
+            stop()
+
 def draw_rect(screen, color, top_left, size):
     """
     Draw's a rectangle with the given values. Doesn't return.
@@ -507,9 +513,6 @@ def health_bar(screen, health, max_health, max_size, location):
 
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
-
-def attack():
-    pass
 
 def fire_bullet(player_number, degrees, speed):
     """fire a bullet for the player"""
