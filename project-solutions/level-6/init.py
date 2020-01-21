@@ -138,6 +138,7 @@ class Machine:
             update(delta_time)
             self.states[self.current]['update'](delta_time)
             screen.fill(fill_color)
+            screen.blit(BACKGROUND_IMAGE.data, (0, 0))
             self.states[self.current]['draw'](screen)
             pygame.display.flip()
 
@@ -456,6 +457,7 @@ PROJECTILE_IMAGE = Image("assets/projectile.png")
 PLAYER_ATTACK_1_IMAGE = Image("assets/attack_1.png")
 PLAYER_ATTACK_2_IMAGE = Image("assets/attack_2.png")
 PLAYER_ATTACK_3_IMAGE = Image("assets/attack_3.png")
+BACKGROUND_IMAGE = Image("assets/Background.png")
 
 #constants
 PLAYER = 0
