@@ -69,8 +69,6 @@ def update(delta_time):
 
     update_player(delta_time)
 
-    update_boss(delta_time)
-
 # States
 import BossBattle
 Manager.register(BossBattle)

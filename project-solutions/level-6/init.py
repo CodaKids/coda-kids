@@ -468,13 +468,14 @@ TILE_SIZE = 32
 class Data:
     """Modifiable data"""
     tilesheet = SpriteSheet("assets/tileset.png", (32, 32))
-    player_sheet = SpriteSheet("assets/player_sheet.png", (42, 48))
+    #player_sheet = SpriteSheet("assets/player_sheet.png", (42, 48))
+    player_walk_forward_sheet = SpriteSheet("assets/paul_front_run_12fps.png", (64, 64))
     tilemap = []
     floors = []
     walls = []
     player_start_position = pygame.math.Vector2(0, 0)
     boss_start_position = pygame.math.Vector2(0, 0)
-    player = Object(tilesheet.image_at(0))
+    player = Object(player_walk_forward_sheet.image_at(2))
     boss = Object(BOSS_IMAGE)
     player_health = 100
     boss_health = 300
@@ -507,22 +508,6 @@ def health_bar(screen, health, max_health, max_size, location):
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
 
-"""
-def load_level(level_name_as_string):
-   # Cleans up resources and loads a specified level. Can be used to reload the same level.
-    cleanup()
-    MY.tilemap = read_file(level_name_as_string + ".txt")
-    obj = MY.player
-    for row in range(len(MY.tilemap)):
-        for column in range(len(MY.tilemap[row])):
-            tile_value = int(MY.tilemap[row][column])
-            obj = Object(MY.tilesheet.image_at(tile_value))
-            obj.location = pygame.math.Vector2(column * TILE_SIZE + 16, row * TILE_SIZE + 16)
-            if tile_value == GRASS:
-                MY.floors.append(obj)
-            else:
-                MY.walls.append(obj)
-"""
 def attack():
     pass
 
@@ -595,26 +580,26 @@ def player_move_init(state, delta_time):
     state.offset = 0
 
 def player_move_update(state, delta_time):
-    if key_held_down("w"):
+    if key_held_down(pygame.K_UP):
         MY.player.location.y -= 200 * delta_time
         MY.player_dir = UP
         state.offset = 0
-    elif key_held_down("s"):
+    elif key_held_down(pygame.K_DOWN):
         MY.player.location.y += 200 * delta_time
         MY.player_dir = DOWN
         state.offset = 6
 
-    if key_held_down("a"):
+    if key_held_down(pygame.K_LEFT):
         MY.player.location.x -= 200 * delta_time
         MY.player_dir = LEFT
         state.offset = 4
-    elif key_held_down("d"):
+    elif key_held_down(pygame.K_RIGHT):
         MY.player.location.x += 200 * delta_time
         MY.player_dir = RIGHT
         state.offset = 2
 
-    moving = (key_held_down("d") or key_held_down("a") or
-              key_held_down("s") or key_held_down("w"))
+    moving = (key_held_down(pygame.K_RIGHT) or key_held_down(pygame.K_LEFT) or
+              key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
 
     if moving and state.timer.tick(delta_time):
         state.index = (state.index + 1) % 2
@@ -661,16 +646,12 @@ def draw(screen):
 
     MY.boss.draw(screen)
     MY.player_text.draw(screen)
-    health_bar(screen, MY.player_health, 100, (100, 20), (70, 30))
-    health_bar(screen, MY.boss_health, 300, (MY.boss.width(), 20), MY.boss.location - (MY.boss.width() / 2, MY.boss.height() / 2))
+    health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
+    health_bar(screen, MY.boss_health, 300, (MY.boss.width(), 20), MY.boss.location - (MY.boss.width() / 2, (MY.boss.height() / 2) + 25))
 
 def cleanup():
     """Cleans up the Intro State."""
   
 def update_player(delta_time):
     """Updates the position of the players in the game window."""
-    MY.player.update(delta_time)
-
-def update_boss(delta_time):
-    """Updates the position of the boss in the game window."""
     MY.player.update(delta_time)
