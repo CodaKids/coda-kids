@@ -474,8 +474,10 @@ TILE_SIZE = 32
 class Data:
     """Modifiable data"""
     tilesheet = SpriteSheet("assets/tileset.png", (32, 32))
-    #player_sheet = SpriteSheet("assets/player_sheet.png", (42, 48))
     player_walk_forward_sheet = SpriteSheet("assets/paul_front_run_12fps.png", (64, 64))
+    player_walk_backward_sheet = SpriteSheet("assets/paul_back_run_12fps.png", (64, 64))
+    player_walk_left_sheet = SpriteSheet("assets/paul_side_run_left_12fps.png", (64, 64))
+    player_walk_right_sheet = SpriteSheet("assets/paul_side_run_right_12fps.png", (64, 64))
     tilemap = []
     floors = []
     walls = []
@@ -577,52 +579,46 @@ def player_attack_update(state, delta_time):
     if state.timer.current_time > state.timer.max_time * 2/3:
         MY.player.sprite = PLAYER_ATTACK_3_IMAGE
 
-def player_move_init(state, delta_time):
-    state.timer = CountdownTimer(0.1)
-    state.index = 0
-    state.offset = 0
-
-def player_move_update(state, delta_time):
-    if key_held_down(pygame.K_UP):
-        MY.player.location.y -= 200 * delta_time
-        MY.player_dir = UP
-        state.offset = 0
-    elif key_held_down(pygame.K_DOWN):
-        MY.player.location.y += 200 * delta_time
-        MY.player_dir = DOWN
-        state.offset = 6
-
-    if key_held_down(pygame.K_LEFT):
-        MY.player.location.x -= 200 * delta_time
-        MY.player_dir = LEFT
-        state.offset = 4
-    elif key_held_down(pygame.K_RIGHT):
-        MY.player.location.x += 200 * delta_time
-        MY.player_dir = RIGHT
-        state.offset = 2
+def player_move_update(delta_time):
+    timer = CountdownTimer(0.1)
+    index = 0
+    offset = 0
 
     moving = (key_held_down(pygame.K_RIGHT) or key_held_down(pygame.K_LEFT) or
               key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
 
-    if moving and state.timer.tick(delta_time):
-        state.index = (state.index + 1) % 2
-        state.timer = CountdownTimer(0.1)
-    elif not moving:
-        state.timer = CountdownTimer(0.1)
+    if key_held_down(pygame.K_UP):
+        MY.player.location.y -= 200 * delta_time
+        MY.player_dir = UP
+        offset = 0
+    elif key_held_down(pygame.K_DOWN):
+        MY.player.location.y += 200 * delta_time
+        MY.player_dir = DOWN
+        offset = 6
+    if key_held_down(pygame.K_LEFT):
+        MY.player.location.x -= 200 * delta_time
+        MY.player_dir = LEFT
+        offset = 4
+    elif key_held_down(pygame.K_RIGHT):
+        MY.player.location.x += 200 * delta_time
+        MY.player_dir = RIGHT
+        offset = 2
 
-    MY.player.sprite = MY.player_sheet.image_at(state.index + state.offset)
+    if moving and timer.tick(delta_time):
+        index = (index + 1) % 2
+    elif not moving:
+        if MY.player_dir == UP:
+            MY.player.sprite = MY.player_walk_backward_sheet.image_at(2)
+        elif MY.player_dir == DOWN:
+            MY.player.sprite = MY.player_walk_forward_sheet.image_at(2)
+        elif MY.player_dir == LEFT:
+            MY.player.sprite = MY.player_walk_left_sheet.image_at(2)
+        elif MY.player_dir == RIGHT:
+            MY.player.sprite = MY.player_walk_right_sheet.image_at(2)
+
+    # MY.player.sprite = MY.player_sheet.image_at(state.index + state.offset)
 
 def initialize(window):
-    """Initializes the Introduction class."""
-    """
-    MY.boss_logic.add_state(None, boss_explosion_update)
-    MY.boss_logic.add_state(None, boss_laser_update)
-    MY.boss_logic.add_state(boss_wait_init, boss_wait_update)
-
-    MY.player_logic.add_state(player_move_init, player_move_update)
-    MY.player_logic.add_state(player_attack_init, player_attack_update)
-    """
-    # load_level("level1")
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
     count = 0
@@ -654,7 +650,8 @@ def draw(screen):
 
 def cleanup():
     """Cleans up the Intro State."""
-  
+
 def update_player(delta_time):
     """Updates the position of the players in the game window."""
+    player_move_update(delta_time)
     MY.player.update(delta_time)
