@@ -450,6 +450,66 @@ class TextObject:
             loc.x -= obj.get_rect().width / 2
         screen.blit(obj, loc)
 
+class Animator:
+    def __init__(self, sheet, duration_seconds):
+        self.sheet = sheet
+        self.frame_num = 0
+
+        self.frame_time = 0.0
+
+        self.playing = True
+        self.playspeed = 1.0
+        self.looping = True
+
+        self.reset()
+        self.set_duration(duration_seconds)
+    
+    def set_duration(self, duration_seconds):
+        self.duration = duration_seconds
+        self.transition = self.duration / self.num_frames
+    
+    def use_anim(self, sheet):
+        self.sheet = sheet
+        self.reset()
+
+    def reset(self):
+        self.frame_num = 0
+        self.current = self.sheet.image_at(self.frame_num)
+        self.frame_time = 0
+        self.num_frames = self.sheet.num_frames()
+
+    def play(self, playspeed=1.0):
+        self.playspeed = playspeed
+        self.reset()
+        self.unpause()
+
+    def pause(self):
+        self.playing = False
+
+    def unpause(self):
+        self.playing = True
+
+    def update(self, dt):
+        dt = dt * self.playspeed
+
+        if self.playing:
+            self.frame_time += dt
+
+            if self.frame_time >= self.transition:
+                self.frame_time -= self.transition
+                self.frame_num += 1
+
+                if self.looping:
+                    self.frame_num %= self.num_frames
+
+                self.current = self.sheet.image_at(self.frame_num)
+
+                if self.frame_num >= self.num_frames:
+                    self.playing = False
+
+    def surface(self):
+        return self.current.surface()
+
 #============================================================
 #PART 3: SETUP FOR THE BOSS BATTLE GAME
 Manager = Machine()
@@ -475,9 +535,13 @@ class Data:
     """Modifiable data"""
     tilesheet = SpriteSheet("assets/tileset.png", (32, 32))
     player_walk_forward_sheet = SpriteSheet("assets/paul_front_run_12fps.png", (64, 64))
+    walk_forward = Animator(player_walk_forward_sheet, 1)
     player_walk_backward_sheet = SpriteSheet("assets/paul_back_run_12fps.png", (64, 64))
+    walk_backward = Animator(player_walk_backward_sheet, 1)
     player_walk_left_sheet = SpriteSheet("assets/paul_side_run_left_12fps.png", (64, 64))
+    walk_left = Animator(player_walk_left_sheet, 1)
     player_walk_right_sheet = SpriteSheet("assets/paul_side_run_right_12fps.png", (64, 64))
+    walk_right = Animator(player_walk_right_sheet, 1)
     tilemap = []
     floors = []
     walls = []
@@ -499,8 +563,6 @@ class Data:
     player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(PROJECTILE_IMAGE)
     index = 0
-    # boss_logic = Machine()
-    # player_logic = Machine()
 
 MY = Data()
 
@@ -580,33 +642,10 @@ def player_attack_update(state, delta_time):
         MY.player.sprite = PLAYER_ATTACK_3_IMAGE
 
 def player_move_update(delta_time):
-    timer = CountdownTimer(0.1)
-    index = 0
-    offset = 0
-
     moving = (key_held_down(pygame.K_RIGHT) or key_held_down(pygame.K_LEFT) or
               key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
-
-    if key_held_down(pygame.K_UP):
-        MY.player.location.y -= 200 * delta_time
-        MY.player_dir = UP
-        offset = 0
-    elif key_held_down(pygame.K_DOWN):
-        MY.player.location.y += 200 * delta_time
-        MY.player_dir = DOWN
-        offset = 6
-    if key_held_down(pygame.K_LEFT):
-        MY.player.location.x -= 200 * delta_time
-        MY.player_dir = LEFT
-        offset = 4
-    elif key_held_down(pygame.K_RIGHT):
-        MY.player.location.x += 200 * delta_time
-        MY.player_dir = RIGHT
-        offset = 2
-
-    if moving and timer.tick(delta_time):
-        index = (index + 1) % 2
-    elif not moving:
+    
+    if not moving:
         if MY.player_dir == UP:
             MY.player.sprite = MY.player_walk_backward_sheet.image_at(2)
         elif MY.player_dir == DOWN:
@@ -616,7 +655,22 @@ def player_move_update(delta_time):
         elif MY.player_dir == RIGHT:
             MY.player.sprite = MY.player_walk_right_sheet.image_at(2)
 
-    # MY.player.sprite = MY.player_sheet.image_at(state.index + state.offset)
+    if key_held_down(pygame.K_UP):
+        MY.player.location.y -= 200 * delta_time
+        MY.player_dir = UP
+        MY.player.sprite = MY.walk_backward
+    elif key_held_down(pygame.K_DOWN):
+        MY.player.location.y += 200 * delta_time
+        MY.player_dir = DOWN
+        MY.player.sprite = MY.walk_forward
+    if key_held_down(pygame.K_LEFT):
+        MY.player.location.x -= 200 * delta_time
+        MY.player_dir = LEFT
+        MY.player.sprite = MY.walk_left
+    elif key_held_down(pygame.K_RIGHT):
+        MY.player.location.x += 200 * delta_time
+        MY.player_dir = RIGHT
+        MY.player.sprite = MY.walk_right
 
 def initialize(window):
     MY.player.location = (window.x / 2, window.y / 4)
