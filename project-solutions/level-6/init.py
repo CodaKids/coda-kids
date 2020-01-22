@@ -533,7 +533,6 @@ TILE_SIZE = 32
 
 class Data:
     """Modifiable data"""
-    tilesheet = SpriteSheet("assets/tileset.png", (32, 32))
     player_walk_forward_sheet = SpriteSheet("assets/paul_front_run_12fps.png", (64, 64))
     walk_forward = Animator(player_walk_forward_sheet, 1)
     player_walk_backward_sheet = SpriteSheet("assets/paul_back_run_12fps.png", (64, 64))
@@ -542,7 +541,6 @@ class Data:
     walk_left = Animator(player_walk_left_sheet, 1)
     player_walk_right_sheet = SpriteSheet("assets/paul_side_run_right_12fps.png", (64, 64))
     walk_right = Animator(player_walk_right_sheet, 1)
-    tilemap = []
     floors = []
     walls = []
     player_start_position = pygame.math.Vector2(0, 0)
