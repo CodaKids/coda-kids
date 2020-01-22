@@ -514,6 +514,8 @@ class Animator:
 #PART 3: SETUP FOR THE BOSS BATTLE GAME
 Manager = Machine()
 
+window_width = 800
+window_length = 608
 WINDOW = pygame.math.Vector2(800, 608)
 SCREEN = start(WINDOW, "Boss Battle")
 
@@ -543,6 +545,7 @@ class Data:
     walk_right = Animator(player_walk_right_sheet, 1)
     floors = []
     walls = []
+    wall_height = 45
     player_start_position = pygame.math.Vector2(0, 0)
     boss_start_position = pygame.math.Vector2(0, 0)
     player = Object(player_walk_forward_sheet.image_at(2))
@@ -638,6 +641,9 @@ def player_attack_update(state, delta_time):
         MY.player.sprite = PLAYER_ATTACK_2_IMAGE
     if state.timer.current_time > state.timer.max_time * 2/3:
         MY.player.sprite = PLAYER_ATTACK_3_IMAGE
+
+def player_attack(delta_time):
+    pass
 
 def player_move_update(delta_time):
     moving = (key_held_down(pygame.K_RIGHT) or key_held_down(pygame.K_LEFT) or

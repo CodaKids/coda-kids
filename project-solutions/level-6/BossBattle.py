@@ -3,29 +3,24 @@ from init import *
 import pygame
 
 def update(delta_time):
-    MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
+    # Checks if player collides with the walls
+    if MY.player.location.x < MY.wall_height:
+        MY.player.location.x = MY.wall_height
+    if MY.player.location.x > window_width - MY.wall_height:
+        MY.player.location.x = window_width - MY.wall_height
+    if MY.player.location.y < MY.wall_height:
+        MY.player.location.y = MY.wall_height
+    if MY.player.location.y > window_length - (MY.wall_height + 20):
+        MY.player.location.y = window_length - (MY.wall_height + 20)
 
-    for wall in MY.walls:
-        if MY.player.collides_with(wall):
-            if MY.player.collision[DOWN]:
-                MY.player.snap_to_object_y(wall, DOWN)
-                continue
-            if MY.player.collision[LEFT]:
-                MY.player.snap_to_object_x(wall, LEFT)
-                continue
-            if MY.player.collision[RIGHT]:
-                MY.player.snap_to_object_x(wall, RIGHT)
-                continue
-            if MY.player.collision[UP]:
-                MY.player.snap_to_object_y(wall, UP)
-                continue
-    
-    if key_held_down(pygame.K_SPACE):
-        pass
+    MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
 
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
         MY.boss_health -= 10
         MY.player_hitbox.active = False
+
+    if key_held_down(pygame.K_SPACE):
+        player_attack()
 
     count = -1
     for bullet in MY.bullets:
