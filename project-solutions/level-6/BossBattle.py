@@ -13,14 +13,23 @@ def update(delta_time):
     if MY.player.location.y > window_length - (MY.wall_height + 20):
         MY.player.location.y = window_length - (MY.wall_height + 20)
 
-    MY.player_hitbox.location = pygame.math.Vector2(x_value, y_value)
+    MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x, MY.player.location.y)
+    timer = CountdownTimer(0.2)
+    MY.player_hitbox.active = True
 
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
-        MY.boss_health -= 10
+        MY.boss_health -= 1
         MY.player_hitbox.active = False
-
+    
     if key_held_down(pygame.K_SPACE):
-        player_attack()
+        if timer.tick(delta_time):
+            MY.player_hitbox.active = False
+        if timer.current_time > timer.max_time * 0:
+            player_attack(delta_time)
+        if timer.current_time > timer.max_time * 1/3:
+            player_attack(delta_time)
+        if timer.current_time > timer.max_time * 2/3:
+            player_attack(delta_time)
 
     count = -1
     for bullet in MY.bullets:
@@ -43,9 +52,12 @@ def update(delta_time):
 
     check_stop()
 
+    check_win()
+
 # States
 import BossBattle
 Manager.register(BossBattle)
+Manager.register(GameOver)
 
 # Run the game
 Manager.run(SCREEN, WINDOW, BLACK)

@@ -522,9 +522,6 @@ SCREEN = start(WINDOW, "Boss Battle")
 #load sprites constants
 BOSS_IMAGE = Image("assets/boss.png")
 PROJECTILE_IMAGE = Image("assets/projectile.png")
-PLAYER_ATTACK_1_IMAGE = Image("assets/attack_1.png")
-PLAYER_ATTACK_2_IMAGE = Image("assets/attack_2.png")
-PLAYER_ATTACK_3_IMAGE = Image("assets/attack_3.png")
 BACKGROUND_IMAGE = Image("assets/Background.png")
 
 #constants
@@ -536,23 +533,31 @@ TILE_SIZE = 32
 class Data:
     """Modifiable data"""
     player_walk_forward_sheet = SpriteSheet("assets/paul_front_run_12fps.png", (64, 64))
-    walk_forward = Animator(player_walk_forward_sheet, 1)
     player_walk_backward_sheet = SpriteSheet("assets/paul_back_run_12fps.png", (64, 64))
-    walk_backward = Animator(player_walk_backward_sheet, 1)
     player_walk_left_sheet = SpriteSheet("assets/paul_side_run_left_12fps.png", (64, 64))
-    walk_left = Animator(player_walk_left_sheet, 1)
     player_walk_right_sheet = SpriteSheet("assets/paul_side_run_right_12fps.png", (64, 64))
+    player_attack_forward_sheet = SpriteSheet("assets/paul_front_attack_12fps.png", (100, 100))
+    player_attack_backward_sheet = SpriteSheet("assets/paul_back_attack_12fps.png", (100, 100))
+    player_attack_left_sheet = SpriteSheet("assets/paul_side_attack_left_12fps.png", (128, 64))
+    player_attack_right_sheet = SpriteSheet("assets/paul_side_attack_right_12fps.png", (128, 64))
+    walk_forward = Animator(player_walk_forward_sheet, 1)
+    attack_forward = Animator(player_attack_forward_sheet, 0.5)
+    walk_backward = Animator(player_walk_backward_sheet, 1)
+    attack_backward = Animator(player_attack_backward_sheet, 0.5)
+    walk_left = Animator(player_walk_left_sheet, 1)
+    attack_left = Animator(player_attack_left_sheet, 0.5)
     walk_right = Animator(player_walk_right_sheet, 1)
-    floors = []
-    walls = []
-    wall_height = 45
-    player_start_position = pygame.math.Vector2(0, 0)
-    boss_start_position = pygame.math.Vector2(0, 0)
+    attack_right = Animator(player_attack_right_sheet, 0.5)
     player = Object(player_walk_forward_sheet.image_at(2))
-    boss = Object(BOSS_IMAGE)
+    player_start_position = pygame.math.Vector2(0, 0)
     player_health = 100
-    boss_health = 300
     player_dir = DOWN
+    player_text = TextObject(BLACK, 24, "Player: ")
+    player_hitbox = Object(PROJECTILE_IMAGE)
+    wall_height = 45
+    boss_start_position = pygame.math.Vector2(0, 0)
+    boss = Object(BOSS_IMAGE)
+    boss_health = 300
     timer1 = CountdownTimer(0.1)
     timer3 = CountdownTimer(0.1)
     numberOfBullets = 0
@@ -561,8 +566,6 @@ class Data:
     rotation_speed = 180
     state = 0
     last_state = 2
-    player_text = TextObject(BLACK, 24, "Player: ")
-    player_hitbox = Object(PROJECTILE_IMAGE)
     index = 0
 
 MY = Data()
@@ -627,29 +630,21 @@ def boss_laser_update(state, delta_time):
         MY.boss.rotation = 0
         state.owner.current_state = 2
 
-def player_attack_init(state, delta_time):
-    state.timer = CountdownTimer(0.2)
-    MY.player_hitbox.active = True
-
-def player_attack_update(state, delta_time):
-    if state.timer.tick(delta_time):
-        state.owner.current_state = 0
-        MY.player_hitbox.active = False
-    if state.timer.current_time > state.timer.max_time * 0:
-        MY.player.sprite = PLAYER_ATTACK_1_IMAGE
-    if state.timer.current_time > state.timer.max_time * 1/3:
-        MY.player.sprite = PLAYER_ATTACK_2_IMAGE
-    if state.timer.current_time > state.timer.max_time * 2/3:
-        MY.player.sprite = PLAYER_ATTACK_3_IMAGE
-
 def player_attack(delta_time):
-    pass
+    if MY.player_dir == UP:
+        MY.player.sprite = MY.attack_backward
+    elif MY.player_dir == DOWN:
+        MY.player.sprite = MY.attack_forward
+    elif MY.player_dir == LEFT:
+        MY.player.sprite = MY.attack_left
+    elif MY.player_dir == RIGHT:
+        MY.player.sprite = MY.attack_right
 
 def player_move_update(delta_time):
     moving = (key_held_down(pygame.K_RIGHT) or key_held_down(pygame.K_LEFT) or
               key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
     
-    if not moving:
+    if not moving and not key_held_down(pygame.K_SPACE):
         if MY.player_dir == UP:
             MY.player.sprite = MY.player_walk_backward_sheet.image_at(2)
         elif MY.player_dir == DOWN:
@@ -687,12 +682,6 @@ def initialize(window):
 
 def draw(screen):
     """Draws the state to the given screen."""
-    for floor in MY.floors:
-        floor.draw(screen)
-
-    for wall in MY.walls:
-        wall.draw(screen)
-
     for bullet in MY.bullets:
         if  bullet.active:
             bullet.draw(screen)
@@ -706,10 +695,60 @@ def draw(screen):
     health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
     health_bar(screen, MY.boss_health, 300, (MY.boss.width(), 20), MY.boss.location - (MY.boss.width() / 2, (MY.boss.height() / 2) + 25))
 
-def cleanup():
-    """Cleans up the Intro State."""
-
 def update_player(delta_time):
     """Updates the position of the players in the game window."""
     player_move_update(delta_time)
     MY.player.update(delta_time)
+
+def check_win():
+    """Check win condition and change state if a player has won the game"""
+    if MY.boss_health < 1:
+        Manager.current = 1
+        MY.state = 1
+        MY.display_text = TextObject(WHITE, 24, "You win!")
+        
+    elif MY.player_health < 1:
+        Manager.current = 1
+        MY.state = 1
+        MY.display_text = TextObject(WHITE, 24, "You lose!")
+
+def cleanup():
+    """Cleans up the Intro State."""
+
+class GameOver:
+    """Restarter class to be loaded if Player 1 wins."""
+    # load sprites
+    # IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
+    # IMAGE_BUTTON = Image("assets/ReplayButton.png")
+
+    # modifiable data
+    class Data:
+        """place changable state variables here."""
+        # gameoverbackground = Object(IMAGE_GAMEOVER)
+        # restart_button = Object(IMAGE_BUTTON)
+        display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
+
+    MY = Data()
+
+    def initialize(self, window):
+        """Initializes the restart menu state."""
+        MY.gameoverbackground.location = window / 2
+        MY.restart_button.location = window / 2
+
+    def update(self, delta_time):
+        """Updates the restart menu state."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                stop()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if MY.restart_button.collides_with_point(pygame.mouse.get_pos()):
+                    Manager.current = 0
+
+    def cleanup(self):
+        """Cleans up the restart menu state."""
+
+    def draw(self, screen):
+        """Draws the restart menu state."""
+        # MY.gameoverbackground.draw(screen)
+        # MY.restart_button.draw(screen)
+        MY.display_text.draw(screen)
