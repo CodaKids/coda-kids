@@ -32,20 +32,20 @@ def update(delta_time):
             player_attack(delta_time)
 
     count = -1
-    for bullet in MY.bullets:
+    for projectile in MY.projectiles:
         count += 1
-        if bullet.active:
-            if MY.bullet_owner[count] == BOSS and bullet.collides_with(MY.player):
+        if projectile.active:
+            if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
                 MY.player_health -= 5
-                bullet.active = False
+                projectile.active = False
                 continue
-            elif MY.bullet_owner[count] == PLAYER and bullet.collides_with(MY.boss):
+            elif MY.projectile_owner[count] == PLAYER and projectile.collides_with(MY.boss):
                 MY.boss_health -= 5
-                bullet.active = False
+                projectile.active = False
                 continue
             for wall in MY.walls:
-                if bullet.collides_with(wall):
-                    bullet.active = False
+                if projectile.collides_with(wall):
+                    projectile.active = False
                     continue
 
     update_player(delta_time)

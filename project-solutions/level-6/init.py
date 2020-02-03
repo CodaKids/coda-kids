@@ -560,9 +560,9 @@ class Data:
     boss_health = 300
     timer1 = CountdownTimer(0.1)
     timer3 = CountdownTimer(0.1)
-    numberOfBullets = 0
-    bullets = []
-    bullet_owner = []
+    numberOfprojectiles = 0
+    projectiles = []
+    projectile_owner = []
     rotation_speed = 180
     state = 0
     last_state = 2
@@ -582,22 +582,22 @@ def health_bar(screen, health, max_health, max_size, location):
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
 
-def fire_bullet(player_number, degrees, speed):
-    """fire a bullet for the player"""
+def fire_projectile(player_number, degrees, speed):
+    """fire a projectile for the player"""
     index = -1
-    for i in range(len(MY.bullets)):
-        if not MY.bullets[i].active:
+    for i in range(len(MY.projectiles)):
+        if not MY.projectiles[i].active:
             index = i
             break
     if index >= 0:
-        MY.bullets[index].active = True
+        MY.projectiles[index].active = True
         if player_number == 1:
-            MY.bullets[index].location = MY.boss.location
-            MY.bullets[index].set_velocity(degrees, speed)
+            MY.projectiles[index].location = MY.boss.location
+            MY.projectiles[index].set_velocity(degrees, speed)
         else:
-            MY.bullets[index].location = MY.player.location
-            MY.bullets[index].set_velocity(degrees, speed)
-        MY.bullet_owner[index] = player_number
+            MY.projectiles[index].location = MY.player.location
+            MY.projectiles[index].set_velocity(degrees, speed)
+        MY.projectile_owner[index] = player_number
 
 def boss_wait_init(state, delta_time):
     state.timer = CountdownTimer(3)
@@ -617,7 +617,7 @@ def boss_explosion_update(state, delta_time):
     fraction = 360 / num_projectiles
     count = 0
     while count < num_projectiles:
-        fire_bullet(BOSS, fraction * count, 15)
+        fire_projectile(BOSS, fraction * count, 15)
         count += 1
 
     state.owner.current_state = 2
@@ -625,7 +625,7 @@ def boss_explosion_update(state, delta_time):
 def boss_laser_update(state, delta_time):
     """laser attack."""
     MY.boss.add_rotation(MY.rotation_speed * delta_time)
-    fire_bullet(BOSS, MY.boss.rotation, 30)
+    fire_projectile(BOSS, MY.boss.rotation, 30)
     if MY.boss.rotation >= 355:
         MY.boss.rotation = 0
         state.owner.current_state = 2
@@ -676,15 +676,15 @@ def initialize(window):
     MY.boss.location = window / 2
     count = 0
     while count < 100:
-        MY.bullets.append(Object(PROJECTILE_IMAGE))
-        MY.bullet_owner.append(BOSS)
+        MY.projectiles.append(Object(PROJECTILE_IMAGE))
+        MY.projectile_owner.append(BOSS)
         count += 1
 
 def draw(screen):
     """Draws the state to the given screen."""
-    for bullet in MY.bullets:
-        if  bullet.active:
-            bullet.draw(screen)
+    for projectile in MY.projectiles:
+        if  projectile.active:
+            projectile.draw(screen)
 
     MY.player.draw(screen)
     if MY.player_hitbox.active:
