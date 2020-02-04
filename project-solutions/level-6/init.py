@@ -532,14 +532,14 @@ TILE_SIZE = 32
 
 class Data:
     """Modifiable data"""
-    player_walk_forward_sheet = SpriteSheet("assets/paul_front_run_12fps.png", (64, 64))
-    player_walk_backward_sheet = SpriteSheet("assets/paul_back_run_12fps.png", (64, 64))
-    player_walk_left_sheet = SpriteSheet("assets/paul_side_run_left_12fps.png", (64, 64))
-    player_walk_right_sheet = SpriteSheet("assets/paul_side_run_right_12fps.png", (64, 64))
-    player_attack_forward_sheet = SpriteSheet("assets/paul_front_attack_12fps.png", (100, 100))
-    player_attack_backward_sheet = SpriteSheet("assets/paul_back_attack_12fps.png", (100, 100))
-    player_attack_left_sheet = SpriteSheet("assets/paul_side_attack_left_12fps.png", (128, 64))
-    player_attack_right_sheet = SpriteSheet("assets/paul_side_attack_right_12fps.png", (128, 64))
+    player_walk_forward_sheet = SpriteSheet("assets/PaulMoveFront.png", (64, 64))
+    player_walk_backward_sheet = SpriteSheet("assets/PaulMoveBack.png", (64, 64))
+    player_walk_left_sheet = SpriteSheet("assets/PaulMoveLeft.png", (64, 64))
+    player_walk_right_sheet = SpriteSheet("assets/PaulMoveRight.png", (64, 64))
+    player_attack_forward_sheet = SpriteSheet("assets/PaulAttackFront.png", (100, 100))
+    player_attack_backward_sheet = SpriteSheet("assets/PaulAttackBack.png", (100, 100))
+    player_attack_left_sheet = SpriteSheet("assets/PaulAttackLeft.png", (128, 64))
+    player_attack_right_sheet = SpriteSheet("assets/PaulAttackRight.png", (128, 64))
     walk_forward = Animator(player_walk_forward_sheet, 1)
     attack_forward = Animator(player_attack_forward_sheet, 0.5)
     walk_backward = Animator(player_walk_backward_sheet, 1)
@@ -645,6 +645,7 @@ def player_move_update(delta_time):
               key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
     
     if not moving and not key_held_down(pygame.K_SPACE):
+        MY.player_hitbox.active = False
         if MY.player_dir == UP:
             MY.player.sprite = MY.player_walk_backward_sheet.image_at(2)
         elif MY.player_dir == DOWN:
@@ -655,18 +656,22 @@ def player_move_update(delta_time):
             MY.player.sprite = MY.player_walk_right_sheet.image_at(2)
 
     if key_held_down(pygame.K_UP):
+        MY.player_hitbox.active = False
         MY.player.location.y -= 200 * delta_time
         MY.player_dir = UP
         MY.player.sprite = MY.walk_backward
     elif key_held_down(pygame.K_DOWN):
+        MY.player_hitbox.active = False
         MY.player.location.y += 200 * delta_time
         MY.player_dir = DOWN
         MY.player.sprite = MY.walk_forward
     if key_held_down(pygame.K_LEFT):
+        MY.player_hitbox.active = False
         MY.player.location.x -= 200 * delta_time
         MY.player_dir = LEFT
         MY.player.sprite = MY.walk_left
     elif key_held_down(pygame.K_RIGHT):
+        MY.player_hitbox.active = False
         MY.player.location.x += 200 * delta_time
         MY.player_dir = RIGHT
         MY.player.sprite = MY.walk_right

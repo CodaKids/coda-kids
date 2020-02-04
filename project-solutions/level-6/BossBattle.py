@@ -1,5 +1,5 @@
 """Runs the Init.py file and imports the libraries"""
-from init import *
+from Init import *
 import pygame
 
 def update(delta_time):
