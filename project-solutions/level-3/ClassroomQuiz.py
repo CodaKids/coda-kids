@@ -186,3 +186,5 @@ while running:
 #                        wrong_choice_2 = TRIVIA[i+3]
 #                        ANSWER_CHOICES = [answer, wrong_choice_1, wrong_choice_2]
 #                        randomize_answers(ANSWER_CHOICES)    
+# 
+# TODO:Write the code here for the third answer
