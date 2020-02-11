@@ -521,7 +521,8 @@ SCREEN = start(WINDOW, "Boss Battle")
 
 #load sprites constants
 BOSS_IMAGE = Image("assets/boss.png")
-PROJECTILE_IMAGE = Image("assets/projectile.png")
+PROJECTILE_IMAGE = Image("assets/Projectile.png")
+HITBOX_IMAGE = Image("assets/Hitbox.png")
 BACKGROUND_IMAGE = Image("assets/Background.png")
 
 #constants
@@ -532,28 +533,36 @@ TILE_SIZE = 32
 
 class Data:
     """Modifiable data"""
+    player_idle_forward_sheet = SpriteSheet("assets/PaulIdleFront.png", (64, 64))
+    player_idle_backward_sheet = SpriteSheet("assets/PaulIdleBack.png", (64, 64))
+    player_idle_left_sheet = SpriteSheet("assets/PaulIdleLeft.png", (64, 64))
+    player_idle_right_sheet = SpriteSheet("assets/PaulIdleRight.png", (64, 64))
+    idle_forward = Animator(player_idle_forward_sheet, 1)
+    idle_backward = Animator(player_idle_backward_sheet, 1)
+    idle_left = Animator(player_idle_left_sheet, 1)
+    idle_right = Animator(player_idle_right_sheet, 1)
     player_walk_forward_sheet = SpriteSheet("assets/PaulMoveFront.png", (64, 64))
     player_walk_backward_sheet = SpriteSheet("assets/PaulMoveBack.png", (64, 64))
     player_walk_left_sheet = SpriteSheet("assets/PaulMoveLeft.png", (64, 64))
     player_walk_right_sheet = SpriteSheet("assets/PaulMoveRight.png", (64, 64))
+    walk_forward = Animator(player_walk_forward_sheet, 1)
+    walk_backward = Animator(player_walk_backward_sheet, 1)
+    walk_left = Animator(player_walk_left_sheet, 1)
+    walk_right = Animator(player_walk_right_sheet, 1)
     player_attack_forward_sheet = SpriteSheet("assets/PaulAttackFront.png", (100, 100))
     player_attack_backward_sheet = SpriteSheet("assets/PaulAttackBack.png", (100, 100))
     player_attack_left_sheet = SpriteSheet("assets/PaulAttackLeft.png", (128, 64))
     player_attack_right_sheet = SpriteSheet("assets/PaulAttackRight.png", (128, 64))
-    walk_forward = Animator(player_walk_forward_sheet, 1)
     attack_forward = Animator(player_attack_forward_sheet, 0.5)
-    walk_backward = Animator(player_walk_backward_sheet, 1)
     attack_backward = Animator(player_attack_backward_sheet, 0.5)
-    walk_left = Animator(player_walk_left_sheet, 1)
     attack_left = Animator(player_attack_left_sheet, 0.5)
-    walk_right = Animator(player_walk_right_sheet, 1)
     attack_right = Animator(player_attack_right_sheet, 0.5)
     player = Object(player_walk_forward_sheet.image_at(2))
     player_start_position = pygame.math.Vector2(0, 0)
     player_health = 100
     player_dir = DOWN
     player_text = TextObject(BLACK, 24, "Player: ")
-    player_hitbox = Object(PROJECTILE_IMAGE)
+    player_hitbox = Object(HITBOX_IMAGE)
     wall_height = 45
     boss_start_position = pygame.math.Vector2(0, 0)
     boss = Object(BOSS_IMAGE)
@@ -647,13 +656,13 @@ def player_move_update(delta_time):
     if not moving and not key_held_down(pygame.K_SPACE):
         MY.player_hitbox.active = False
         if MY.player_dir == UP:
-            MY.player.sprite = MY.player_walk_backward_sheet.image_at(2)
+            MY.player.sprite = MY.idle_backward
         elif MY.player_dir == DOWN:
-            MY.player.sprite = MY.player_walk_forward_sheet.image_at(2)
+            MY.player.sprite = MY.idle_forward
         elif MY.player_dir == LEFT:
-            MY.player.sprite = MY.player_walk_left_sheet.image_at(2)
+            MY.player.sprite = MY.idle_left
         elif MY.player_dir == RIGHT:
-            MY.player.sprite = MY.player_walk_right_sheet.image_at(2)
+            MY.player.sprite = MY.idle_right
 
     if key_held_down(pygame.K_UP):
         MY.player_hitbox.active = False

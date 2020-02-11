@@ -12,10 +12,18 @@ def update(delta_time):
         MY.player.location.y = MY.wall_height
     if MY.player.location.y > window_length - (MY.wall_height + 20):
         MY.player.location.y = window_length - (MY.wall_height + 20)
+    
+    timer = CountdownTimer(0.2)    
 
-    MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x, MY.player.location.y)
-    timer = CountdownTimer(0.2)
-    MY.player_hitbox.active = True
+    if MY.player_dir == UP:
+        MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y - 20)
+    elif MY.player_dir == DOWN:
+        MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x - 10, MY.player.location.y + 25)
+    elif MY.player_dir == LEFT:
+        MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x - 20, MY.player.location.y)
+    elif MY.player_dir == RIGHT:
+        MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y)
+
 
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
         MY.boss_health -= 1
@@ -23,12 +31,15 @@ def update(delta_time):
     
     if key_held_down(pygame.K_SPACE):
         if timer.tick(delta_time):
-            MY.player_hitbox.active = False
+            MY.player_hitbox.active = True
         if timer.current_time > timer.max_time * 0:
+            MY.player_hitbox.active = True
             player_attack(delta_time)
         if timer.current_time > timer.max_time * 1/3:
+            MY.player_hitbox.active = True
             player_attack(delta_time)
         if timer.current_time > timer.max_time * 2/3:
+            MY.player_hitbox.active = True
             player_attack(delta_time)
 
     count = -1
