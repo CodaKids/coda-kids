@@ -521,7 +521,8 @@ SCREEN = start(WINDOW, "Boss Battle")
 
 #load sprites constants
 BOSS_IMAGE = Image("assets/boss.png")
-PROJECTILE_IMAGE = Image("assets/projectile.png")
+PROJECTILE_IMAGE = Image("assets/Projectile.png")
+HITBOX_IMAGE = Image("assets/Hitbox.png")
 BACKGROUND_IMAGE = Image("assets/Background.png")
 
 #constants
@@ -532,37 +533,45 @@ TILE_SIZE = 32
 
 class Data:
     """Modifiable data"""
-    player_walk_forward_sheet = SpriteSheet("assets/paul_front_run_12fps.png", (64, 64))
-    player_walk_backward_sheet = SpriteSheet("assets/paul_back_run_12fps.png", (64, 64))
-    player_walk_left_sheet = SpriteSheet("assets/paul_side_run_left_12fps.png", (64, 64))
-    player_walk_right_sheet = SpriteSheet("assets/paul_side_run_right_12fps.png", (64, 64))
-    player_attack_forward_sheet = SpriteSheet("assets/paul_front_attack_12fps.png", (100, 100))
-    player_attack_backward_sheet = SpriteSheet("assets/paul_back_attack_12fps.png", (100, 100))
-    player_attack_left_sheet = SpriteSheet("assets/paul_side_attack_left_12fps.png", (128, 64))
-    player_attack_right_sheet = SpriteSheet("assets/paul_side_attack_right_12fps.png", (128, 64))
+    player_idle_forward_sheet = SpriteSheet("assets/PaulIdleFront.png", (64, 64))
+    player_idle_backward_sheet = SpriteSheet("assets/PaulIdleBack.png", (64, 64))
+    player_idle_left_sheet = SpriteSheet("assets/PaulIdleLeft.png", (64, 64))
+    player_idle_right_sheet = SpriteSheet("assets/PaulIdleRight.png", (64, 64))
+    idle_forward = Animator(player_idle_forward_sheet, 1)
+    idle_backward = Animator(player_idle_backward_sheet, 1)
+    idle_left = Animator(player_idle_left_sheet, 1)
+    idle_right = Animator(player_idle_right_sheet, 1)
+    player_walk_forward_sheet = SpriteSheet("assets/PaulMoveFront.png", (64, 64))
+    player_walk_backward_sheet = SpriteSheet("assets/PaulMoveBack.png", (64, 64))
+    player_walk_left_sheet = SpriteSheet("assets/PaulMoveLeft.png", (64, 64))
+    player_walk_right_sheet = SpriteSheet("assets/PaulMoveRight.png", (64, 64))
     walk_forward = Animator(player_walk_forward_sheet, 1)
-    attack_forward = Animator(player_attack_forward_sheet, 0.5)
     walk_backward = Animator(player_walk_backward_sheet, 1)
-    attack_backward = Animator(player_attack_backward_sheet, 0.5)
     walk_left = Animator(player_walk_left_sheet, 1)
-    attack_left = Animator(player_attack_left_sheet, 0.5)
     walk_right = Animator(player_walk_right_sheet, 1)
+    player_attack_forward_sheet = SpriteSheet("assets/PaulAttackFront.png", (100, 100))
+    player_attack_backward_sheet = SpriteSheet("assets/PaulAttackBack.png", (100, 100))
+    player_attack_left_sheet = SpriteSheet("assets/PaulAttackLeft.png", (128, 64))
+    player_attack_right_sheet = SpriteSheet("assets/PaulAttackRight.png", (128, 64))
+    attack_forward = Animator(player_attack_forward_sheet, 0.5)
+    attack_backward = Animator(player_attack_backward_sheet, 0.5)
+    attack_left = Animator(player_attack_left_sheet, 0.5)
     attack_right = Animator(player_attack_right_sheet, 0.5)
     player = Object(player_walk_forward_sheet.image_at(2))
     player_start_position = pygame.math.Vector2(0, 0)
     player_health = 100
     player_dir = DOWN
     player_text = TextObject(BLACK, 24, "Player: ")
-    player_hitbox = Object(PROJECTILE_IMAGE)
+    player_hitbox = Object(HITBOX_IMAGE)
     wall_height = 45
     boss_start_position = pygame.math.Vector2(0, 0)
     boss = Object(BOSS_IMAGE)
     boss_health = 300
     timer1 = CountdownTimer(0.1)
     timer3 = CountdownTimer(0.1)
-    numberOfBullets = 0
-    bullets = []
-    bullet_owner = []
+    numberOfprojectiles = 0
+    projectiles = []
+    projectile_owner = []
     rotation_speed = 180
     state = 0
     last_state = 2
@@ -582,22 +591,22 @@ def health_bar(screen, health, max_health, max_size, location):
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
 
-def fire_bullet(player_number, degrees, speed):
-    """fire a bullet for the player"""
+def fire_projectile(player_number, degrees, speed):
+    """fire a projectile for the player"""
     index = -1
-    for i in range(len(MY.bullets)):
-        if not MY.bullets[i].active:
+    for i in range(len(MY.projectiles)):
+        if not MY.projectiles[i].active:
             index = i
             break
     if index >= 0:
-        MY.bullets[index].active = True
+        MY.projectiles[index].active = True
         if player_number == 1:
-            MY.bullets[index].location = MY.boss.location
-            MY.bullets[index].set_velocity(degrees, speed)
+            MY.projectiles[index].location = MY.boss.location
+            MY.projectiles[index].set_velocity(degrees, speed)
         else:
-            MY.bullets[index].location = MY.player.location
-            MY.bullets[index].set_velocity(degrees, speed)
-        MY.bullet_owner[index] = player_number
+            MY.projectiles[index].location = MY.player.location
+            MY.projectiles[index].set_velocity(degrees, speed)
+        MY.projectile_owner[index] = player_number
 
 def boss_wait_init(state, delta_time):
     state.timer = CountdownTimer(3)
@@ -617,7 +626,7 @@ def boss_explosion_update(state, delta_time):
     fraction = 360 / num_projectiles
     count = 0
     while count < num_projectiles:
-        fire_bullet(BOSS, fraction * count, 15)
+        fire_projectile(BOSS, fraction * count, 15)
         count += 1
 
     state.owner.current_state = 2
@@ -625,7 +634,7 @@ def boss_explosion_update(state, delta_time):
 def boss_laser_update(state, delta_time):
     """laser attack."""
     MY.boss.add_rotation(MY.rotation_speed * delta_time)
-    fire_bullet(BOSS, MY.boss.rotation, 30)
+    fire_projectile(BOSS, MY.boss.rotation, 30)
     if MY.boss.rotation >= 355:
         MY.boss.rotation = 0
         state.owner.current_state = 2
@@ -645,28 +654,33 @@ def player_move_update(delta_time):
               key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
     
     if not moving and not key_held_down(pygame.K_SPACE):
+        MY.player_hitbox.active = False
         if MY.player_dir == UP:
-            MY.player.sprite = MY.player_walk_backward_sheet.image_at(2)
+            MY.player.sprite = MY.idle_backward
         elif MY.player_dir == DOWN:
-            MY.player.sprite = MY.player_walk_forward_sheet.image_at(2)
+            MY.player.sprite = MY.idle_forward
         elif MY.player_dir == LEFT:
-            MY.player.sprite = MY.player_walk_left_sheet.image_at(2)
+            MY.player.sprite = MY.idle_left
         elif MY.player_dir == RIGHT:
-            MY.player.sprite = MY.player_walk_right_sheet.image_at(2)
+            MY.player.sprite = MY.idle_right
 
     if key_held_down(pygame.K_UP):
+        MY.player_hitbox.active = False
         MY.player.location.y -= 200 * delta_time
         MY.player_dir = UP
         MY.player.sprite = MY.walk_backward
     elif key_held_down(pygame.K_DOWN):
+        MY.player_hitbox.active = False
         MY.player.location.y += 200 * delta_time
         MY.player_dir = DOWN
         MY.player.sprite = MY.walk_forward
     if key_held_down(pygame.K_LEFT):
+        MY.player_hitbox.active = False
         MY.player.location.x -= 200 * delta_time
         MY.player_dir = LEFT
         MY.player.sprite = MY.walk_left
     elif key_held_down(pygame.K_RIGHT):
+        MY.player_hitbox.active = False
         MY.player.location.x += 200 * delta_time
         MY.player_dir = RIGHT
         MY.player.sprite = MY.walk_right
@@ -676,15 +690,15 @@ def initialize(window):
     MY.boss.location = window / 2
     count = 0
     while count < 100:
-        MY.bullets.append(Object(PROJECTILE_IMAGE))
-        MY.bullet_owner.append(BOSS)
+        MY.projectiles.append(Object(PROJECTILE_IMAGE))
+        MY.projectile_owner.append(BOSS)
         count += 1
 
 def draw(screen):
     """Draws the state to the given screen."""
-    for bullet in MY.bullets:
-        if  bullet.active:
-            bullet.draw(screen)
+    for projectile in MY.projectiles:
+        if  projectile.active:
+            projectile.draw(screen)
 
     MY.player.draw(screen)
     if MY.player_hitbox.active:
