@@ -533,30 +533,38 @@ TILE_SIZE = 32
 
 class Data:
     """Modifiable data"""
-    player_idle_forward_sheet = SpriteSheet("assets/PaulIdleFront.png", (64, 64))
-    player_idle_backward_sheet = SpriteSheet("assets/PaulIdleBack.png", (64, 64))
-    player_idle_left_sheet = SpriteSheet("assets/PaulIdleLeft.png", (64, 64))
-    player_idle_right_sheet = SpriteSheet("assets/PaulIdleRight.png", (64, 64))
+    player_idle_forward_sheet = SpriteSheet("assets/paul/PaulIdleFront.png", (64, 64))
+    player_idle_backward_sheet = SpriteSheet("assets/paul/PaulIdleBack.png", (64, 64))
+    player_idle_left_sheet = SpriteSheet("assets/paul/PaulIdleLeft.png", (64, 64))
+    player_idle_right_sheet = SpriteSheet("assets/paul/PaulIdleRight.png", (64, 64))
     idle_forward = Animator(player_idle_forward_sheet, 1)
     idle_backward = Animator(player_idle_backward_sheet, 1)
     idle_left = Animator(player_idle_left_sheet, 1)
     idle_right = Animator(player_idle_right_sheet, 1)
-    player_walk_forward_sheet = SpriteSheet("assets/PaulMoveFront.png", (64, 64))
-    player_walk_backward_sheet = SpriteSheet("assets/PaulMoveBack.png", (64, 64))
-    player_walk_left_sheet = SpriteSheet("assets/PaulMoveLeft.png", (64, 64))
-    player_walk_right_sheet = SpriteSheet("assets/PaulMoveRight.png", (64, 64))
+    player_walk_forward_sheet = SpriteSheet("assets/paul/PaulMoveFront.png", (64, 64))
+    player_walk_backward_sheet = SpriteSheet("assets/paul/PaulMoveBack.png", (64, 64))
+    player_walk_left_sheet = SpriteSheet("assets/paul/PaulMoveLeft.png", (64, 64))
+    player_walk_right_sheet = SpriteSheet("assets/paul/PaulMoveRight.png", (64, 64))
     walk_forward = Animator(player_walk_forward_sheet, 1)
     walk_backward = Animator(player_walk_backward_sheet, 1)
     walk_left = Animator(player_walk_left_sheet, 1)
     walk_right = Animator(player_walk_right_sheet, 1)
-    player_attack_forward_sheet = SpriteSheet("assets/PaulAttackFront.png", (100, 100))
-    player_attack_backward_sheet = SpriteSheet("assets/PaulAttackBack.png", (100, 100))
-    player_attack_left_sheet = SpriteSheet("assets/PaulAttackLeft.png", (128, 64))
-    player_attack_right_sheet = SpriteSheet("assets/PaulAttackRight.png", (128, 64))
+    player_attack_forward_sheet = SpriteSheet("assets/paul/PaulAttackFront.png", (100, 100))
+    player_attack_backward_sheet = SpriteSheet("assets/paul/PaulAttackBack.png", (100, 100))
+    player_attack_left_sheet = SpriteSheet("assets/paul/PaulAttackLeft.png", (128, 64))
+    player_attack_right_sheet = SpriteSheet("assets/paul/PaulAttackRight.png", (128, 64))
     attack_forward = Animator(player_attack_forward_sheet, 0.5)
     attack_backward = Animator(player_attack_backward_sheet, 0.5)
     attack_left = Animator(player_attack_left_sheet, 0.5)
     attack_right = Animator(player_attack_right_sheet, 0.5)
+    player_pain_forward_sheet = SpriteSheet("assets/paul/PaulPainFront.png", (64, 64))
+    player_pain_backward_sheet = SpriteSheet("assets/paul/PaulPainBack.png", (64, 64))
+    player_pain_left_sheet = SpriteSheet("assets/paul/PaulPainLeft.png", (64, 64))
+    player_pain_right_sheet = SpriteSheet("assets/paul/PaulPainRight.png", (64, 64))
+    pain_forward = Animator(player_pain_forward_sheet, 0.5)
+    pain_backward = Animator(player_pain_backward_sheet, 0.5)
+    pain_left = Animator(player_pain_left_sheet, 0.5)
+    pain_right = Animator(player_pain_right_sheet, 0.5)
     player = Object(player_walk_forward_sheet.image_at(2))
     player_start_position = pygame.math.Vector2(0, 0)
     player_health = 100
@@ -639,7 +647,7 @@ def boss_laser_update(state, delta_time):
         MY.boss.rotation = 0
         state.owner.current_state = 2
 
-def player_attack(delta_time):
+def player_attack_anim(delta_time):
     if MY.player_dir == UP:
         MY.player.sprite = MY.attack_backward
     elif MY.player_dir == DOWN:
@@ -649,11 +657,21 @@ def player_attack(delta_time):
     elif MY.player_dir == RIGHT:
         MY.player.sprite = MY.attack_right
 
+def player_pain_anim(delta_time):
+    if MY.player_dir == UP:
+        MY.player.sprite = MY.pain_backward
+    elif MY.player_dir == DOWN:
+        MY.player.sprite = MY.pain_forward
+    elif MY.player_dir == LEFT:
+        MY.player.sprite = MY.pain_left
+    elif MY.player_dir == RIGHT:
+        MY.player.sprite = MY.pain_right
+
 def player_move_update(delta_time):
     moving = (key_held_down(pygame.K_RIGHT) or key_held_down(pygame.K_LEFT) or
               key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
     
-    if not moving and not key_held_down(pygame.K_SPACE):
+    if not moving and not key_held_down(pygame.K_SPACE) and not MY.player.collides_with(MY.boss):
         MY.player_hitbox.active = False
         if MY.player_dir == UP:
             MY.player.sprite = MY.idle_backward
@@ -740,7 +758,7 @@ class GameOver:
         """place changable state variables here."""
         # gameoverbackground = Object(IMAGE_GAMEOVER)
         # restart_button = Object(IMAGE_BUTTON)
-        display_text = TextObject(WHITE, 24, "Player 1 wins! Play again?")
+        display_text = TextObject(WHITE, 24, "You win! Play again?")
 
     MY = Data()
 

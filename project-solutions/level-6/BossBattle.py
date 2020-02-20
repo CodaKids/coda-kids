@@ -24,7 +24,6 @@ def update(delta_time):
     elif MY.player_dir == RIGHT:
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y)
 
-
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
         MY.boss_health -= 1
         MY.player_hitbox.active = False
@@ -34,13 +33,18 @@ def update(delta_time):
             MY.player_hitbox.active = True
         if timer.current_time > timer.max_time * 0:
             MY.player_hitbox.active = True
-            player_attack(delta_time)
+            player_attack_anim(delta_time)
         if timer.current_time > timer.max_time * 1/3:
             MY.player_hitbox.active = True
-            player_attack(delta_time)
+            player_attack_anim(delta_time)
         if timer.current_time > timer.max_time * 2/3:
             MY.player_hitbox.active = True
-            player_attack(delta_time)
+            player_attack_anim(delta_time)
+
+    if MY.player.collides_with(MY.boss):
+        player_pain_anim(delta_time)
+        MY.player_health -= 1
+        MY.player_hitbox.active = False
 
     count = -1
     for projectile in MY.projectiles:
