@@ -572,8 +572,12 @@ class Data:
     player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(HITBOX_IMAGE)
     wall_height = 45
+    boss_attack_sheet = SpriteSheet("assets/paul/CreeperAttack.png", (96, 96))
+    boss_attack = Animator(boss_attack_sheet, 0.5)
+    boss_idle_sheet = SpriteSheet("assets/paul/CreeperIdle.png", (96, 96))
+    boss_idle = Animator(boss_idle_sheet, 0.5)
+    boss = Object(boss_idle_sheet.image_at(0))
     boss_start_position = pygame.math.Vector2(0, 0)
-    boss = Object(BOSS_IMAGE)
     boss_health = 300
     timer1 = CountdownTimer(0.1)
     timer3 = CountdownTimer(0.1)
