@@ -572,10 +572,12 @@ class Data:
     player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(HITBOX_IMAGE)
     wall_height = 45
-    boss_attack_sheet = SpriteSheet("assets/paul/CreeperAttack.png", (96, 96))
+    boss_attack_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
     boss_attack = Animator(boss_attack_sheet, 0.5)
-    boss_idle_sheet = SpriteSheet("assets/paul/CreeperIdle.png", (96, 96))
-    boss_idle = Animator(boss_idle_sheet, 0.5)
+    boss_idle_sheet = SpriteSheet("assets/creeper/CreeperIdle.png", (96, 96))
+    boss_idle = Animator(boss_idle_sheet, 2.5)
+    boss_pain_sheet = SpriteSheet("assets/creeper/CreeperPain.png", (96, 96))
+    boss_pain = Animator(boss_pain_sheet, 0.5)
     boss = Object(boss_idle_sheet.image_at(0))
     boss_start_position = pygame.math.Vector2(0, 0)
     boss_health = 300
@@ -623,6 +625,7 @@ def fire_projectile(player_number, degrees, speed):
 def boss_wait_init(state, delta_time):
     state.timer = CountdownTimer(3)
     state.previous = state.owner.previous_state
+    MY.boss.sprite = MY.boss_idle
 
 def boss_wait_update(state, delta_time):
     """wait between attacks."""
@@ -645,13 +648,14 @@ def boss_explosion_update(state, delta_time):
 
 def boss_laser_update(state, delta_time):
     """laser attack."""
+    MY.boss.sprite = MY.boss_attack
     MY.boss.add_rotation(MY.rotation_speed * delta_time)
     fire_projectile(BOSS, MY.boss.rotation, 30)
     if MY.boss.rotation >= 355:
         MY.boss.rotation = 0
         state.owner.current_state = 2
 
-def player_attack_anim(delta_time):
+def player_attack_anim():
     if MY.player_dir == UP:
         MY.player.sprite = MY.attack_backward
     elif MY.player_dir == DOWN:
@@ -661,7 +665,7 @@ def player_attack_anim(delta_time):
     elif MY.player_dir == RIGHT:
         MY.player.sprite = MY.attack_right
 
-def player_pain_anim(delta_time):
+def player_pain_anim():
     if MY.player_dir == UP:
         MY.player.sprite = MY.pain_backward
     elif MY.player_dir == DOWN:
@@ -707,6 +711,12 @@ def player_move_update(delta_time):
         MY.player_dir = RIGHT
         MY.player.sprite = MY.walk_right
 
+def boss_pain_anim():
+    MY.boss.sprite = MY.boss_pain
+
+def boss_idle_anim():
+    MY.boss.sprite = MY.boss_idle
+
 def initialize(window):
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
@@ -735,6 +745,9 @@ def update_player(delta_time):
     """Updates the position of the players in the game window."""
     player_move_update(delta_time)
     MY.player.update(delta_time)
+
+def update_boss(delta_time):
+    MY.boss.update(delta_time)
 
 def check_win():
     """Check win condition and change state if a player has won the game"""
