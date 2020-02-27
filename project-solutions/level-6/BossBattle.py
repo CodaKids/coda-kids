@@ -3,6 +3,8 @@ from Init import *
 import pygame
 
 def update(delta_time):
+    boss_idle_anim()
+
     # Checks if player collides with the walls
     if MY.player.location.x < MY.wall_height:
         MY.player.location.x = MY.wall_height
@@ -25,6 +27,7 @@ def update(delta_time):
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y)
 
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        boss_pain_anim()
         MY.boss_health -= 1
         MY.player_hitbox.active = False
     
@@ -33,16 +36,16 @@ def update(delta_time):
             MY.player_hitbox.active = True
         if timer.current_time > timer.max_time * 0:
             MY.player_hitbox.active = True
-            player_attack_anim(delta_time)
+            player_attack_anim()
         if timer.current_time > timer.max_time * 1/3:
             MY.player_hitbox.active = True
-            player_attack_anim(delta_time)
+            player_attack_anim()
         if timer.current_time > timer.max_time * 2/3:
             MY.player_hitbox.active = True
-            player_attack_anim(delta_time)
+            player_attack_anim()
 
     if MY.player.collides_with(MY.boss):
-        player_pain_anim(delta_time)
+        player_pain_anim()
         MY.player_health -= 1
         MY.player_hitbox.active = False
 
@@ -64,6 +67,8 @@ def update(delta_time):
                     continue
 
     update_player(delta_time)
+
+    update_boss(delta_time)
 
     check_stop()
 
