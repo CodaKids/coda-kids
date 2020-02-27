@@ -4,7 +4,7 @@ import time
 import math
 import random
 
-import coda_kids
+import framework.coda_kids
 
 def read_file(filename):
     """Read a file line by line and return it as an array of strings."""
@@ -25,7 +25,7 @@ def rand(minimum, maximum):
 
 def rand_location(minimum, maximum):
     """Generates a random location from the given min and max."""
-    return coda_kids.Vector2(rand(minimum, maximum), rand(minimum, maximum))
+    return framework.coda_kids.Vector2(rand(minimum, maximum), rand(minimum, maximum))
 
 def near(num, near_value):
     """Checks if the given float number is near the given float value."""
@@ -37,7 +37,7 @@ class OutputConsole:
     """Class that displays strings in a console."""
     def __init__(self, location, num_of_lines, font_size, color):
         self.strings = []
-        self.text = coda_kids.TextObject(color, font_size, "")
+        self.text = framework.coda_kids.TextObject(color, font_size, "")
         self.location = location
         self.lines = num_of_lines
         self.font_size = font_size
@@ -46,7 +46,7 @@ class OutputConsole:
 
     def __setattr__(self, name, value):
         if name == "location":
-            self.__dict__[name] = coda_kids.Vector2(value[0], value[1])
+            self.__dict__[name] = framework.coda_kids.Vector2(value[0], value[1])
         elif name == "font_size":
             self.__dict__[name] = value
             self.text.font_size = value
@@ -76,14 +76,14 @@ class OutputConsole:
 
         if self.decending:
             for string in self.strings:
-                loc = coda_kids.Vector2(def_loc.x, def_loc.y + string_num * offset)
+                loc = framework.coda_kids.Vector2(def_loc.x, def_loc.y + string_num * offset)
                 self.text.location = loc
                 self.text.text = string
                 self.text.draw(screen)
                 string_num += 1
         else:
             for string in reversed(self.strings):
-                loc = coda_kids.Vector2(def_loc.x, def_loc.y + string_num * offset)
+                loc = framework.coda_kids.Vector2(def_loc.x, def_loc.y + string_num * offset)
                 self.text.location = loc
                 self.text.text = string
                 self.text.draw(screen)

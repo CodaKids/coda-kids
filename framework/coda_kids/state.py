@@ -1,6 +1,6 @@
 """This file contains functionality related to game state management."""
 import pygame
-import coda_kids.actions
+import framework.coda_kids.actions
 
 class Machine:
     """Game state machine class."""
@@ -29,7 +29,7 @@ class Machine:
                 self.states[self.current]['initialize'](window)
                 self.previous = self.current
 
-            coda_kids.actions.update(delta_time)
+            framework.coda_kids.actions.update(delta_time)
             self.states[self.current]['update'](delta_time)
             screen.fill(fill_color)
             self.states[self.current]['draw'](screen)
