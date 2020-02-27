@@ -17,12 +17,12 @@ Visual Studio Code 1.11+ with the Python extension installed.
 """
 import pygame
 
-import coda_kids.color
-import coda_kids.utilities
-import coda_kids.dir
-import coda_kids.event
-import coda_kids.state
-import coda_kids.actions
+import framework.coda_kids.color
+import framework.coda_kids.utilities
+import framework.coda_kids.dir
+import framework.coda_kids.event
+import framework.coda_kids.state
+import framework.coda_kids.actions
 
 def start(window_size, game_name):
     """
@@ -31,8 +31,8 @@ def start(window_size, game_name):
         SCREEN = coda.start((w, h), "Title");
     """
     pygame.init()
-    coda_kids.utilities.time.sleep(2)
-    coda_kids.utilities.random.seed(coda_kids.utilities.time.time())
+    framework.coda_kids.utilities.time.sleep(2)
+    framework.coda_kids.utilities.random.seed(framework.coda_kids.utilities.time.time())
     pygame.display.set_caption(game_name)
     pygame.mixer.init()
     return pygame.display.set_mode((int(window_size[0]), int(window_size[1])))
@@ -43,7 +43,7 @@ def stop():
 
         coda.stop();
     """
-    coda_kids.utilities.sys.exit()
+    framework.coda_kids.utilities.sys.exit()
 
 class Image:
     def __init__(self, image_file_name):
@@ -137,8 +137,8 @@ class SpriteSheet:
 
             obj.sprite = sheet.image_at(0);
         """
-        x = coda_kids.utilities.math.floor(index % self.columns) * self.rectangle.width
-        y = coda_kids.utilities.math.floor(index / self.columns) * self.rectangle.height
+        x = framework.coda_kids.utilities.math.floor(index % self.columns) * self.rectangle.width
+        y = framework.coda_kids.utilities.math.floor(index / self.columns) * self.rectangle.height
         self.rectangle.centerx = x + self.rectangle.width / 2
         self.rectangle.centery = y + self.rectangle.height / 2
         image = Image(None)
@@ -291,8 +291,8 @@ class Object:
             obj.add_velocity((0, 1), 1, 10); # increase upwards
         """
         epsilon = 1.0e-15
-        direction = Vector2(coda_kids.utilities.math.cos(coda_kids.utilities.math.radians(direction - 90)),
-                            coda_kids.utilities.math.sin(coda_kids.utilities.math.radians(direction - 90)))
+        direction = Vector2(framework.coda_kids.utilities.math.cos(framework.coda_kids.utilities.math.radians(direction - 90)),
+                            framework.coda_kids.utilities.math.sin(framework.coda_kids.utilities.math.radians(direction - 90)))
         if direction.x < epsilon and direction.x > 0:
             direction.x = 0
 
@@ -314,8 +314,8 @@ class Object:
 
             obj.set_velocity(45, 5); # left 5
         """
-        self.velocity = Vector2(-1 * coda_kids.utilities.math.cos(coda_kids.utilities.math.radians(degrees - 90)) * speed,
-                                coda_kids.utilities.math.sin(coda_kids.utilities.math.radians(degrees - 90)) * speed)
+        self.velocity = Vector2(-1 * framework.coda_kids.utilities.math.cos(framework.coda_kids.utilities.math.radians(degrees - 90)) * speed,
+                                framework.coda_kids.utilities.math.sin(framework.coda_kids.utilities.math.radians(degrees - 90)) * speed)
 
     def collides_with(self, other_obj):
         """
@@ -353,7 +353,7 @@ class Object:
             # Snap obj1 left of obj2
             obj1.snap_to_object_x(obj2, coda.dir.LEFT);
         """
-        if facing == coda_kids.dir.LEFT:
+        if facing == framework.coda_kids.dir.LEFT:
             self.location.x = (other_obj.location.x +
                                other_obj.width() / 2 +
                                self.width() / 2)
@@ -369,7 +369,7 @@ class Object:
             # Snap obj1 left of obj2
             obj1.snap_to_object(obj2, coda.dir.LEFT);
         """
-        if facing == coda_kids.dir.UP:
+        if facing == framework.coda_kids.dir.UP:
             self.location.y = (other_obj.location.y +
                                other_obj.height() / 2 +
                                self.height() / 2)
