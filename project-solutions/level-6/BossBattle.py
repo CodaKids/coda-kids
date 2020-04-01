@@ -3,7 +3,7 @@ from Init import *
 import pygame
 
 def update(delta_time):
-    boss_idle_anim()
+    timer = CountdownTimer(0.2)   
 
     # Checks if player collides with the walls
     if MY.player.location.x < MY.wall_height:
@@ -13,9 +13,12 @@ def update(delta_time):
     if MY.player.location.y < MY.wall_height:
         MY.player.location.y = MY.wall_height
     if MY.player.location.y > window_length - (MY.wall_height + 20):
-        MY.player.location.y = window_length - (MY.wall_height + 20)
-    
-    timer = CountdownTimer(0.2)    
+        MY.player.location.y = window_length - (MY.wall_height + 20) 
+
+    if MY.player.collides_with(MY.boss):
+        player_pain_anim()
+        MY.player_health -= 1
+        MY.player_hitbox.active = False
 
     if MY.player_dir == UP:
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y - 20)
@@ -25,11 +28,6 @@ def update(delta_time):
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x - 20, MY.player.location.y)
     elif MY.player_dir == RIGHT:
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y)
-
-    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
-        boss_pain_anim()
-        MY.boss_health -= 1
-        MY.player_hitbox.active = False
     
     if key_held_down(pygame.K_SPACE):
         if timer.tick(delta_time):
@@ -44,27 +42,24 @@ def update(delta_time):
             MY.player_hitbox.active = True
             player_attack_anim()
 
-    if MY.player.collides_with(MY.boss):
-        player_pain_anim()
-        MY.player_health -= 1
+    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        MY.boss_health -= 1
         MY.player_hitbox.active = False
+
+    boss_attack(delta_time)
 
     count = -1
     for projectile in MY.projectiles:
         count += 1
         if projectile.active:
             if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
-                MY.player_health -= 5
+                MY.player_health -= 1
                 projectile.active = False
                 continue
-            elif MY.projectile_owner[count] == PLAYER and projectile.collides_with(MY.boss):
-                MY.boss_health -= 5
-                projectile.active = False
-                continue
-            for wall in MY.walls:
+            '''for wall in MY.walls:
                 if projectile.collides_with(wall):
                     projectile.active = False
-                    continue
+                    continue'''
 
     update_player(delta_time)
 

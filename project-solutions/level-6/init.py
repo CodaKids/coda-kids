@@ -1,4 +1,4 @@
-#============================================================
+#=============================================================
 #PART 1: IMPORTING DEPENDENCIES AND ASSIGNING GLOBAL VARIABLES
 import pygame
 import random
@@ -520,7 +520,6 @@ WINDOW = pygame.math.Vector2(800, 608)
 SCREEN = start(WINDOW, "Boss Battle")
 
 #load sprites constants
-BOSS_IMAGE = Image("assets/boss.png")
 PROJECTILE_IMAGE = Image("assets/Projectile.png")
 HITBOX_IMAGE = Image("assets/Hitbox.png")
 BACKGROUND_IMAGE = Image("assets/Background.png")
@@ -573,7 +572,7 @@ class Data:
     player_hitbox = Object(HITBOX_IMAGE)
     wall_height = 45
     boss_attack_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
-    boss_attack = Animator(boss_attack_sheet, 0.5)
+    boss_attack = Animator(boss_attack_sheet, 2)
     boss_idle_sheet = SpriteSheet("assets/creeper/CreeperIdle.png", (96, 96))
     boss_idle = Animator(boss_idle_sheet, 2.5)
     boss_pain_sheet = SpriteSheet("assets/creeper/CreeperPain.png", (96, 96))
@@ -590,6 +589,9 @@ class Data:
     state = 0
     last_state = 2
     index = 0
+    last = pygame.time.get_ticks()
+    cooldown = 6000 
+    gameoverbackground = Image("assets/Projectile.png")
 
 MY = Data()
 
@@ -605,23 +607,6 @@ def health_bar(screen, health, max_health, max_size, location):
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
 
-def fire_projectile(player_number, degrees, speed):
-    """fire a projectile for the player"""
-    index = -1
-    for i in range(len(MY.projectiles)):
-        if not MY.projectiles[i].active:
-            index = i
-            break
-    if index >= 0:
-        MY.projectiles[index].active = True
-        if player_number == 1:
-            MY.projectiles[index].location = MY.boss.location
-            MY.projectiles[index].set_velocity(degrees, speed)
-        else:
-            MY.projectiles[index].location = MY.player.location
-            MY.projectiles[index].set_velocity(degrees, speed)
-        MY.projectile_owner[index] = player_number
-
 def boss_wait_init(state, delta_time):
     state.timer = CountdownTimer(3)
     state.previous = state.owner.previous_state
@@ -635,25 +620,23 @@ def boss_wait_update(state, delta_time):
         else:
             state.owner.current_state = 0
 
-def boss_explosion_update(state, delta_time):
+def boss_attack(delta_time):
     """shoot out lots of projectiles."""
-    num_projectiles = 15
-    fraction = 360 / num_projectiles
-    count = 0
-    while count < num_projectiles:
-        fire_projectile(BOSS, fraction * count, 15)
-        count += 1
-
-    state.owner.current_state = 2
-
-def boss_laser_update(state, delta_time):
-    """laser attack."""
-    MY.boss.sprite = MY.boss_attack
-    MY.boss.add_rotation(MY.rotation_speed * delta_time)
-    fire_projectile(BOSS, MY.boss.rotation, 30)
-    if MY.boss.rotation >= 355:
-        MY.boss.rotation = 0
-        state.owner.current_state = 2
+    now = pygame.time.get_ticks()
+    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        boss_pain_anim()
+    elif MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox) and now - MY.last >= MY.cooldown:
+        boss_pain_anim()
+    elif now - MY.last >= MY.cooldown:
+        boss_idle_anim()
+    else:
+        MY.last = now
+        boss_attack_anim()
+        num_projectiles = 15
+        fraction = 360 / num_projectiles
+        count = 0
+        while count < num_projectiles:
+            count += 1
 
 def player_attack_anim():
     if MY.player_dir == UP:
@@ -711,6 +694,9 @@ def player_move_update(delta_time):
         MY.player_dir = RIGHT
         MY.player.sprite = MY.walk_right
 
+def boss_attack_anim():
+    MY.boss.sprite = MY.boss_attack
+
 def boss_pain_anim():
     MY.boss.sprite = MY.boss_pain
 
@@ -720,6 +706,10 @@ def boss_idle_anim():
 def initialize(window):
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
+    if MY.state != 0:
+        MY.gameoverbackground.location = window / 2
+        # MY.restart_button.location = window / 2
+        MY.display_text = TextObject(WHITE, 24, "")
     count = 0
     while count < 100:
         MY.projectiles.append(Object(PROJECTILE_IMAGE))
