@@ -13,7 +13,7 @@ class Card:
         self.weakness = weakness
         self.resistance = resistance
         self.image_path = image_path
-        self.HP = 15
+        self.HP = 5
     
     def attack1():
         #something here that's implemented in init file
@@ -49,12 +49,12 @@ woodchuck_norris = Card('scratch', 'turtle', 'java', "assets/WoodchuckNorris.png
 
 #Game loop below:
 #while running: 
-    #if less than 1 card, player may draw a card
+    #if less than 3 cards, player may draw a card
     #Next, player picks an attack from one card
     #Player then picks card they would like to attack. 
     #Player flips coin
     #Depending on results of coin, damage is dealt to that card.
     #TODO: implement specific attacks based on the cards
     #If card health < 1, card is killed
-    #If player has no cards left in their deck, player loses
+    #If player has no cards left, player loses
     #Change player turn to the other player
