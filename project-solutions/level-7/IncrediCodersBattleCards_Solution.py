@@ -5,7 +5,6 @@ from os import path
 DECK = []
 
 class Player:
-    health = 20
     hand = []
 
 class Card:
@@ -14,6 +13,7 @@ class Card:
         self.weakness = weakness
         self.resistance = resistance
         self.image_path = image_path
+        self.HP = 5
 
 annie_conda = Card('python', 'java', 'bash', "assets/AnnieConda.png")
 bayo_wolf = Card('scratch', 'turtle', 'java', "assets/BayoWolf.png")
@@ -35,3 +35,20 @@ viralmuto = Card('bash', 'python', 'scratch', "assets/ViralMuto.png")
 virobotica = Card('bash', 'python', 'turtle', "assets/Virobotica.png")
 virobots = Card('bash', 'python', 'turtle', "assets/Virobots.png")
 woodchuck_norris = Card('scratch', 'turtle', 'java', "assets/WoodchuckNorris.png")
+
+#add all cards to deck
+#deal half of the cards to each player, randomly
+#initialize Player1 and Player2 (is this a computer?) with 0 cards each
+#turn = Player1's turn
+
+#Game loop below:
+#while running: 
+    #if less than 3 cards, player may draw a card
+    #Next, player picks an attack from one card
+    #Player then picks card they would like to attack. 
+    #Player flips coin
+    #Depending on results of coin, damage is dealt to that card.
+    #TODO: implement specific attacks based on the cards
+    #If card health < 1, card is killed
+    #If player has no cards left, player loses
+    #Change player turn to the other player

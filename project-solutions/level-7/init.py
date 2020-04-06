@@ -11,4 +11,4 @@ def get_file(fileName):
     return path.join(path.dirname(__file__), fileName)
 
 #============================================================
-#PART 3: SETUP FOR THE SPACEWARS GAME
+#PART 3: SETUP FOR THE BATTLE CARDS GAME
