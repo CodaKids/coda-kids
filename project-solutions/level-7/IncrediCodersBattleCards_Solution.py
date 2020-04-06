@@ -14,6 +14,12 @@ class Card:
         self.resistance = resistance
         self.image_path = image_path
         self.HP = 5
+    
+    def attack1():
+        #something here that's implemented in init file
+    
+    def attack2():
+        #something here also that's implemented in init file
 
 annie_conda = Card('python', 'java', 'bash', "assets/AnnieConda.png")
 bayo_wolf = Card('scratch', 'turtle', 'java', "assets/BayoWolf.png")
