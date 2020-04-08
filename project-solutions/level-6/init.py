@@ -591,7 +591,8 @@ class Data:
     index = 0
     last = pygame.time.get_ticks()
     cooldown = 6000 
-    gameoverbackground = Image("assets/Projectile.png")
+    gameoverbackground = Object(Image("assets/Background.png"))    
+    restart_button = Object(Image("assets/Background.png"))
 
 MY = Data()
 
@@ -637,6 +638,11 @@ def boss_attack(delta_time):
         count = 0
         while count < num_projectiles:
             count += 1
+    
+def player_attack_update():
+    if key_held_down(pygame.K_SPACE):
+        MY.player_hitbox.active = True
+        player_attack_anim()
 
 def player_attack_anim():
     if MY.player_dir == UP:
@@ -734,6 +740,7 @@ def draw(screen):
 def update_player(delta_time):
     """Updates the position of the players in the game window."""
     player_move_update(delta_time)
+    player_attack_update()
     MY.player.update(delta_time)
 
 def update_boss(delta_time):
