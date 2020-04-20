@@ -28,21 +28,9 @@ def update(delta_time):
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x - 20, MY.player.location.y)
     elif MY.player_dir == RIGHT:
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y)
-    
-    if key_held_down(pygame.K_SPACE):
-        if timer.tick(delta_time):
-            MY.player_hitbox.active = True
-        if timer.current_time > timer.max_time * 0:
-            MY.player_hitbox.active = True
-            player_attack_anim()
-        if timer.current_time > timer.max_time * 1/3:
-            MY.player_hitbox.active = True
-            player_attack_anim()
-        if timer.current_time > timer.max_time * 2/3:
-            MY.player_hitbox.active = True
-            player_attack_anim()
 
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        boss_pain_anim()
         MY.boss_health -= 1
         MY.player_hitbox.active = False
 

@@ -523,6 +523,8 @@ SCREEN = start(WINDOW, "Boss Battle")
 PROJECTILE_IMAGE = Image("assets/Projectile.png")
 HITBOX_IMAGE = Image("assets/Hitbox.png")
 BACKGROUND_IMAGE = Image("assets/Background.png")
+IMAGE_GAMEOVER = Image("assets/Background.png")
+IMAGE_BUTTON = Image("assets/Background.png")
 
 #constants
 PLAYER = 0
@@ -591,7 +593,10 @@ class Data:
     index = 0
     last = pygame.time.get_ticks()
     cooldown = 6000 
-    gameoverbackground = Image("assets/Projectile.png")
+    #gameover class data
+    gameoverbackground = Object(Image("assets/Background.png"))    
+    restart_button = Object(Image("assets/Background.png"))
+    display_text = TextObject(WHITE, 24, "")
 
 MY = Data()
 
@@ -606,6 +611,73 @@ def health_bar(screen, health, max_health, max_size, location):
 
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
+
+def initialize(window):
+    MY.player.location = (window.x / 2, window.y / 4)
+    MY.boss.location = window / 2
+    if MY.state!=0:
+        MY.gameoverbackground.location = window / 2
+        MY.restart_button.location = window / 2
+        MY.display_text = TextObject(WHITE, 24, "")
+    count = 0
+    while count < 20:
+        MY.projectiles.append(Object(PROJECTILE_IMAGE))
+        MY.projectile_owner.append(BOSS)
+        count += 1
+
+def draw(screen):
+    """Draws the state to the given screen.
+    for projectile in MY.projectiles:
+        if  projectile.active:
+            projectile.draw(screen)"""
+
+    MY.player.draw(screen)
+    if MY.player_hitbox.active:
+        MY.player_hitbox.draw(screen)
+
+    MY.boss.draw(screen)
+    MY.player_text.draw(screen)
+    health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
+    health_bar(screen, MY.boss_health, 300, (MY.boss.width(), 20), MY.boss.location - (MY.boss.width() / 2, (MY.boss.height() / 2) + 25))
+
+def cleanup():
+    """Cleans up the Intro State."""
+
+class GameOver:
+    """Restarter class to be loaded if Player 1 wins."""
+    IMAGE_GAMEOVER = Image("assets/Background.png")
+    IMAGE_BUTTON = Image("assets/Background.png")
+
+    class Data:
+        """place changable state variables here."""
+        gameoverbackground = Object(IMAGE_GAMEOVER)
+        restart_button = Object(IMAGE_BUTTON)
+        display_text = TextObject(WHITE, 24, "Play again?")
+
+    MY = Data()
+
+    def initialize(window):
+        """Initializes the restart menu state."""
+        MY.gameoverbackground.location = window / 2
+        MY.restart_button.location = window / 2
+
+    def update(delta_time):
+        """Updates the restart menu state."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                stop()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if MY.restart_button.collides_with_point(pygame.mouse.get_pos()):
+                    Manager.current = 0
+
+    def cleanup():
+        """Cleans up the restart menu state."""
+
+    def draw(screen):
+        """Draws the restart menu state."""
+        MY.gameoverbackground.draw(screen)
+        MY.restart_button.draw(screen)
+        MY.display_text.draw(screen)
 
 def boss_wait_init(state, delta_time):
     state.timer = CountdownTimer(3)
@@ -637,6 +709,11 @@ def boss_attack(delta_time):
         count = 0
         while count < num_projectiles:
             count += 1
+    
+def player_attack_update():
+    if key_held_down(pygame.K_SPACE):
+        MY.player_hitbox.active = True
+        player_attack_anim()
 
 def player_attack_anim():
     if MY.player_dir == UP:
@@ -703,37 +780,10 @@ def boss_pain_anim():
 def boss_idle_anim():
     MY.boss.sprite = MY.boss_idle
 
-def initialize(window):
-    MY.player.location = (window.x / 2, window.y / 4)
-    MY.boss.location = window / 2
-    if MY.state != 0:
-        MY.gameoverbackground.location = window / 2
-        # MY.restart_button.location = window / 2
-        MY.display_text = TextObject(WHITE, 24, "")
-    count = 0
-    while count < 100:
-        MY.projectiles.append(Object(PROJECTILE_IMAGE))
-        MY.projectile_owner.append(BOSS)
-        count += 1
-
-def draw(screen):
-    """Draws the state to the given screen."""
-    for projectile in MY.projectiles:
-        if  projectile.active:
-            projectile.draw(screen)
-
-    MY.player.draw(screen)
-    if MY.player_hitbox.active:
-        MY.player_hitbox.draw(screen)
-
-    MY.boss.draw(screen)
-    MY.player_text.draw(screen)
-    health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
-    health_bar(screen, MY.boss_health, 300, (MY.boss.width(), 20), MY.boss.location - (MY.boss.width() / 2, (MY.boss.height() / 2) + 25))
-
 def update_player(delta_time):
     """Updates the position of the players in the game window."""
     player_move_update(delta_time)
+    player_attack_update()
     MY.player.update(delta_time)
 
 def update_boss(delta_time):
@@ -750,44 +800,3 @@ def check_win():
         Manager.current = 1
         MY.state = 1
         MY.display_text = TextObject(WHITE, 24, "You lose!")
-
-def cleanup():
-    """Cleans up the Intro State."""
-
-class GameOver:
-    """Restarter class to be loaded if Player 1 wins."""
-    # load sprites
-    # IMAGE_GAMEOVER = Image("assets/GameOverBackground.png")
-    # IMAGE_BUTTON = Image("assets/ReplayButton.png")
-
-    # modifiable data
-    class Data:
-        """place changable state variables here."""
-        # gameoverbackground = Object(IMAGE_GAMEOVER)
-        # restart_button = Object(IMAGE_BUTTON)
-        display_text = TextObject(WHITE, 24, "You win! Play again?")
-
-    MY = Data()
-
-    def initialize(self, window):
-        """Initializes the restart menu state."""
-        MY.gameoverbackground.location = window / 2
-        MY.restart_button.location = window / 2
-
-    def update(self, delta_time):
-        """Updates the restart menu state."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                stop()
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if MY.restart_button.collides_with_point(pygame.mouse.get_pos()):
-                    Manager.current = 0
-
-    def cleanup(self):
-        """Cleans up the restart menu state."""
-
-    def draw(self, screen):
-        """Draws the restart menu state."""
-        # MY.gameoverbackground.draw(screen)
-        # MY.restart_button.draw(screen)
-        MY.display_text.draw(screen)
