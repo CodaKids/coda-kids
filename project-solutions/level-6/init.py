@@ -744,21 +744,26 @@ def update_player(delta_time):
     state.previous = state.owner.previous_state
     MY.boss.sprite = MY.boss_idle """
 
-def boss_wait_update(state, delta_time):
-    """wait between attacks."""
+""" def boss_wait_update(state, delta_time):
+    #wait between attacks.
     if state.timer.tick(delta_time):
         if state.previous == 0:
             state.owner.current_state = 1
         else:
-            state.owner.current_state = 0
+            state.owner.current_state = 0 """
 
 def boss_attack(delta_time):
-    boss_attack_anim()
     num_projectiles = 15
     fraction = 360 / num_projectiles
     count = 0
     while count < num_projectiles:
         count += 1
+
+def boss_anim_update():
+    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        boss_pain_anim()
+    else:
+        boss_idle_anim()
 
 def boss_attack_anim():
     MY.boss.sprite = MY.boss_attack
@@ -770,6 +775,7 @@ def boss_idle_anim():
     MY.boss.sprite = MY.boss_idle
 
 def update_boss(delta_time):
+    boss_anim_update()
     MY.boss.update(delta_time)
 
 def check_win():
@@ -784,5 +790,4 @@ def check_win():
         Manager.current = 1
         MY.state = 2
         MY.display_text = TextObject(WHITE, 24, "You lose!")
-        #MY.gameoverbackground = Object(Image("assets/GameOverLayover.png"))   
-        MY.gameoverbackground = Object(Image("assets/GameOverAnimated.gif"))
+        MY.gameoverbackground = Object(Image("assets/GameOverLayover.png"))   
