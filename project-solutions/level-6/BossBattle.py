@@ -3,7 +3,7 @@ from Init import *
 import pygame
 
 def update(delta_time):
-    timer = CountdownTimer(0.2)   
+    timer = CountdownTimer(20)   
 
     # Checks if player collides with the walls
     if MY.player.location.x < MY.wall_height:
@@ -34,7 +34,16 @@ def update(delta_time):
         MY.boss_health -= 1
         MY.player_hitbox.active = False
 
-    boss_attack(delta_time)
+    for i in range(timer.max_time + 5):
+        print(timer.current_time)
+        if timer.tick(1) != True:
+            print("false not done")
+            boss_attack_anim()
+            #boss_attack(delta_time)
+        else:
+            print("true done")
+            boss_idle_anim()
+    
 
     count = -1
     for projectile in MY.projectiles:
