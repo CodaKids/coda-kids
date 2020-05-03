@@ -1,6 +1,5 @@
-import pygame
+from init import *
 import random
-from os import path
 
 DECK = []
 
@@ -75,7 +74,7 @@ player_one.HAND = DECK[:int(len(DECK)/2)]
 player_two.HAND = DECK[int(len(DECK)/2):]
 
 turn = 1
-
+running = True
 #Game loop below:
 #while running: 
     #if less than 3 cards, player may draw a card
