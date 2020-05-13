@@ -34,7 +34,19 @@ def update(delta_time):
         MY.boss_health -= 1
         MY.player_hitbox.active = False
 
-'''
+    attack_time = timer.max_time * 5
+    for i in range(attack_time):
+        if timer.tick(1):
+            MY.boss_attacking = True
+            print(MY.boss_attacking)
+            boss_attack_anim()
+            boss_attack()
+        else:
+            MY.boss_attacking = False
+            print(MY.boss_attacking)
+            boss_idle_anim()
+
+    '''
     def boss_wait_init(delta_time):
         timer = CountdownTimer(3)
 
@@ -45,55 +57,11 @@ def update(delta_time):
                 state.owner.current_state = 1
             else:
                 state.owner.current_state = 0
+    '''
 
-    def boss_explosion_update(state, delta_time):
-        """shoot out lots of projectiles."""
-        num_projectiles = 15
-        fraction = 360 / num_projectiles
-        count = 0
-        while count < num_projectiles:
-            fire_bullet(BOSS, fraction * count, 15)
-            count += 1
-
-        state.owner.current_state = 2
-
-    def boss_laser_update(state, delta_time):
-        """laser attack."""
-        MY.boss.add_rotation(MY.rotation_speed * delta_time)
-        fire_bullet(BOSS, MY.boss.rotation, 30)
-        if MY.boss.rotation >= 355:
-            MY.boss.rotation = 0
-            state.owner.current_state = 2
-
-    attack_time = timer.max_time * 5
-    for i in range(attack_time):
-        if timer.tick(1) == True:
-            #MY.boss_attacking = True
-            #print(MY.boss_attacking)
-            #boss_attack(1)
-        else:
-            #MY.boss_attacking = False
-            #print(MY.boss_attacking)
-            #boss_idle_anim()
-
-    count = -1
-    for projectile in MY.projectiles:
-        count += 1
-        if projectile.active:
-            if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
-                MY.player_health -= 1
-                projectile.active = False
-                continue
-            for wall in MY.walls:
-                if projectile.collides_with(wall):
-                    projectile.active = False
-                    continue
-'''
     update_player(delta_time)
 
     update_boss(delta_time)
-
-    update_projectiles(delta_time)
 
     check_stop()
 

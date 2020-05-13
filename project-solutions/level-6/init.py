@@ -26,6 +26,8 @@ _data = {}
 x_value = 0
 y_value = 0
 
+rand=random.Random()
+
 #============================================================
 #PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
 def start(window, name):
@@ -593,8 +595,11 @@ class Data:
     last = pygame.time.get_ticks()
     cooldown = 6000 
     #gameover class data
-    #gameoverbackground = Object(Image("assets/GameOverLayover.png"))   
-    gameoverbackground = Object(Image("assets/GameOverAnimated.gif"))
+    game_over_sheet = SpriteSheet("assets/GameOverLayover.png", (2000, 1500))
+    game_over = Animator(game_over_sheet, 2)
+    you_win_sheet = SpriteSheet("assets/YouWinLayover.png", (2000, 1500))
+    you_win = Animator(you_win_sheet, 2)
+    ending_overlay = Object(game_over_sheet.image_at(0))
     restart_button = Object(Image("assets/Projectile.png"))
     display_text = TextObject(WHITE, 24, "")
 
@@ -603,7 +608,7 @@ class GameOver:
 
     def initialize(window):
         """Initializes the restart menu state."""
-        MY.gameoverbackground.location = window / 2
+        MY.ending_overlay.location = window / 2
         MY.restart_button.location = window / 2
 
     def update(delta_time):
@@ -623,7 +628,7 @@ class GameOver:
 
     def draw(screen):
         """Draws the restart menu state."""
-        MY.gameoverbackground.draw(screen)
+        MY.ending_overlay.draw(screen)
         MY.restart_button.draw(screen)
         MY.display_text.draw(screen)
 
@@ -644,10 +649,6 @@ def health_bar(screen, health, max_health, max_size, location):
 def initialize(window):
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
-    """ if MY.state != 0:
-        MY.gameoverbackground.location = window / 2
-        MY.restart_button.location = window / 2
-        MY.display_text = TextObject(WHITE, 24, "") """
     count = 0
     while count < 20:
         MY.projectiles.append(Object(PROJECTILE_IMAGE))
@@ -670,6 +671,7 @@ def draw(screen):
 
 def cleanup():
     """Cleans up the Intro State."""
+    MY.projectiles = []
 
 def player_attack_anim():
     if MY.player_dir == UP:
@@ -748,8 +750,21 @@ def boss_idle_anim():
     MY.boss.sprite = MY.boss_idle
 
 def fire_projectile(player_number, degrees, speed):
+    count = -1
+    for projectile in MY.projectiles:
+        count += 1
+        if projectile.active:
+            if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
+                MY.player_health -= 1
+                projectile.active = False
+                continue
+            for wall in MY.walls:
+                if projectile.collides_with(wall):
+                    projectile.active = False
+                    continue
+
     """fire a projectile for the player"""
-    count = 0
+    '''count = 0
     while count < 5:
         if (rand(0, 1) == 0):
             image = IMAGE_ASTEROID
@@ -762,7 +777,6 @@ def fire_projectile(player_number, degrees, speed):
         obj.active = True
         MY.asteroids.append(obj)
         count = count + 1
-
 
     index = -1
     for i in range(len(MY.projectiles)):
@@ -777,26 +791,32 @@ def fire_projectile(player_number, degrees, speed):
         else:
             MY.projectiles[index].location = MY.player.location
             MY.projectiles[index].set_velocity(degrees, speed)
-        MY.projectile_owner[index] = player_number
+        MY.projectile_owner[index] = player_number'''
 
+def boss_explosion_update(state, delta_time):
+    """shoot out lots of projectiles."""
+    num_projectiles = 15
+    fraction = 360 / num_projectiles
+    count = 0
+    while count < num_projectiles:
+        fire_projectile(BOSS, fraction * count, 15)
+        count += 1
 
+    state.owner.current_state = 2
 
-def update_projectiles(delta_time):
-    """Update the projectiles and check for collisions"""
-    # Update projectiles
-    for i in range(len(MY.projectiles)):
-        # ignore if not active
-        if MY.projectiles[i].active:
-            MY.projectiles[i].update(delta_time)
-            # Destroy projectiles that hit the screen edge.
-            if screen_wrap(MY.projectiles[i], MY.window):
-                MY.projectiles[i].active = False
-                continue
-            for j in range(len(MY.asteroids)):
-                if MY.projectiles[i].collides_with(MY.asteroids[j]):
-                    MY.projectiles[i].active = False
-            #check collisions
-            check_collision(i)
+def boss_laser_update(state, delta_time):
+    """laser attack."""
+    MY.boss.add_rotation(MY.rotation_speed * delta_time)
+    fire_projectile(BOSS, MY.boss.rotation, 30)
+    if MY.boss.rotation >= 355:
+        MY.boss.rotation = 0
+        state.owner.current_state = 2
+
+def boss_attack():
+    if (rand.randint(0, 1) == 0):
+        boss_explosion_update
+    else:
+        boss_laser_update
 
 def update_boss(delta_time):
     MY.boss.update(delta_time)
@@ -807,9 +827,9 @@ def check_win():
         Manager.current = 1
         MY.state = 1
         MY.display_text = TextObject(WHITE, 24, "You win!")
-        MY.gameoverbackground = Object(Image("assets/YouWinLayover.png"))   
+        MY.ending_layover = you_win
     elif MY.player_health < 1:
         Manager.current = 1
         MY.state = 2
         MY.display_text = TextObject(WHITE, 24, "You lose!")
-        MY.gameoverbackground = Object(Image("assets/GameOverLayover.png"))   
+        MY.ending_overlay = game_over
