@@ -74,8 +74,19 @@ player_one.HAND = DECK[:int(len(DECK)/2)]
 player_two.HAND = DECK[int(len(DECK)/2):]
 
 turn = 1
-running = True
+
+#Player flips coin to see who goes first
+
+import IncrediCodersBattleCards_Solution
+Manager.register(IncrediCodersBattleCards_Solution)
+
+# Run the game
+Manager.run(SCREEN, WINDOW, BLACK)
+
+
+#running = True
 #Game loop below:
+
 #while running: 
     #if less than 3 cards, player may draw a card
     #Next, player picks an attack from one card

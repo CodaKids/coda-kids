@@ -1,10 +1,21 @@
 #============================================================
 #PART 1: IMPORTING DEPENDENCIES AND ASSIGNING GLOBAL VARIABLES
-import math
 import pygame
 import random
+import math
+import sys
 import time
 from os import path
+
+# colors
+WHITE = [225, 225, 225]
+BLACK = [0, 0, 0]
+YELLOW = [255, 255, 0]
+RED = [255, 0, 0]
+GREEN = [0, 128, 0, 128]
+BLUE = [0, 192, 255, 128]
+
+_data = {}
 
 #============================================================
 #PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
@@ -27,6 +38,24 @@ def check_stop():
         # Checks if you closed the window
         if event.type == pygame.QUIT:
             stop()
+
+def update(delta_time):
+    """
+    Update all of the lerps. Auto removes lerps when done.
+    Called internally by the state manager.
+    """
+    to_delete = []
+    for (obj, lerp_list) in _data.items():
+        if not lerp_list:
+            to_delete.append(obj)
+        elif lerp_list[0].update(obj, delta_time):
+            lerp_list.pop(0)
+            # remove duplicates
+            while lerp_list and lerp_list[0].end == getattr(obj, lerp_list[0].member):
+                lerp_list.pop(0)
+
+    for key in to_delete:
+        del _data[key]
 
 class Machine:
     """Game state machine class."""
@@ -121,6 +150,60 @@ class SpriteSheet:
         """
         return self.columns * self.rows
 
+class Object:
+    """
+    Object class used to organize and track common game object data, such as location and appearance.
+
+        obj = Object(IMAGE);
+    """
+    location = pygame.math.Vector2()
+    scale = 1
+
+    def __init__(self, image):
+        self.sprite = image
+        self.rotation = 0
+        self.active = False
+
+    def __setattr__(self, name, value):
+        if name == "location" or name == "velocity":
+            self.__dict__[name] = pygame.math.Vector2(value[0], value[1])
+        elif name == "rotation":
+            self.__dict__[name] = value - 360 * int(value / 360)
+        elif name == "sprite":
+            if isinstance(value, Image):
+                self.__dict__[name] = value
+            elif isinstance(value, Animator):
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+    
+    def get_transformed_rect(self):
+        """
+        Returns a transformed version of the object sprite. Generally for internal use only.
+
+            rect = obj.get_transformed_rect();
+        """
+        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.rotation, self.scale)
+        rect = sprite.get_rect()
+        rect.center = self.location
+        return rect
+
+    def update(self, delta_time):
+        self.location += self.velocity * delta_time
+        self.sprite.update(delta_time)
+
+    def draw(self, screen):
+        """
+        draws the object to the screen.
+
+            # draw the object
+            obj.draw(SCREEN);
+        """
+        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.scale)
+        rect = sprite.get_rect()
+        rect.center = self.location
+        screen.blit(sprite, rect)
+
 class Animator:
     def __init__(self, sheet, duration_seconds):
         self.sheet = sheet
@@ -190,5 +273,23 @@ window_length = 600
 WINDOW = pygame.math.Vector2(window_width, window_length)
 SCREEN = start(WINDOW, "IncrediCoders Battle Cards")
 
-coin_flip_sheet = SpriteSheet("Assets/CoinFlip.png", (64, 64))
-coin_flip = Animator(coin_flip_sheet, 1)
+#load sprites constants
+BACKGROUND_IMAGE = Image("Assets/Table.png")
+
+class Data:
+    coin_flip_sheet = SpriteSheet("Assets/CoinFlip.png", (64, 64))
+    coin_flip = Animator(coin_flip_sheet, 1)
+    coin = Object(coin_flip_sheet.image_at(1))
+
+MY = Data()
+
+def initialize(window):
+    MY.coin.location(window.x / 2, window.y / 4)
+
+def draw(screen):
+    MY.coin_flip
+
+def cleanup():
+    #something
+    return
+
