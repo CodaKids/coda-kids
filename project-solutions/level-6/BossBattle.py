@@ -3,7 +3,7 @@ from Init import *
 import pygame
 
 def update(delta_time):
-    timer = CountdownTimer(50)   
+    timer = CountdownTimer(100)   
 
     # Checks if player collides with the walls
     if MY.player.location.x < MY.wall_height:
@@ -30,30 +30,34 @@ def update(delta_time):
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y)
 
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        boss_pain_anim()
         MY.boss_health -= 1
         MY.player_hitbox.active = False
 
-    for i in range(timer.max_time * 3):
-        if timer.tick(0.2) != True:
-            print("false not done")
-            #boss_attack_anim()
-            #boss_attack(1)
+    attack_time = timer.max_time * 5
+    for i in range(attack_time):
+        if timer.tick(1):
+            MY.boss_attacking = True
+            print(MY.boss_attacking)
+            boss_attack_anim()
+            boss_attack()
         else:
-            print("true done")
-            #boss_idle_anim()
+            MY.boss_attacking = False
+            print(MY.boss_attacking)
+            boss_idle_anim()
 
-    count = -1
-    for projectile in MY.projectiles:
-        count += 1
-        if projectile.active:
-            if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
-                MY.player_health -= 1
-                projectile.active = False
-                continue
-            '''for wall in MY.walls:
-                if projectile.collides_with(wall):
-                    projectile.active = False
-                    continue'''
+    '''
+    def boss_wait_init(delta_time):
+        timer = CountdownTimer(3)
+
+    def boss_wait_update(state, delta_time):
+        """wait between attacks."""
+        if state.timer.tick(delta_time):
+            if state.previous == 0:
+                state.owner.current_state = 1
+            else:
+                state.owner.current_state = 0
+    '''
 
     update_player(delta_time)
 
