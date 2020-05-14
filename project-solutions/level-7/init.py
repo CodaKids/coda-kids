@@ -1,10 +1,33 @@
 #============================================================
 #PART 1: IMPORTING DEPENDENCIES AND ASSIGNING GLOBAL VARIABLES
+import math
 import pygame
+import random
+import time
 from os import path
 
 #============================================================
 #PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
+def start(window, name):
+    """Initialize pygame and random seed."""
+    pygame.init()
+    random.seed(time.time())
+    pygame.display.set_caption(name)
+    return pygame.display.set_mode((int(window[0]), int(window[1])))
+
+def stop():
+    """
+    Stops pygame and closes the window immediately.
+        coda.stop();
+    """
+    sys.exit()
+
+def check_stop():
+    for event in pygame.event.get():
+        # Checks if you closed the window
+        if event.type == pygame.QUIT:
+            stop()
+
 class Machine:
     """Game state machine class."""
     def __init__(self):
@@ -43,6 +66,20 @@ def get_file(fileName):
     """Returns the absolute path of a file."""
     #This grabs the image files from your folder.
     return path.join(path.dirname(__file__), fileName)
+
+class Image:
+    """Loads an image object"""
+    def __init__(self, image_file_name):
+        if image_file_name is not None:
+            self.data = pygame.image.load(get_file(image_file_name)).convert_alpha()
+        else:
+            self.data = None
+
+    def update(self, dt):
+        return
+
+    def surface(self):
+        return self.data
 
 class SpriteSheet:
     """
@@ -147,4 +184,11 @@ class Animator:
 #============================================================
 #PART 3: SETUP FOR THE BATTLE CARDS GAME
 
+Manager = Machine()
+window_width = 800
+window_length = 600
+WINDOW = pygame.math.Vector2(window_width, window_length)
+SCREEN = start(WINDOW, "IncrediCoders Battle Cards")
+
 coin_flip_sheet = SpriteSheet("Assets/CoinFlip.png", (64, 64))
+coin_flip = Animator(coin_flip_sheet, 1)
