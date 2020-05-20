@@ -26,8 +26,6 @@ _data = {}
 x_value = 0
 y_value = 0
 
-rand=random.Random()
-
 #============================================================
 #PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
 def start(window, name):
@@ -595,9 +593,11 @@ class Data:
     last = pygame.time.get_ticks()
     cooldown = 6000 
     #gameover class data
-    game_over_sheet = SpriteSheet("assets/GameOverLayover.png", (2000, 1500))
+    #game_over_sheet = SpriteSheet("assets/GameOverLayover.png", (2000, 1500))
+    game_over_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
     game_over = Animator(game_over_sheet, 2)
-    you_win_sheet = SpriteSheet("assets/YouWinLayover.png", (2000, 1500))
+    #you_win_sheet = SpriteSheet("assets/YouWinLayover.png", (2000, 1500))
+    you_win_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
     you_win = Animator(you_win_sheet, 2)
     ending_overlay = Object(game_over_sheet.image_at(0))
     restart_button = Object(Image("assets/Projectile.png"))
@@ -628,7 +628,7 @@ class GameOver:
 
     def draw(screen):
         """Draws the restart menu state."""
-        MY.ending_overlay.draw(screen)
+        #MY.ending_overlay.draw(screen)
         MY.restart_button.draw(screen)
         MY.display_text.draw(screen)
 
@@ -763,37 +763,7 @@ def fire_projectile(player_number, degrees, speed):
                     projectile.active = False
                     continue
 
-    """fire a projectile for the player"""
-    '''count = 0
-    while count < 5:
-        if (rand(0, 1) == 0):
-            image = IMAGE_ASTEROID
-        else:
-            image = IMAGE_ASTEROID_2
-        obj = Object(image)
-        obj.location = rand_location(0, MY.window.x)
-        obj.velocity = rand_location(-50, 50)
-        obj.scale = 2
-        obj.active = True
-        MY.asteroids.append(obj)
-        count = count + 1
-
-    index = -1
-    for i in range(len(MY.projectiles)):
-        if not MY.projectiles[i].active:
-            index = i
-            break
-    if index >= 0:
-        MY.projectiles[index].active = True
-        if player_number == 1:
-            MY.projectiles[index].location = MY.boss.location
-            MY.projectiles[index].set_velocity(degrees, speed)
-        else:
-            MY.projectiles[index].location = MY.player.location
-            MY.projectiles[index].set_velocity(degrees, speed)
-        MY.projectile_owner[index] = player_number'''
-
-def boss_explosion_update(state, delta_time):
+def boss_explosion_update(delta_time):
     """shoot out lots of projectiles."""
     num_projectiles = 15
     fraction = 360 / num_projectiles
@@ -802,21 +772,36 @@ def boss_explosion_update(state, delta_time):
         fire_projectile(BOSS, fraction * count, 15)
         count += 1
 
-    state.owner.current_state = 2
-
-def boss_laser_update(state, delta_time):
+def boss_rotation_update(delta_time):
     """laser attack."""
     MY.boss.add_rotation(MY.rotation_speed * delta_time)
     fire_projectile(BOSS, MY.boss.rotation, 30)
     if MY.boss.rotation >= 355:
         MY.boss.rotation = 0
-        state.owner.current_state = 2
 
-def boss_attack():
-    if (rand.randint(0, 1) == 0):
-        boss_explosion_update
+def boss_attack(delta_time):
+    '''if rand.randint(0, 1) == 0:
+        boss_explosion_update(delta_time)
     else:
-        boss_laser_update
+        boss_rotation_update(delta_time)'''
+    boss_explosion_update(delta_time)
+
+'''
+if timer.tick(delta_time):
+    #boss_attack_anim()
+    boss_attack(delta_time)
+else:
+    MY.boss_attacking = False
+    boss_idle_anim()
+'''
+
+def boss_wait_update(state, delta_time):
+    """wait between attacks."""
+    if state.timer.tick(delta_time):
+        if state.previous == 0:
+            state.owner.current_state = 1
+        else:
+            state.owner.current_state = 0
 
 def update_boss(delta_time):
     MY.boss.update(delta_time)
@@ -827,9 +812,9 @@ def check_win():
         Manager.current = 1
         MY.state = 1
         MY.display_text = TextObject(WHITE, 24, "You win!")
-        MY.ending_layover = you_win
+        MY.ending_layover = MY.you_win
     elif MY.player_health < 1:
         Manager.current = 1
         MY.state = 2
         MY.display_text = TextObject(WHITE, 24, "You lose!")
-        MY.ending_overlay = game_over
+        MY.ending_overlay = MY.game_over
