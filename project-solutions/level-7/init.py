@@ -199,7 +199,7 @@ class Object:
             # draw the object
             obj.draw(SCREEN);
         """
-        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.scale)
+        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.rotation, self.scale)
         rect = sprite.get_rect()
         rect.center = self.location
         screen.blit(sprite, rect)
@@ -277,17 +277,20 @@ SCREEN = start(WINDOW, "IncrediCoders Battle Cards")
 BACKGROUND_IMAGE = Image("Assets/Table.png")
 
 class Data:
-    coin_flip_sheet = SpriteSheet("Assets/CoinFlip.png", (64, 64))
+    coin_flip_sheet = SpriteSheet("Assets/CoinFlip.png", (254, 254))
     coin_flip = Animator(coin_flip_sheet, 1)
     coin = Object(coin_flip_sheet.image_at(1))
 
 MY = Data()
 
 def initialize(window):
-    MY.coin.location(window.x / 2, window.y / 4)
+    MY.coin.location = window / 2
 
 def draw(screen):
-    MY.coin_flip
+    MY.coin.draw(screen)
+    print("get here?")
+    MY.coin_flip.play(screen)
+    print("get here?2")
 
 def cleanup():
     #something
