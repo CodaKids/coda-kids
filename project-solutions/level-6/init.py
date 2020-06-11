@@ -47,6 +47,13 @@ def check_stop():
         # Checks if you closed the window
         if event.type == pygame.QUIT:
             stop()
+        elif event.type == MY.boss_attack_event:
+            MY.is_boss_attacking = True
+            print("hello")
+        else:
+            MY.is_boss_attacking = False
+            print("goodbye")
+        
 
 def draw_rect(screen, color, top_left, size):
     """
@@ -201,6 +208,66 @@ class SpriteSheet:
         return self.columns * self.rows
         """
         return self.columns * self.rows
+
+class Animator:
+    def __init__(self, sheet, duration_seconds):
+        self.sheet = sheet
+        self.frame_num = 0
+
+        self.frame_time = 0.0
+
+        self.playing = True
+        self.playspeed = 1.0
+        self.looping = True
+
+        self.reset()
+        self.set_duration(duration_seconds)
+    
+    def set_duration(self, duration_seconds):
+        self.duration = duration_seconds
+        self.transition = self.duration / self.num_frames
+    
+    def use_anim(self, sheet):
+        self.sheet = sheet
+        self.reset()
+
+    def reset(self):
+        self.frame_num = 0
+        self.current = self.sheet.image_at(self.frame_num)
+        self.frame_time = 0
+        self.num_frames = self.sheet.num_frames()
+
+    def play(self, playspeed=1.0):
+        self.playspeed = playspeed
+        self.reset()
+        self.unpause()
+
+    def pause(self):
+        self.playing = False
+
+    def unpause(self):
+        self.playing = True
+
+    def update(self, dt):
+        dt = dt * self.playspeed
+
+        if self.playing:
+            self.frame_time += dt
+
+            if self.frame_time >= self.transition:
+                self.frame_time -= self.transition
+                self.frame_num += 1
+
+                if self.looping:
+                    self.frame_num %= self.num_frames
+
+                self.current = self.sheet.image_at(self.frame_num)
+
+                if self.frame_num >= self.num_frames:
+                    self.playing = False
+
+    def surface(self):
+        return self.current.surface()
 
 class Object:
     """
@@ -450,66 +517,6 @@ class TextObject:
             loc.x -= obj.get_rect().width / 2
         screen.blit(obj, loc)
 
-class Animator:
-    def __init__(self, sheet, duration_seconds):
-        self.sheet = sheet
-        self.frame_num = 0
-
-        self.frame_time = 0.0
-
-        self.playing = True
-        self.playspeed = 1.0
-        self.looping = True
-
-        self.reset()
-        self.set_duration(duration_seconds)
-    
-    def set_duration(self, duration_seconds):
-        self.duration = duration_seconds
-        self.transition = self.duration / self.num_frames
-    
-    def use_anim(self, sheet):
-        self.sheet = sheet
-        self.reset()
-
-    def reset(self):
-        self.frame_num = 0
-        self.current = self.sheet.image_at(self.frame_num)
-        self.frame_time = 0
-        self.num_frames = self.sheet.num_frames()
-
-    def play(self, playspeed=1.0):
-        self.playspeed = playspeed
-        self.reset()
-        self.unpause()
-
-    def pause(self):
-        self.playing = False
-
-    def unpause(self):
-        self.playing = True
-
-    def update(self, dt):
-        dt = dt * self.playspeed
-
-        if self.playing:
-            self.frame_time += dt
-
-            if self.frame_time >= self.transition:
-                self.frame_time -= self.transition
-                self.frame_num += 1
-
-                if self.looping:
-                    self.frame_num %= self.num_frames
-
-                self.current = self.sheet.image_at(self.frame_num)
-
-                if self.frame_num >= self.num_frames:
-                    self.playing = False
-
-    def surface(self):
-        return self.current.surface()
-
 #============================================================
 #PART 3: SETUP FOR THE BOSS BATTLE GAME
 Manager = Machine()
@@ -590,18 +597,14 @@ class Data:
     state = 0
     last_state = 2
     index = 0
-    last = pygame.time.get_ticks()
-    cooldown = 6000 
-    #gameover class data
-    #game_over_sheet = SpriteSheet("assets/GameOverLayover.png", (2000, 1500))
-    game_over_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
-    game_over = Animator(game_over_sheet, 2)
-    #you_win_sheet = SpriteSheet("assets/YouWinLayover.png", (2000, 1500))
-    you_win_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
-    you_win = Animator(you_win_sheet, 2)
+    game_over_sheet = SpriteSheet("assets/GameOverOverlay.png", (800, 600))
+    game_over = Animator(game_over_sheet, 5)
+    you_win_sheet = SpriteSheet("assets/YouWinOverlay.png", (800, 600))
+    you_win = Animator(you_win_sheet, 5)
     ending_overlay = Object(game_over_sheet.image_at(0))
     restart_button = Object(Image("assets/Projectile.png"))
-    display_text = TextObject(WHITE, 24, "")
+    boss_attack_event = pygame.USEREVENT
+    is_boss_attacking = False
 
 class GameOver:
     MY = Data()
@@ -610,9 +613,14 @@ class GameOver:
         """Initializes the restart menu state."""
         MY.ending_overlay.location = window / 2
         MY.restart_button.location = window / 2
+        pygame.time.set_timer(MY.boss_attack_event, 0)
 
     def update(delta_time):
         """Updates the restart menu state."""
+        if MY.boss_health < 1:
+            MY.ending_overlay.sprite = MY.you_win
+        elif MY.player_health < 1:
+            MY.ending_overlay.sprite = MY.game_over
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 stop()
@@ -628,9 +636,8 @@ class GameOver:
 
     def draw(screen):
         """Draws the restart menu state."""
-        #MY.ending_overlay.draw(screen)
+        MY.ending_overlay.draw(screen)
         MY.restart_button.draw(screen)
-        MY.display_text.draw(screen)
 
 MY = Data()
 
@@ -649,6 +656,7 @@ def health_bar(screen, health, max_health, max_size, location):
 def initialize(window):
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
+    pygame.time.set_timer(MY.boss_attack_event, 20)
     count = 0
     while count < 20:
         MY.projectiles.append(Object(PROJECTILE_IMAGE))
@@ -740,15 +748,6 @@ def update_player(delta_time):
     player_attack_update()
     MY.player.update(delta_time)
 
-def boss_attack_anim():
-    MY.boss.sprite = MY.boss_attack
-
-def boss_pain_anim():
-    MY.boss.sprite = MY.boss_pain
-
-def boss_idle_anim():
-    MY.boss.sprite = MY.boss_idle
-
 def fire_projectile(player_number, degrees, speed):
     count = -1
     for projectile in MY.projectiles:
@@ -763,7 +762,7 @@ def fire_projectile(player_number, degrees, speed):
                     projectile.active = False
                     continue
 
-def boss_explosion_update(delta_time):
+def boss_explosion_update():
     """shoot out lots of projectiles."""
     num_projectiles = 15
     fraction = 360 / num_projectiles
@@ -779,31 +778,21 @@ def boss_rotation_update(delta_time):
     if MY.boss.rotation >= 355:
         MY.boss.rotation = 0
 
-def boss_attack(delta_time):
+def boss_attack():
     '''if rand.randint(0, 1) == 0:
         boss_explosion_update(delta_time)
     else:
         boss_rotation_update(delta_time)'''
-    boss_explosion_update(delta_time)
-
-'''
-if timer.tick(delta_time):
-    #boss_attack_anim()
-    boss_attack(delta_time)
-else:
-    MY.boss_attacking = False
-    boss_idle_anim()
-'''
-
-def boss_wait_update(state, delta_time):
-    """wait between attacks."""
-    if state.timer.tick(delta_time):
-        if state.previous == 0:
-            state.owner.current_state = 1
-        else:
-            state.owner.current_state = 0
+    boss_explosion_update()
 
 def update_boss(delta_time):
+    if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
+        MY.boss.sprite = MY.boss_pain
+    elif MY.is_boss_attacking:
+         MY.boss.sprite = MY.boss_attack
+         boss_attack()
+    else:
+        MY.boss.sprite = MY.boss_idle
     MY.boss.update(delta_time)
 
 def check_win():
@@ -811,10 +800,8 @@ def check_win():
     if MY.boss_health < 1:
         Manager.current = 1
         MY.state = 1
-        MY.display_text = TextObject(WHITE, 24, "You win!")
-        MY.ending_layover = MY.you_win
+        MY.ending_overlay = Object(MY.you_win_sheet.image_at(0))
     elif MY.player_health < 1:
         Manager.current = 1
         MY.state = 2
-        MY.display_text = TextObject(WHITE, 24, "You lose!")
-        MY.ending_overlay = MY.game_over
+        MY.ending_overlay = Object(MY.game_over_sheet.image_at(0))

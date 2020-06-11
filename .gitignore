@@ -89,3 +89,6 @@ ENV/
 
 # vs code stuff
 *.pyc
+.vscode/
+
+*.DS_Store

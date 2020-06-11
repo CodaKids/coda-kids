@@ -1,5 +1,5 @@
 """Runs the Init.py file and imports the libraries"""
-from Init import *
+from init import *
 import pygame
 
 def update(delta_time):
@@ -30,7 +30,6 @@ def update(delta_time):
         MY.player_hitbox.location = pygame.math.Vector2(MY.player.location.x + 20, MY.player.location.y)
 
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
-        boss_pain_anim()
         MY.boss_health -= 1
         MY.player_hitbox.active = False
 
