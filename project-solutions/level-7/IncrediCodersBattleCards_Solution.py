@@ -75,7 +75,7 @@ player_two.HAND = DECK[int(len(DECK)/2):]
 
 turn = 1
 
-#Player flips coin to see who goes first
+#TODO: Player flips coin to see who goes first
 
 import IncrediCodersBattleCards_Solution
 Manager.register(IncrediCodersBattleCards_Solution)
@@ -83,14 +83,12 @@ Manager.register(IncrediCodersBattleCards_Solution)
 # Run the game
 Manager.run(SCREEN, WINDOW, BLACK)
 
-
 #running = True
 #Game loop below:
 
 #while running: 
-    #if less than 3 cards, player may draw a card
-    #Next, player picks an attack from one card
-    #Player then picks card they would like to attack. 
+    #Player picks card they would like to attack. 
+    #Next, player picks an attack from their own card
     #Player flips coin
     #Depending on results of coin, damage is dealt to that card.
     #TODO: implement specific attacks based on the cards
