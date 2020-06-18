@@ -1,4 +1,4 @@
-import pygame #Gives us our gaming functions
+import pygame #Gives us our gaming methods
 from os import path
 import textwrap
 
