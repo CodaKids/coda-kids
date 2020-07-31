@@ -7,7 +7,7 @@
 4. Open the exe file and you will see the game running.
 5. *For Mac, you may see a warning like </br>
 ```"TurtleMap_Solution cannot be opened because it is from an unidentified developer." ``` </br>
-1) It is a setting that you can change in "Security & Privacy" in "System Preferences", which is "allow apps downloaded from - anywhere". </br>
-2) If there is no such choice in current MacOS version, you can open "Terminal" and change the setting by this command:</br>
+i. It is a setting that you can change in "Security & Privacy" in "System Preferences", which is "allow apps downloaded from - anywhere". </br>
+ii. If there is no such choice in current MacOS version, you can open "Terminal" and change the setting by this command:</br>
 ```sudo spctl --master-disable```</br>
 Click Enter. Then you can open the exe file directly.
