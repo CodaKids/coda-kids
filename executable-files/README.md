@@ -1,4 +1,4 @@
-#Executable files of project for windows and mac
+# Executable files of project for windows and mac
 
 **Test Steps:** </br>
 1. Download the zip files to your computer.
@@ -11,3 +11,4 @@ i. It is a setting that you can change in "Security & Privacy" in "System Prefer
 ii. If there is no such choice in current MacOS version, you can open "Terminal" and change the setting by this command:</br>
 ```sudo spctl --master-disable```</br>
 Click Enter. Then you can open the exe file directly.
+(If you want to change back the master switch, use ```sudo spctl --master-enable```)
