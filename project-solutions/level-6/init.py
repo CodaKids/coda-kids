@@ -1,11 +1,11 @@
 #=============================================================
 #PART 1: IMPORTING DEPENDENCIES AND ASSIGNING GLOBAL VARIABLES
-import pygame
-import random
-import time
 from os import path
 import math
+import random
+import time
 import sys
+import pygame
 
 # colors
 WHITE = [225, 225, 225]
@@ -23,8 +23,8 @@ DOWN = 3
 
 _data = {}
 
-x_value = 0
-y_value = 0
+X_VALUE = 0
+Y_VALUE = 0
 
 #============================================================
 #PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
@@ -42,18 +42,28 @@ def stop():
     """
     sys.exit()
 
-def check_stop():
+def check_events():
+    """
+    Checks for pygame events, including boss attacks and if you closed the window.
+    """
     for event in pygame.event.get():
-        # Checks if you closed the window
         if event.type == pygame.QUIT:
             stop()
         elif event.type == MY.boss_attack_event:
             MY.is_boss_attacking = True
-            print("hello")
         else:
             MY.is_boss_attacking = False
-            print("goodbye")
-        
+
+def check_ending_events():
+    '''Checks for events in the restart state'''
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            stop()
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if MY.restart_button.collides_with_point(pygame.mouse.get_pos()):
+                Manager.current = 0
+                MY.boss_health = 300
+                MY.player_health = 100
 
 def draw_rect(screen, color, top_left, size):
     """
@@ -61,6 +71,18 @@ def draw_rect(screen, color, top_left, size):
         coda.draw_rect(SCREEN, (r, g, b, a), (0, 0), (10, 10));
     """
     pygame.draw.rect(screen, color, (top_left[0], top_left[1], size[0], size[1]))
+
+def health_bar(screen, health, max_health, max_size, location):
+    """Creates a health bar at the given position."""
+    if health > max_health - max_health * 0.25:
+        bar_color = GREEN
+    elif health > max_health - max_health * 0.5:
+        bar_color = YELLOW
+    else:
+        bar_color = RED
+
+    width = max_size[0] * (health / max_health)
+    draw_rect(screen, bar_color, location, (width, max_size[1]))
 
 def key_down(event, key):
     """
@@ -85,10 +107,10 @@ def key_held_down(key):
         return pygame.key.get_pressed()[ord(key)]
     return pygame.key.get_pressed()[key]
 
-def get_file(fileName):
+def get_file(filename):
     """Returns the absolute path of a file."""
     #This grabs your files from your folder.
-    return path.join(path.dirname(__file__), fileName)
+    return path.join(path.dirname(__file__), filename)
 
 def read_file(filename):
     """Read a file line by line and return it as an array of strings."""
@@ -102,24 +124,6 @@ def read_file(filename):
         array.append(line.rstrip())
 
     return array
-
-def update(delta_time):
-    """
-    Update all of the lerps. Auto removes lerps when done.
-    Called internally by the state manager.
-    """
-    to_delete = []
-    for (obj, lerp_list) in _data.items():
-        if not lerp_list:
-            to_delete.append(obj)
-        elif lerp_list[0].update(obj, delta_time):
-            lerp_list.pop(0)
-            # remove duplicates
-            while lerp_list and lerp_list[0].end == getattr(obj, lerp_list[0].member):
-                lerp_list.pop(0)
-
-    for key in to_delete:
-        del _data[key]
 
 class Machine:
     """Game state machine class."""
@@ -135,6 +139,24 @@ class Machine:
                             'draw': module.draw,
                             'cleanup': module.cleanup})
 
+    def update(self, delta_time):
+        '''
+        Update all of the lerps. Auto removes lerps when done.
+        Called internally by the state manager.
+        '''
+        to_delete = []
+        for (obj, lerp_list) in _data.items():
+            if not lerp_list:
+                to_delete.append(obj)
+            elif lerp_list[0].update(obj, delta_time):
+                lerp_list.pop(0)
+                # remove duplicates
+                while lerp_list and lerp_list[0].end == getattr(obj, lerp_list[0].member):
+                    lerp_list.pop(0)
+
+        for key in to_delete:
+            del _data[key]
+
     def run(self, screen, window, fill_color):
         """Runs the state given machine."""
         clock = pygame.time.Clock()
@@ -148,7 +170,7 @@ class Machine:
                 self.states[self.current]['initialize'](window)
                 self.previous = self.current
 
-            update(delta_time)
+            self.update(delta_time)
             self.states[self.current]['update'](delta_time)
             screen.fill(fill_color)
             screen.blit(BACKGROUND_IMAGE.data, (0, 0))
@@ -162,9 +184,6 @@ class Image:
             self.data = pygame.image.load(get_file(image_file_name)).convert_alpha()
         else:
             self.data = None
-
-    def update(self, dt):
-        return
 
     def surface(self):
         return self.data
@@ -191,10 +210,10 @@ class SpriteSheet:
 
             obj.sprite = sheet.image_at(0);
         """
-        x = math.floor(index % self.columns) * self.rectangle.width
-        y = math.floor(index / self.columns) * self.rectangle.height
-        self.rectangle.centerx = x + self.rectangle.width / 2
-        self.rectangle.centery = y + self.rectangle.height / 2
+        _x_ = math.floor(index % self.columns) * self.rectangle.width
+        _y_ = math.floor(index / self.columns) * self.rectangle.height
+        self.rectangle.centerx = _x_ + self.rectangle.width / 2
+        self.rectangle.centery = _y_ + self.rectangle.height / 2
         image = Image(None)
         image.data = pygame.Surface(self.rectangle.size, pygame.SRCALPHA, 32).convert_alpha()
         image.data.blit(self.sheet, (0, 0), self.rectangle)
@@ -210,6 +229,7 @@ class SpriteSheet:
         return self.columns * self.rows
 
 class Animator:
+    """Animator class for animation functions"""
     def __init__(self, sheet, duration_seconds):
         self.sheet = sheet
         self.frame_num = 0
@@ -222,11 +242,11 @@ class Animator:
 
         self.reset()
         self.set_duration(duration_seconds)
-    
+
     def set_duration(self, duration_seconds):
         self.duration = duration_seconds
         self.transition = self.duration / self.num_frames
-    
+
     def use_anim(self, sheet):
         self.sheet = sheet
         self.reset()
@@ -248,11 +268,11 @@ class Animator:
     def unpause(self):
         self.playing = True
 
-    def update(self, dt):
-        dt = dt * self.playspeed
+    def update(self, d_t):
+        d_t = d_t * self.playspeed
 
         if self.playing:
-            self.frame_time += dt
+            self.frame_time += d_t
 
             if self.frame_time >= self.transition:
                 self.frame_time -= self.transition
@@ -271,7 +291,7 @@ class Animator:
 
 class Object:
     """
-    Object class used to organize and track common game object data, such as location and appearance.
+    Object class used to organize and track common game object data, such as location and appearance
 
         obj = Object(IMAGE);
     """
@@ -344,7 +364,7 @@ class Object:
         """
         epsilon = 1.0e-15
         direction = pygame.math.Vector2(math.cos(math.radians(direction - 90)),
-                            math.sin(math.radians(direction - 90)))
+                                        math.sin(math.radians(direction - 90)))
         if direction.x < epsilon and direction.x > 0:
             direction.x = 0
 
@@ -367,7 +387,7 @@ class Object:
             obj.set_velocity(45, 5); # left 5
         """
         self.velocity = pygame.math.Vector2(-1 * math.cos(math.radians(degrees - 90)) * speed,
-                                math.sin(math.radians(degrees - 90)) * speed)
+                                            math.sin(math.radians(degrees - 90)) * speed)
 
     def collides_with(self, other_obj):
         """
@@ -483,7 +503,7 @@ class CountdownTimer:
 
 class TextObject:
     """
-    Create an object that renders text. Assumes that the default font 
+    Create an object that renders text. Assumes that the default font
     freesansbold exists in the project directory as a true type font.
         #create a text object
         title = TextObject(color.RED, 12, "example");
@@ -510,7 +530,6 @@ class TextObject:
         Draws the object text to the screen.
             text.draw(SCREEN);
         """
-
         obj = self.font.render(self.text, 1, self.color)
         loc = pygame.math.Vector2(self.location.x, self.location.y)
         if self.centered is True:
@@ -521,8 +540,8 @@ class TextObject:
 #PART 3: SETUP FOR THE BOSS BATTLE GAME
 Manager = Machine()
 
-window_width = 800
-window_length = 600
+WINDOW_WIDTH = 800
+WINDOW_LENGTH = 600
 WINDOW = pygame.math.Vector2(800, 600)
 SCREEN = start(WINDOW, "Boss Battle")
 
@@ -540,35 +559,38 @@ GRASS = 4
 TILE_SIZE = 32
 
 class Data:
-    """Modifiable data"""
-    player_idle_forward_sheet = SpriteSheet("assets/paul/PaulIdleFront.png", (64, 64))
-    player_idle_backward_sheet = SpriteSheet("assets/paul/PaulIdleBack.png", (64, 64))
-    player_idle_left_sheet = SpriteSheet("assets/paul/PaulIdleLeft.png", (64, 64))
-    player_idle_right_sheet = SpriteSheet("assets/paul/PaulIdleRight.png", (64, 64))
+    """
+    Data loads the changeable data for gameplay
+    """
+    #player data
+    player_idle_forward_sheet = SpriteSheet("assets/paul/PaulIdleFront.png", (64, 68))
+    player_idle_backward_sheet = SpriteSheet("assets/paul/PaulIdleBack.png", (64, 68))
+    player_idle_left_sheet = SpriteSheet("assets/paul/PaulIdleLeft.png", (64, 68))
+    player_idle_right_sheet = SpriteSheet("assets/paul/PaulIdleRight.png", (64, 68))
     idle_forward = Animator(player_idle_forward_sheet, 1)
     idle_backward = Animator(player_idle_backward_sheet, 1)
     idle_left = Animator(player_idle_left_sheet, 1)
     idle_right = Animator(player_idle_right_sheet, 1)
-    player_walk_forward_sheet = SpriteSheet("assets/paul/PaulMoveFront.png", (64, 64))
-    player_walk_backward_sheet = SpriteSheet("assets/paul/PaulMoveBack.png", (64, 64))
-    player_walk_left_sheet = SpriteSheet("assets/paul/PaulMoveLeft.png", (64, 64))
-    player_walk_right_sheet = SpriteSheet("assets/paul/PaulMoveRight.png", (64, 64))
+    player_walk_forward_sheet = SpriteSheet("assets/paul/PaulMoveFront.png", (64, 68))
+    player_walk_backward_sheet = SpriteSheet("assets/paul/PaulMoveBack.png", (64, 68))
+    player_walk_left_sheet = SpriteSheet("assets/paul/PaulMoveLeft.png", (64, 68))
+    player_walk_right_sheet = SpriteSheet("assets/paul/PaulMoveRight.png", (64, 68))
     walk_forward = Animator(player_walk_forward_sheet, 1)
     walk_backward = Animator(player_walk_backward_sheet, 1)
     walk_left = Animator(player_walk_left_sheet, 1)
     walk_right = Animator(player_walk_right_sheet, 1)
     player_attack_forward_sheet = SpriteSheet("assets/paul/PaulAttackFront.png", (100, 100))
     player_attack_backward_sheet = SpriteSheet("assets/paul/PaulAttackBack.png", (100, 100))
-    player_attack_left_sheet = SpriteSheet("assets/paul/PaulAttackLeft.png", (128, 64))
-    player_attack_right_sheet = SpriteSheet("assets/paul/PaulAttackRight.png", (128, 64))
+    player_attack_left_sheet = SpriteSheet("assets/paul/PaulAttackLeft.png", (128, 68))
+    player_attack_right_sheet = SpriteSheet("assets/paul/PaulAttackRight.png", (128, 68))
     attack_forward = Animator(player_attack_forward_sheet, 0.5)
     attack_backward = Animator(player_attack_backward_sheet, 0.5)
     attack_left = Animator(player_attack_left_sheet, 0.5)
     attack_right = Animator(player_attack_right_sheet, 0.5)
-    player_pain_forward_sheet = SpriteSheet("assets/paul/PaulPainFront.png", (64, 64))
-    player_pain_backward_sheet = SpriteSheet("assets/paul/PaulPainBack.png", (64, 64))
-    player_pain_left_sheet = SpriteSheet("assets/paul/PaulPainLeft.png", (64, 64))
-    player_pain_right_sheet = SpriteSheet("assets/paul/PaulPainRight.png", (64, 64))
+    player_pain_forward_sheet = SpriteSheet("assets/paul/PaulPainFront.png", (64, 68))
+    player_pain_backward_sheet = SpriteSheet("assets/paul/PaulPainBack.png", (64, 68))
+    player_pain_left_sheet = SpriteSheet("assets/paul/PaulPainLeft.png", (64, 68))
+    player_pain_right_sheet = SpriteSheet("assets/paul/PaulPainRight.png", (64, 68))
     pain_forward = Animator(player_pain_forward_sheet, 0.5)
     pain_backward = Animator(player_pain_backward_sheet, 0.5)
     pain_left = Animator(player_pain_left_sheet, 0.5)
@@ -579,7 +601,7 @@ class Data:
     player_dir = DOWN
     player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(HITBOX_IMAGE)
-    wall_height = 45
+    #boss data
     boss_attack_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
     boss_attack = Animator(boss_attack_sheet, 2)
     boss_idle_sheet = SpriteSheet("assets/creeper/CreeperIdle.png", (96, 96))
@@ -589,7 +611,11 @@ class Data:
     boss = Object(boss_idle_sheet.image_at(0))
     boss_start_position = pygame.math.Vector2(0, 0)
     boss_health = 300
-    boss_attacking = False
+    #miscellaneous data
+    wall_height = 45
+    projectile_sheet = SpriteSheet("assets/PlasmaBall.png", (32, 32))
+    projectile_anim = Animator(projectile_sheet, 0.5)
+    projectile = Object(projectile_sheet.image_at(0))
     numberOfprojectiles = 0
     projectiles = []
     projectile_owner = []
@@ -598,65 +624,23 @@ class Data:
     last_state = 2
     index = 0
     game_over_sheet = SpriteSheet("assets/GameOverOverlay.png", (800, 600))
-    game_over = Animator(game_over_sheet, 5)
+    game_over = Animator(game_over_sheet, 0.5)
     you_win_sheet = SpriteSheet("assets/YouWinOverlay.png", (800, 600))
-    you_win = Animator(you_win_sheet, 5)
+    you_win = Animator(you_win_sheet, 0.5)
     ending_overlay = Object(game_over_sheet.image_at(0))
+    #ending_overlay_event = pygame.USEREVENT
     restart_button = Object(Image("assets/Projectile.png"))
     boss_attack_event = pygame.USEREVENT
     is_boss_attacking = False
 
-class GameOver:
-    MY = Data()
-
-    def initialize(window):
-        """Initializes the restart menu state."""
-        MY.ending_overlay.location = window / 2
-        MY.restart_button.location = window / 2
-        pygame.time.set_timer(MY.boss_attack_event, 0)
-
-    def update(delta_time):
-        """Updates the restart menu state."""
-        if MY.boss_health < 1:
-            MY.ending_overlay.sprite = MY.you_win
-        elif MY.player_health < 1:
-            MY.ending_overlay.sprite = MY.game_over
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                stop()
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if MY.restart_button.collides_with_point(pygame.mouse.get_pos()):
-                    Manager.current = 0
-                    MY.boss_health = 300
-                    MY.player_health = 100
-
-    def cleanup():
-        """Cleans up the restart menu state."""
-        MY.projectiles = []
-
-    def draw(screen):
-        """Draws the restart menu state."""
-        MY.ending_overlay.draw(screen)
-        MY.restart_button.draw(screen)
-
 MY = Data()
 
-def health_bar(screen, health, max_health, max_size, location):
-    """Creates a health bar at the given position."""
-    if health > max_health - max_health * 0.25:
-        bar_color = GREEN
-    elif health > max_health - max_health * 0.5:
-        bar_color = YELLOW
-    else:
-        bar_color = RED
-
-    width = max_size[0] * (health / max_health)
-    draw_rect(screen, bar_color, location, (width, max_size[1]))
-
 def initialize(window):
+    """Initializes the game play class."""
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
     pygame.time.set_timer(MY.boss_attack_event, 20)
+    #pygame.time.set_timer(MY.ending_overlay_event, 0)
     count = 0
     while count < 20:
         MY.projectiles.append(Object(PROJECTILE_IMAGE))
@@ -664,6 +648,7 @@ def initialize(window):
         count += 1
 
 def draw(screen):
+    """Draws the state to the given screen for BossBattle."""
     MY.player.draw(screen)
     if MY.player_hitbox.active:
         MY.player_hitbox.draw(screen)
@@ -675,13 +660,22 @@ def draw(screen):
     MY.boss.draw(screen)
     MY.player_text.draw(screen)
     health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
-    health_bar(screen, MY.boss_health, 300, (MY.boss.width(), 20), MY.boss.location - (MY.boss.width() / 2, (MY.boss.height() / 2) + 25))
+    health_bar(
+        screen,
+        MY.boss_health,
+        300, (
+            MY.boss.width(),
+            20
+        ),
+        MY.boss.location - (MY.boss.width() / 2, (MY.boss.height() / 2) + 25)
+    )
 
 def cleanup():
     """Cleans up the Intro State."""
     MY.projectiles = []
 
 def player_attack_anim():
+    """Updates animations for player while attacking"""
     if MY.player_dir == UP:
         MY.player.sprite = MY.attack_backward
     elif MY.player_dir == DOWN:
@@ -692,6 +686,7 @@ def player_attack_anim():
         MY.player.sprite = MY.attack_right
 
 def player_pain_anim():
+    """Updates animations for player while in pain"""
     if MY.player_dir == UP:
         MY.player.sprite = MY.pain_backward
     elif MY.player_dir == DOWN:
@@ -702,14 +697,16 @@ def player_pain_anim():
         MY.player.sprite = MY.pain_right
 
 def player_attack_update():
+    """Updates player's hitbox and plays animations while attacking"""
     if key_held_down(pygame.K_SPACE):
         MY.player_hitbox.active = True
         player_attack_anim()
 
 def player_move_update(delta_time):
+    """Updates animations for player if moving"""
     moving = (key_held_down(pygame.K_RIGHT) or key_held_down(pygame.K_LEFT) or
               key_held_down(pygame.K_DOWN) or key_held_down(pygame.K_UP))
-    
+
     if not moving and not key_held_down(pygame.K_SPACE) and not MY.player.collides_with(MY.boss):
         MY.player_hitbox.active = False
         if MY.player_dir == UP:
@@ -748,7 +745,8 @@ def update_player(delta_time):
     player_attack_update()
     MY.player.update(delta_time)
 
-def fire_projectile(player_number, degrees, speed):
+def fire_projectile():
+    """Updates animations for player while attacking"""
     count = -1
     for projectile in MY.projectiles:
         count += 1
@@ -757,40 +755,36 @@ def fire_projectile(player_number, degrees, speed):
                 MY.player_health -= 1
                 projectile.active = False
                 continue
-            for wall in MY.walls:
-                if projectile.collides_with(wall):
-                    projectile.active = False
-                    continue
 
 def boss_explosion_update():
     """shoot out lots of projectiles."""
     num_projectiles = 15
-    fraction = 360 / num_projectiles
     count = 0
     while count < num_projectiles:
-        fire_projectile(BOSS, fraction * count, 15)
+        fire_projectile()
         count += 1
 
 def boss_rotation_update(delta_time):
     """laser attack."""
     MY.boss.add_rotation(MY.rotation_speed * delta_time)
-    fire_projectile(BOSS, MY.boss.rotation, 30)
+    fire_projectile()
     if MY.boss.rotation >= 355:
         MY.boss.rotation = 0
 
 def boss_attack():
-    '''if rand.randint(0, 1) == 0:
+    """if rand.randint(0, 1) == 0:
         boss_explosion_update(delta_time)
     else:
-        boss_rotation_update(delta_time)'''
+        boss_rotation_update(delta_time)"""
     boss_explosion_update()
 
 def update_boss(delta_time):
+    """updates animations and actions for boss"""
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
         MY.boss.sprite = MY.boss_pain
     elif MY.is_boss_attacking:
-         MY.boss.sprite = MY.boss_attack
-         boss_attack()
+        MY.boss.sprite = MY.boss_attack
+        boss_attack()
     else:
         MY.boss.sprite = MY.boss_idle
     MY.boss.update(delta_time)
@@ -800,8 +794,38 @@ def check_win():
     if MY.boss_health < 1:
         Manager.current = 1
         MY.state = 1
-        MY.ending_overlay = Object(MY.you_win_sheet.image_at(0))
     elif MY.player_health < 1:
         Manager.current = 1
         MY.state = 2
-        MY.ending_overlay = Object(MY.game_over_sheet.image_at(0))
+
+class GameOver:
+    """
+    GameOver class to be loaded when the game ends.
+    """
+    MY = Data()
+
+    def initialize(window):
+        """Initializes the restart menu state."""
+        MY.ending_overlay.location = window / 2
+        MY.restart_button.location = window / 2
+        pygame.time.set_timer(MY.boss_attack_event, 0)
+        #pygame.time.set_timer(MY.ending_overlay_event, 200)
+
+    def update(delta_time):
+        """Updates the restart menu state."""
+        if MY.boss_health <= 0:
+            MY.ending_overlay.sprite = MY.you_win
+        elif MY.player_health <= 0:
+            MY.ending_overlay.sprite = MY.game_over
+        #pygame.time.set_timer(MY.ending_overlay_event, 0)
+        
+        check_ending_events()
+
+    def cleanup():
+        """Cleans up the restart menu state."""
+        MY.projectiles = []
+
+    def draw(screen):
+        """Draws the restart menu state."""
+        MY.ending_overlay.draw(screen)
+        MY.restart_button.draw(screen)

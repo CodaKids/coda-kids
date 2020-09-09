@@ -74,7 +74,7 @@ def draw_rect(screen, color, top_left, size):
     """
     pygame.draw.rect(screen, color, (top_left[0], top_left[1], size[0], size[1]))
 
-def Vector2(x_value, y_value):
+def Vector2(X_VALUE, Y_VALUE):
     """
     Creates a 2D coordinate with values x and y. Can also be used as a tuple.
 
@@ -84,7 +84,7 @@ def Vector2(x_value, y_value):
 
         c = coda.Vector2(a.x, b.y) # c = (a[0], b[1]);
     """
-    return pygame.math.Vector2(x_value, y_value)
+    return pygame.math.Vector2(X_VALUE, Y_VALUE)
 
 def start_draw(screen, fill_color):
     """Begin drawing to the screen."""

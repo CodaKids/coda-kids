@@ -268,9 +268,9 @@ class Animator:
 #PART 3: SETUP FOR THE BATTLE CARDS GAME
 
 Manager = Machine()
-window_width = 800
-window_length = 600
-WINDOW = pygame.math.Vector2(window_width, window_length)
+WINDOW_WIDTH = 800
+WINDOW_LENGTH = 600
+WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
 SCREEN = start(WINDOW, "IncrediCoders Battle Cards")
 
 #load sprites constants
