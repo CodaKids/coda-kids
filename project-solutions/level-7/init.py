@@ -189,7 +189,8 @@ class Object:
         return rect
 
     def update(self, delta_time):
-        self.location += self.velocity * delta_time
+        """ self object does not have velocity as a member """
+        self.location += self.velocity * delta_time 
         self.sprite.update(delta_time)
 
     def draw(self, screen):
