@@ -8,14 +8,15 @@ class Player:
 
 class Card: 
     def __init__(self, techtype, weakness, resistance, image_path):
-        self.techtype = techtype
-        self.weakness = weakness
-        self.resistance = resistance
-        self.image_path = image_path
-        self.HP = 5
+     self.techtype = techtype
+     self.weakness = weakness
+     self.resistance = resistance
+     self.image_path = image_path
+     self.HP = 5
 
-    def primary_attack():
-        # attack from init
+    # def primary_attack(): # attack from init
+    #def attack2():
+        #something here also that's implemented in init file
 
 #Creating all the Cards
 annie_conda = Card('python', 'java', 'bash', "assets/AnnieConda.png")
@@ -60,10 +61,6 @@ DECK.append(viralmuto)
 DECK.append(virobotica)
 DECK.append(virobots)
 DECK.append(woodchuck_norris)
-
-#deal half of the cards to each player, randomly
-#initialize Player1 and Player2 (is this a computer?) with 0 cards each
-#turn = Player1's turn
 
 #Game loop below:
 #while running: 

@@ -17,9 +17,6 @@ class Card:
     
     #def attack1():
         #something here that's implemented in init file
-    
-    #def attack2():
-        #something here also that's implemented in init file
 
 annie_conda = Card('python', 'java', 'bash', "assets/AnnieConda.png")
 bayo_wolf = Card('scratch', 'turtle', 'java', "assets/BayoWolf.png")
@@ -81,7 +78,7 @@ import IncrediCodersBattleCards_Solution
 Manager.register(IncrediCodersBattleCards_Solution)
 
 # Run the game
-Manager.run(SCREEN, WINDOW, BLACK)
+Manager.run(SCREEN, WINDOW, BLUE)
 
 #running = True
 #Game loop below:
