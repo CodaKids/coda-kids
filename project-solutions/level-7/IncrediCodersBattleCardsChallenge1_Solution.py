@@ -64,13 +64,13 @@ DECK.append(woodchuck_norris)
 
 #Game loop below:
 #while running: 
-    #If turn one, Player1 and 2 pick their starting card. It is shown to each 
-    # other. Then, coin toss to establish who get's to go first. 
-    #Next, player picks an attack from one card
-    #Player then picks card they would like to attack. 
-    #Player flips coin
-    #Depending on results of coin, damage is dealt to that card.
-    #TODO: implement specific attacks based on the cards
-    #If card health < 1, card is killed
-    #If player has no cards left, player loses
-    #Change player turn to the other player
+    #If turn one, Player1 and 2 pick their starting card. It is shown to each 
+    # other. Then, coin toss to establish who get's to go first. 
+    #Next, player picks an attack from one card
+    #Player then picks card they would like to attack.
+    #Player flips coin
+    #Depending on results of coin, damage is dealt to that card.
+    #TODO: implement specific attacks based on the cards
+    #If card health < 1, card is killed
+    #If player has no cards left, player loses
+    #Change player turn to the other player

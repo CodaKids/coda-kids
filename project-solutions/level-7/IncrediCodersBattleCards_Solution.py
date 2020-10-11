@@ -72,8 +72,6 @@ player_two.HAND = DECK[int(len(DECK)/2):]
 
 turn = 1
 
-#TODO: Player flips coin to see who goes first
-
 import IncrediCodersBattleCards_Solution
 Manager.register(IncrediCodersBattleCards_Solution)
 
