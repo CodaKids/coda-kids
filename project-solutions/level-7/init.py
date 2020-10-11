@@ -137,6 +137,52 @@ class Image:
     def surface(self):
         return self.data
 
+class Animator:
+    def __init__(self, sheet, duration_seconds):
+        self.sheet = sheet
+        self.frame_num = 0
+        self.frame_time = 0.0
+        self.playing = True
+        self.playspeed = 1.0
+        self.looping = True
+        self.reset()
+        self.set_duration(duration_seconds)
+
+    def set_duration(self, duration_seconds):
+        self.duration = duration_seconds
+        self.transition = self.duration / self.num_frames
+
+    def use_anim(self, sheet):
+        self.sheet = sheet
+        self.reset()
+    def reset(self):
+        self.frame_num = 0
+        self.current = self.sheet.image_at(self.frame_num)
+        self.frame_time = 0
+        self.num_frames = self.sheet.num_frames()
+    def play(self, playspeed=1.0):
+        self.playspeed = playspeed
+        self.reset()
+        self.unpause()
+    def pause(self):
+        self.playing = False
+    def unpause(self):
+        self.playing = True
+    def update(self, dt):
+        dt = dt * self.playspeed
+        if self.playing:
+            self.frame_time += dt
+            if self.frame_time >= self.transition:
+                self.frame_time -= self.transition
+                self.frame_num += 1
+                if self.looping:
+                    self.frame_num %= self.num_frames
+                self.current = self.sheet.image_at(self.frame_num)
+                if self.frame_num >= self.num_frames:
+                    self.playing = False
+    def surface(self):
+        return self.current.surface()
+
 class Object:
     """
     Object class used to organize and track common game object data, such as location and appearance.
@@ -183,52 +229,6 @@ class Object:
         rect = sprite.get_rect()
         rect.center = self.location
         screen.blit(sprite, rect)
-
-class Animator:
-    def __init__(self, sheet, duration_seconds):
-        self.sheet = sheet
-        self.frame_num = 0
-        self.frame_time = 0.0
-        self.playing = True
-        self.playspeed = 1.0
-        self.looping = True
-        self.reset()
-        self.set_duration(duration_seconds)
-
-    def set_duration(self, duration_seconds):
-        self.duration = duration_seconds
-        self.transition = self.duration / self.num_frames
-
-    def use_anim(self, sheet):
-        self.sheet = sheet
-        self.reset()
-    def reset(self):
-        self.frame_num = 0
-        self.current = self.sheet.image_at(self.frame_num)
-        self.frame_time = 0
-        self.num_frames = self.sheet.num_frames()
-    def play(self, playspeed=1.0):
-        self.playspeed = playspeed
-        self.reset()
-        self.unpause()
-    def pause(self):
-        self.playing = False
-    def unpause(self):
-        self.playing = True
-    def update(self, dt):
-        dt = dt * self.playspeed
-        if self.playing:
-            self.frame_time += dt
-            if self.frame_time >= self.transition:
-                self.frame_time -= self.transition
-                self.frame_num += 1
-                if self.looping:
-                    self.frame_num %= self.num_frames
-                self.current = self.sheet.image_at(self.frame_num)
-                if self.frame_num >= self.num_frames:
-                    self.playing = False
-    def surface(self):
-        return self.current.surface()
 #============================================================
 #PART 3: SETUP FOR THE BATTLE CARDS GAME
 Manager = Machine()

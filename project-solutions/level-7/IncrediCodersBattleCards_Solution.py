@@ -78,10 +78,11 @@ Manager.register(IncrediCodersBattleCards_Solution)
 # Run the game
 Manager.run(SCREEN, WINDOW, BLUE)
 
-#running = True
+running = True
 #Game loop below:
 
-#while running: 
+while running: 
+    print("game is running")
     #Player picks card they would like to attack. 
     #Next, player picks an attack from their own card
     #Player flips coin
