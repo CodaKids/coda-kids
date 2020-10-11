@@ -602,48 +602,50 @@ class Data:
     player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(HITBOX_IMAGE)
     #boss data
-    boss_attack_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (96, 96))
+    boss_attack_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (100, 100))
     boss_attack = Animator(boss_attack_sheet, 2)
-    boss_idle_sheet = SpriteSheet("assets/creeper/CreeperIdle.png", (96, 96))
+    boss_idle_sheet = SpriteSheet("assets/creeper/CreeperIdle.png", (100, 100))
     boss_idle = Animator(boss_idle_sheet, 2.5)
-    boss_pain_sheet = SpriteSheet("assets/creeper/CreeperPain.png", (96, 96))
+    boss_pain_sheet = SpriteSheet("assets/creeper/CreeperPain.png", (100, 100))
     boss_pain = Animator(boss_pain_sheet, 0.5)
     boss = Object(boss_idle_sheet.image_at(0))
     boss_start_position = pygame.math.Vector2(0, 0)
     boss_health = 300
+    boss_attack_event = pygame.USEREVENT
+    is_boss_attacking = False
     #miscellaneous data
     wall_height = 45
     projectile_sheet = SpriteSheet("assets/PlasmaBall.png", (32, 32))
-    projectile_anim = Animator(projectile_sheet, 0.5)
+    projectile_anim = Animator(projectile_sheet, 6)
     projectile = Object(projectile_sheet.image_at(0))
     numberOfprojectiles = 0
     projectiles = []
     projectile_owner = []
-    rotation_speed = 180
     state = 0
     last_state = 2
     index = 0
     game_over_sheet = SpriteSheet("assets/GameOverOverlay.png", (800, 600))
     game_over = Animator(game_over_sheet, 0.5)
     you_win_sheet = SpriteSheet("assets/YouWinOverlay.png", (800, 600))
-    you_win = Animator(you_win_sheet, 0.5)
+    you_win = Animator(you_win_sheet, 0.25)
     ending_overlay = Object(game_over_sheet.image_at(0))
     #ending_overlay_event = pygame.USEREVENT
     restart_button = Object(Image("assets/Projectile.png"))
-    boss_attack_event = pygame.USEREVENT
-    is_boss_attacking = False
-
+    
 MY = Data()
 
 def initialize(window):
     """Initializes the game play class."""
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
-    pygame.time.set_timer(MY.boss_attack_event, 20)
+    pygame.time.set_timer(MY.boss_attack_event, 1000)
     #pygame.time.set_timer(MY.ending_overlay_event, 0)
     count = 0
     while count < 20:
-        MY.projectiles.append(Object(PROJECTILE_IMAGE))
+        proj = Object(PROJECTILE_IMAGE)
+        proj.location = (window.x / 2, window.y/ 2 - 35)
+        proj.sprite = MY.projectile_anim
+        MY.projectiles.append(proj)
         MY.projectile_owner.append(BOSS)
         count += 1
 
@@ -752,7 +754,7 @@ def fire_projectile():
         count += 1
         if projectile.active:
             if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
-                MY.player_health -= 1
+                MY.player_health -= 0.1
                 projectile.active = False
                 continue
 
@@ -761,15 +763,9 @@ def boss_explosion_update():
     num_projectiles = 15
     count = 0
     while count < num_projectiles:
+        MY.projectiles[count].active = True
         fire_projectile()
         count += 1
-
-def boss_rotation_update(delta_time):
-    """laser attack."""
-    MY.boss.add_rotation(MY.rotation_speed * delta_time)
-    fire_projectile()
-    if MY.boss.rotation >= 355:
-        MY.boss.rotation = 0
 
 def boss_attack():
     """if rand.randint(0, 1) == 0:
@@ -785,6 +781,8 @@ def update_boss(delta_time):
     elif MY.is_boss_attacking:
         MY.boss.sprite = MY.boss_attack
         boss_attack()
+        for p in MY.projectiles:
+            p.update(delta_time)
     else:
         MY.boss.sprite = MY.boss_idle
     MY.boss.update(delta_time)
@@ -794,6 +792,7 @@ def check_win():
     if MY.boss_health < 1:
         Manager.current = 1
         MY.state = 1
+        MY.ending_overlay = Object(MY.you_win_sheet.image_at(0))
     elif MY.player_health < 1:
         Manager.current = 1
         MY.state = 2
@@ -814,11 +813,10 @@ class GameOver:
     def update(delta_time):
         """Updates the restart menu state."""
         if MY.boss_health <= 0:
-            MY.ending_overlay.sprite = MY.you_win
-        elif MY.player_health <= 0:
-            MY.ending_overlay.sprite = MY.game_over
+            you_win_anim()
+        else:
+            game_over_anim()
         #pygame.time.set_timer(MY.ending_overlay_event, 0)
-        
         check_ending_events()
 
     def cleanup():
@@ -829,3 +827,12 @@ class GameOver:
         """Draws the restart menu state."""
         MY.ending_overlay.draw(screen)
         MY.restart_button.draw(screen)
+
+def you_win_anim():
+    MY.ending_overlay.sprite = MY.you_win
+
+def game_over_anim():
+    MY.ending_overlay.sprite = MY.game_over
+    for _ in range(1000):
+        MY.ending_overlay.sprite.update(30)
+    MY.ending_overlay.sprite.pause()
