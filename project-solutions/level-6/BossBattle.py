@@ -35,10 +35,8 @@ def update(delta_time):
         MY.boss_health -= 1
         MY.player_hitbox.active = False
 
-    update_player(delta_time)
-
-    update_boss(delta_time)
-
+    update_assets(delta_time)
+    
     check_win()
 
     check_events()

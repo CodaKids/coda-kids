@@ -173,7 +173,6 @@ class Machine:
             self.update(delta_time)
             self.states[self.current]['update'](delta_time)
             screen.fill(fill_color)
-            screen.blit(BACKGROUND_IMAGE.data, (0, 0))
             self.states[self.current]['draw'](screen)
             pygame.display.flip()
 
@@ -230,7 +229,7 @@ class SpriteSheet:
 
 class Animator:
     """Animator class for animation functions"""
-    def __init__(self, sheet, duration_seconds):
+    def __init__(self, sheet, duration_seconds, looping = True):
         self.sheet = sheet
         self.frame_num = 0
 
@@ -238,7 +237,7 @@ class Animator:
 
         self.playing = True
         self.playspeed = 1.0
-        self.looping = True
+        self.looping = looping
 
         self.reset()
         self.set_duration(duration_seconds)
@@ -548,9 +547,6 @@ SCREEN = start(WINDOW, "Boss Battle")
 #load sprites constants
 PROJECTILE_IMAGE = Image("assets/Projectile.png")
 HITBOX_IMAGE = Image("assets/Hitbox.png")
-BACKGROUND_IMAGE = Image("assets/Background.png")
-IMAGE_GAMEOVER = Image("assets/Background.png")
-IMAGE_BUTTON = Image("assets/Background.png")
 
 #constants
 PLAYER = 0
@@ -562,6 +558,9 @@ class Data:
     """
     Data loads the changeable data for gameplay
     """
+    background_sheet = SpriteSheet("assets/Background.png", (800, 600))
+    background_anim = Animator(background_sheet, 0.75)
+    background = Object(background_sheet.image_at(0))
     #player data
     player_idle_forward_sheet = SpriteSheet("assets/paul/PaulIdleFront.png", (64, 68))
     player_idle_backward_sheet = SpriteSheet("assets/paul/PaulIdleBack.png", (64, 68))
@@ -625,9 +624,9 @@ class Data:
     last_state = 2
     index = 0
     game_over_sheet = SpriteSheet("assets/GameOverOverlay.png", (800, 600))
-    game_over = Animator(game_over_sheet, 0.5)
+    game_over = Animator(game_over_sheet, 10, False)
     you_win_sheet = SpriteSheet("assets/YouWinOverlay.png", (800, 600))
-    you_win = Animator(you_win_sheet, 0.25)
+    you_win = Animator(you_win_sheet, 10, False)
     ending_overlay = Object(game_over_sheet.image_at(0))
     #ending_overlay_event = pygame.USEREVENT
     restart_button = Object(Image("assets/Projectile.png"))
@@ -636,6 +635,7 @@ MY = Data()
 
 def initialize(window):
     """Initializes the game play class."""
+    MY.background.location = window / 2
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
     pygame.time.set_timer(MY.boss_attack_event, 1000)
@@ -651,6 +651,7 @@ def initialize(window):
 
 def draw(screen):
     """Draws the state to the given screen for BossBattle."""
+    MY.background.draw(screen)
     MY.player.draw(screen)
     if MY.player_hitbox.active:
         MY.player_hitbox.draw(screen)
@@ -741,12 +742,6 @@ def player_move_update(delta_time):
         MY.player_dir = RIGHT
         MY.player.sprite = MY.walk_right
 
-def update_player(delta_time):
-    """Updates the position of the players in the game window."""
-    player_move_update(delta_time)
-    player_attack_update()
-    MY.player.update(delta_time)
-
 def fire_projectile():
     """Updates animations for player while attacking"""
     count = -1
@@ -755,6 +750,7 @@ def fire_projectile():
         if projectile.active:
             if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
                 MY.player_health -= 0.1
+                player_pain_anim()
                 projectile.active = False
                 continue
 
@@ -774,8 +770,17 @@ def boss_attack():
         boss_rotation_update(delta_time)"""
     boss_explosion_update()
 
-def update_boss(delta_time):
-    """updates animations and actions for boss"""
+def update_assets(delta_time):
+    # background
+    MY.background.sprite = MY.background_anim
+    MY.background.update(delta_time)
+
+    #player
+    player_move_update(delta_time)
+    player_attack_update()
+    MY.player.update(delta_time)
+
+    #boss
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
         MY.boss.sprite = MY.boss_pain
     elif MY.is_boss_attacking:
@@ -833,6 +838,3 @@ def you_win_anim():
 
 def game_over_anim():
     MY.ending_overlay.sprite = MY.game_over
-    for _ in range(1000):
-        MY.ending_overlay.sprite.update(30)
-    MY.ending_overlay.sprite.pause()
