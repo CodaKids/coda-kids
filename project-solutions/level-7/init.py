@@ -53,38 +53,39 @@ def update(delta_time):
     for key in to_delete:
         del _data[key]
 
-class Machine:
-    """Game state machine class."""
-    def __init__(self):
-        self.current = 0
-        self.previous = 0
-        self.states = []
+# class Machine:
+    # """Game state machine class."""
+    # def __init__(self):
+    #     self.current = 0
+    #     self.previous = 0
+    #     self.states = []
 
-    def register(self, module):
-        """Registers the state's init, update, draw, and cleanup functions."""
-        self.states.append({'initialize': module.initialize,
-                            'update': module.update,
-                            'draw': module.draw,
-                            'cleanup': module.cleanup})
+    # def register(self, module):
+    #     """Registers the state's init, update, draw, and cleanup functions."""
+    #     self.states.append({'initialize': module.initialize,
+    #                         'update': module.update,
+    #                         'draw': module.draw,
+    #                         'cleanup': module.cleanup})
 
-    def run(self, screen, window, fill_color):
-        """Runs the state given machine."""
-        clock = pygame.time.Clock()
+    # def run(self, screen, window, fill_color):
+    #     """Runs the state given machine."""
+    #     clock = pygame.time.Clock()
         # first run initialize!
-        self.states[self.current]['initialize'](window)
+        # self.states[self.current]['initialize'](window)
 
-        while True:
-            delta_time = clock.tick(60) / 1000
-            if self.current != self.previous:
-                self.states[self.current]['cleanup']()
-                self.states[self.current]['initialize'](window)
-                self.previous = self.current
-
-            update(delta_time)
-            self.states[self.current]['update'](delta_time)
-            screen.fill(fill_color)
-            self.states[self.current]['draw'](screen)
-            pygame.display.flip()
+        # print("before run() loop")
+        # while True:
+        #     print("run loop inf")
+        #     delta_time = clock.tick(60) / 1000
+        #     if self.current != self.previous:
+        #         self.states[self.current]['cleanup']()
+        #         self.states[self.current]['initialize'](window)
+        #         self.previous = self.current
+        #     update(delta_time)
+        #     self.states[self.current]['update'](delta_time)
+        #     screen.fill(fill_color)
+        #     self.states[self.current]['draw'](screen)
+        #     pygame.display.flip()
 
 def get_file(fileName):
     """Returns the absolute path of a file."""
@@ -155,19 +156,24 @@ class Animator:
     def use_anim(self, sheet):
         self.sheet = sheet
         self.reset()
+
     def reset(self):
         self.frame_num = 0
         self.current = self.sheet.image_at(self.frame_num)
         self.frame_time = 0
         self.num_frames = self.sheet.num_frames()
+
     def play(self, playspeed=1.0):
         self.playspeed = playspeed
         self.reset()
         self.unpause()
+
     def pause(self):
         self.playing = False
+
     def unpause(self):
         self.playing = True
+
     def update(self, dt):
         dt = dt * self.playspeed
         if self.playing:
@@ -180,6 +186,7 @@ class Animator:
                 self.current = self.sheet.image_at(self.frame_num)
                 if self.frame_num >= self.num_frames:
                     self.playing = False
+
     def surface(self):
         return self.current.surface()
 
@@ -188,12 +195,14 @@ class Object:
     Object class used to organize and track common game object data, such as location and appearance.
         obj = Object(IMAGE);
     """
-    location = pygame.math.Vector2()
+    location = pygame.math.Vector2(0, 0)
     scale = 1
+
     def __init__(self, image):
         self.sprite = image
         self.rotation = 0
         self.active = False
+
     def __setattr__(self, name, value):
         if name == "location" or name == "velocity":
             self.__dict__[name] = pygame.math.Vector2(value[0], value[1])
@@ -216,9 +225,11 @@ class Object:
         rect = sprite.get_rect()
         rect.center = self.location
         return rect
+
     def update(self, delta_time):
         self.location += self.velocity * delta_time
         self.sprite.update(delta_time)
+
     def draw(self, screen):
         """
         draws the object to the screen.
@@ -231,26 +242,30 @@ class Object:
         screen.blit(sprite, rect)
 #============================================================
 #PART 3: SETUP FOR THE BATTLE CARDS GAME
-Manager = Machine()
+# Manager = Machine()
 
 #constants for screen
 WINDOW_WIDTH = 800
 WINDOW_LENGTH = 600
 WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
 SCREEN = start(WINDOW, "IncrediCards")
-BACKGROUND_IMAGE = Image("Assets/Table.png")
+BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/Table.png") 
+# BACKGROUND_IMAGE = Image("assets/Table.png")
+clock = pygame.time.Clock()
 
 class Data:
-    coin = Object("Assets/CoinHeads_Resized.png")
+    coin = Object(Image("Assets/CoinFlip.png"))
+    card1 = Object(Image("Assets/AnnieConda.png"))
 
 MY = Data()
 
+
 def initialize(WINDOW):
     MY.coin.location = WINDOW / 2
+    MY.card1.location = WINDOW / 4
 
 def draw(screen):
-    MY.coin.draw(screen)
-    print("coin in on screen!")
+    return True
 
 def cleanup():
     print("clean up")   
