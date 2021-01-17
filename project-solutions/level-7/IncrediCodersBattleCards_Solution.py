@@ -152,22 +152,7 @@ running = True
 # Run the game
 print("before run")
 
-card225 = pygame.image.load(get_file('Assets/AnnieConda_225.png'))
-card250 = pygame.image.load(get_file('Assets/AnnieConda_250.png'))
-card275 = pygame.image.load(get_file('Assets/AnnieConda_275.png'))
-card300 = pygame.image.load(get_file('Assets/AnnieConda_300.png'))
-
-SCREEN.fill(BLUE)
-SCREEN.blit(BACKGROUND_IMAGE, (0,0))
-coin_font = pygame.font.SysFont('Arial', 35)
-dialog_font = pygame.font.SysFont('Arial', 12)
-dialog_surface = pygame.Surface((200,350))
-dialog_surface.set_alpha(100)
-dialog_surface.fill(WHITE)
-# pygame.draw.rect(dialog_surface, BLACK, dialog_surface.get_rect(), 0, 10)
-SCREEN.blit(dialog_surface, (300, 100))
-# SCREEN.blit(card300, (10,25))
-pygame.display.update()
+draw_screen()
 
 #Game loop below
 
@@ -177,26 +162,15 @@ pygame.display.update()
 while running: 
     clock.tick(60)
     for event in pygame.event.get():
-
-        if event.type == pygame.QUIT: #If the player clicks the Close button, it exits the game
-            pygame.quit()
-            exit()
-        # draw/update screen
+        # Checks to see if player clicked close button on window
+        check_stop(event)
         
-        SCREEN.fill(BLUE)
-        SCREEN.blit(BACKGROUND_IMAGE, (0,0))
-        SCREEN.blit(dialog_surface, (300, 100))
-        SCREEN.blit(card300, (0,75))
-        SCREEN.blit(card275, (500,75))
-        # draw(SCREEN)
-
-        coin_click = coin_font.render("flip the coin.", True, BLACK)
-        SCREEN.blit(coin_click, (200,500))
-        coin_click_rect = coin_click.get_rect(topleft=(200,500))
-        pygame.display.update()
+        # draw/update screen
+        draw_screen()
+        coin_click_rect = coin_flip_click()
 
         # turn for each character:
-        # choose attack (safe or risk) - only advanced, big hit is default
+        # choose attack (safe or risk) - only advanced, "big hit" is default
         # player clicks on attack
 
         # flip coin
@@ -206,32 +180,29 @@ while running:
             
             if coin_click_rect.collidepoint(mouse_position):
                 offense, defense = get_active_player(turn)
-                # print("*" * 30)
-                # print("current player {}".format(offense.name))
+                # show turn and current player in dialog box
                 dlg_turn = dialog_font.render("turn {}".format(turn), True, (BLACK))
-                SCREEN.blit(dlg_turn, (300, 125))
+                SCREEN.blit(dlg_turn, (320, 125))
                 dlg_cur = dialog_font.render("current player {}".format(offense.name), True, BLACK)
-                SCREEN.blit(dlg_cur, (300, 140))
-                # print("turn {}".format(turn))
+                SCREEN.blit(dlg_cur, (320, 140))
+                
+                # flip the coin and show result
                 coin = flip_coin()
                 dlg_flip = dialog_font.render("coin flip result: {}".format(coin), True, BLACK)
-                SCREEN.blit(dlg_flip, (300, 155))
-                # print("coin flip result: {}".format(coin))
+                SCREEN.blit(dlg_flip, (320, 155))
+
                 if coin == 'heads':
                     damage = defense.HAND[defense.current_card].attack(offense.HAND[offense.current_card])
-                    # print ("player {} took {} damage on their card".format(defense.name, damage))
-                    dlg_dam = dialog_font.render("{} took {} damage on their card".format(defense.name, damage), True, BLACK)
-                    SCREEN.blit(dlg_dam, (300, 170))
+                    dlg_dam = dialog_font.render("{} took {} damage".format(defense.name, damage), True, BLACK)
+                    SCREEN.blit(dlg_dam, (320, 170))
                 else:
-                    # print("player {} took no damage on their card".format(defense.name))
-                    dlg_def = dialog_font.render("{} took no damage on their card".format(defense.name), True, BLACK)
-                    SCREEN.blit(dlg_def, (300, 170))
-                # display_turn = dialog_font.render(display_dialog, True, (0,0,0))
-                # SCREEN.blit(display_turn, (300, 125))
+                    dlg_def = dialog_font.render("{} took no damage".format(defense.name), True, BLACK)
+                    SCREEN.blit(dlg_def, (320, 170))
+                # running into issues with multi-line blitting - needs investigating
+                # time.sleep not an ideal solution but will be fine for now
                 pygame.display.update()
-                time.sleep(1)
+                time.sleep(7)
 
-                # display_game_state()
                 if check_game_end():
                     running = False
                 turn = turn + 1

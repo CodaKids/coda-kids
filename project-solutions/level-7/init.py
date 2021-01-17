@@ -28,13 +28,13 @@ def start(window_size, game_name):
 
 def stop():
     """ Stops pygame and closes the window immediately. """
+    pygame.quit()
     sys.exit()
 
-def check_stop():
-    for event in pygame.event.get():
-        # Checks if you closed the window
-        if event.type == pygame.QUIT:
-            stop()
+def check_stop(event):
+    # Checks if you closed the window
+    if event.type == pygame.QUIT:
+        stop()
 
 def update(delta_time):
     """
@@ -250,12 +250,21 @@ WINDOW_LENGTH = 600
 WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
 SCREEN = start(WINDOW, "IncrediCards")
 BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/Table.png") 
-# BACKGROUND_IMAGE = Image("assets/Table.png")
+
+coin_font = pygame.font.SysFont('Arial', 35)
+dialog_font = pygame.font.SysFont('Arial', 12)
+cardshand_font = pygame.font.SysFont('Arial', 16)
+
 clock = pygame.time.Clock()
 
 class Data:
-    coin = Object(Image("Assets/CoinFlip.png"))
-    card1 = Object(Image("Assets/AnnieConda.png"))
+    # coin = Object(Image("Assets/CoinFlip.png"))
+    # card1 = Object(Image("Assets/AnnieConda.png"))
+    card225 = pygame.image.load(get_file('Assets/AnnieConda_225.png'))
+    card250 = pygame.image.load(get_file('Assets/AnnieConda_250.png'))
+    card275 = pygame.image.load(get_file('Assets/AnnieConda_275.png'))
+    card300 = pygame.image.load(get_file('Assets/AnnieConda_300.png'))
+    insignia = pygame.image.load(get_file('Assets/TypePython.png'))
 
 MY = Data()
 
@@ -264,8 +273,46 @@ def initialize(WINDOW):
     MY.coin.location = WINDOW / 2
     MY.card1.location = WINDOW / 4
 
-def draw(screen):
-    return True
+def draw_screen():
+    SCREEN.fill(BLUE)
+    SCREEN.blit(BACKGROUND_IMAGE, (0,0))
+    draw_dialog_box()
+    draw_active_cards()
+    draw_inactive_cards()
+    draw_coin_flip_button()
+    pygame.display.update()
 
 def cleanup():
     print("clean up")   
+
+# draw screen - composed of:
+# draw dialog box
+def draw_dialog_box():
+    dialog_surface = pygame.Surface((200,350))
+    dialog_surface.set_alpha(100)
+    dialog_surface.fill(WHITE)
+    SCREEN.blit(dialog_surface, (300, 100))
+
+# draw active cards
+def draw_active_cards():
+    SCREEN.blit(MY.card300, (0,75))
+    SCREEN.blit(MY.card300, (500,75))
+
+# draw inactive cards
+def draw_inactive_cards():
+    SCREEN.blit(MY.insignia, (35,475))
+    cards_in_hand = cardshand_font.render("Paul Python", True, BLACK)
+    SCREEN.blit(cards_in_hand, (60, 475))
+
+# draw health bars
+
+# draw coin flip
+def draw_coin_flip_button():
+    coin_click = coin_font.render("flip the coin.", True, BLACK)
+    SCREEN.blit(coin_click, (300,500))
+    
+
+def coin_flip_click():
+    coin_click = coin_font.render("flip the coin.", True, BLACK)
+    coin_click_rect = coin_click.get_rect(topleft=(300,500))
+    return coin_click_rect
