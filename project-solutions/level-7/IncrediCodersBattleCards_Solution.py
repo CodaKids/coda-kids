@@ -109,7 +109,7 @@ random.shuffle(DECK)
 player_one.HAND = DECK[:3]
 player_two.HAND = DECK[3:6]
 
-# not sure if we need turn counter
+running = True
 turn = 1
 
 import IncrediCodersBattleCards_Solution
@@ -145,12 +145,10 @@ def check_game_end():
     return False
 
 def victory(player):
-    # display victor
+    # display victor - TODO: render victory on screen
     print("Player {} has won the game!".format(player.name))
 
-running = True
 # Run the game
-print("before run")
 
 draw_screen()
 
@@ -166,50 +164,43 @@ while running:
         check_stop(event)
         
         # draw/update screen
-        draw_screen()
+        # draw_screen()
         coin_click_rect = coin_flip_click()
 
         # turn for each character:
         # choose attack (safe or risk) - only advanced, "big hit" is default
         # player clicks on attack
 
-        # flip coin
         # player clicks on flip coin
         mouse_position = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
             
             if coin_click_rect.collidepoint(mouse_position):
                 offense, defense = get_active_player(turn)
-                # show turn and current player in dialog box
-                dlg_turn = dialog_font.render("turn {}".format(turn), True, (BLACK))
-                SCREEN.blit(dlg_turn, (320, 125))
-                dlg_cur = dialog_font.render("current player {}".format(offense.name), True, BLACK)
-                SCREEN.blit(dlg_cur, (320, 140))
-                
-                # flip the coin and show result
-                coin = flip_coin()
-                dlg_flip = dialog_font.render("coin flip result: {}".format(coin), True, BLACK)
-                SCREEN.blit(dlg_flip, (320, 155))
 
+                # show turn and current player in dialog box
+                message = ""
+                message += "turn {}\n".format(turn)
+                message += "current player {}\n".format(offense.name)
+                
+                # flip the coin
+                coin = flip_coin()
+                message += "coin flip result: {}\n".format(coin)
+
+                # show result of the turn in dialog box
                 if coin == 'heads':
                     damage = defense.HAND[defense.current_card].attack(offense.HAND[offense.current_card])
-                    dlg_dam = dialog_font.render("{} took {} damage".format(defense.name, damage), True, BLACK)
-                    SCREEN.blit(dlg_dam, (320, 170))
+                    message += "{} took {} damage\n".format(defense.name, damage)
+
                 else:
-                    dlg_def = dialog_font.render("{} took no damage".format(defense.name), True, BLACK)
-                    SCREEN.blit(dlg_def, (320, 170))
-                # running into issues with multi-line blitting - needs investigating
-                # time.sleep not an ideal solution but will be fine for now
-                pygame.display.update()
-                time.sleep(7)
+                    message += "{} took no damage\n".format(defense.name)
+
+                # dialog box shows turn result
+                draw_screen(message)
 
                 if check_game_end():
                     running = False
                 turn = turn + 1
-
-
-        # dialog box shows turn result
-        # for now print to terminal
 
 
     # how does resistance/weakness work? 

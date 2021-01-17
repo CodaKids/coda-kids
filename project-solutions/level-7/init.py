@@ -273,10 +273,11 @@ def initialize(WINDOW):
     MY.coin.location = WINDOW / 2
     MY.card1.location = WINDOW / 4
 
-def draw_screen():
+def draw_screen(message=""):
     SCREEN.fill(BLUE)
     SCREEN.blit(BACKGROUND_IMAGE, (0,0))
     draw_dialog_box()
+    populate_dialog_box(message)
     draw_active_cards()
     draw_inactive_cards()
     draw_coin_flip_button()
@@ -292,6 +293,20 @@ def draw_dialog_box():
     dialog_surface.set_alpha(100)
     dialog_surface.fill(WHITE)
     SCREEN.blit(dialog_surface, (300, 100))
+
+def populate_dialog_box(message):
+    if message == "":
+        return
+    lines = message.splitlines()
+    dlg_turn = dialog_font.render(lines[0], True, (BLACK))
+    dlg_cur = dialog_font.render(lines[1], True, BLACK)
+    dlg_flip = dialog_font.render(lines[2], True, BLACK)
+    dlg_dam = dialog_font.render(lines[3], True, BLACK)
+    SCREEN.blit(dlg_turn, (320, 125))
+    SCREEN.blit(dlg_cur, (320, 140))
+    SCREEN.blit(dlg_flip, (320, 155))
+    SCREEN.blit(dlg_dam, (320, 170))
+
 
 # draw active cards
 def draw_active_cards():
