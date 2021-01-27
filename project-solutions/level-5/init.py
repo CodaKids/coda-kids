@@ -9,13 +9,13 @@ import time
 import random
 from os import path
 
-#Global color values
+# Global color values
 BLUE = [0, 192, 255, 128]
 GREEN = [0, 128, 0, 128]
 RED = [255, 0, 0]
 YELLOW = [255, 255, 0]
 
-#Global direction variables
+# Global direction variables
 LEFT = 0
 RIGHT = 1
 UP = 2
@@ -25,7 +25,7 @@ DOWN = 3
 _data = {}
 
 #============================================================
-#PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
+# PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
 
 def key_down(event, key):
     """
@@ -109,9 +109,51 @@ class Image:
     def surface(self):
         return self.data
 
+class SpriteSheet:
+    """
+    Sprite sheet class for managing sprite animations.
+
+        sheet = SpriteSheet("image.png", (16, 16));
+    """
+
+    def __init__(self, filename, frame_size, scale=1):
+        self.sheet = pygame.image.load(get_file(filename)).convert_alpha()
+        rect = self.sheet.get_rect()
+        self.sheet = pygame.transform.scale(self.sheet, (int(scale*rect.width), int(scale*rect.height)))
+        rect = self.sheet.get_rect()
+        self.columns = int (rect.width / int(frame_size[0] * scale) )
+        self.rows = int ( rect.height / int(frame_size[1] * scale) )
+        rect.width = int(frame_size[0] * scale)
+        rect.height = int(frame_size[1] * scale)
+        self.rectangle = rect
+
+    def image_at(self, index):
+        """
+        Get an image at the given 0 based index.
+
+            obj.sprite = sheet.image_at(0);
+        """
+        x = math.floor(index % self.columns) * self.rectangle.width
+        y = math.floor(index / self.columns) * self.rectangle.height
+        self.rectangle.centerx = x + self.rectangle.width / 2
+        self.rectangle.centery = y + self.rectangle.height / 2
+        image = Image(None)
+        image.data = pygame.Surface(self.rectangle.size, pygame.SRCALPHA, 32).convert_alpha()
+        image.data.blit(self.sheet, (0, 0), self.rectangle)
+        return image
+
+    def num_frames(self):
+        """
+        Return the number of frames of animation for the given sheet.
+
+            size = sheet.num_frames();
+        return self.columns * self.rows
+        """
+        return self.columns * self.rows
+
 class Animator:
 
-    def __init__(self, sheet, duration_seconds):
+    def __init__(self, sheet, duration_seconds, looping= True):
         self.sheet = sheet
         self.frame_num = 0
 
@@ -119,7 +161,7 @@ class Animator:
 
         self.playing = True
         self.playspeed = 1.0
-        self.looping = True
+        self.looping = looping
 
         self.reset()
         self.set_duration(duration_seconds)
@@ -414,6 +456,7 @@ class Machine:
             update(delta_time)
             self.states[self.current]['update'](delta_time)
             screen.fill(fill_color)
+            screen.blit(pygame.transform.scale(BACKGROUND_IMAGE.data, [int(x) for x in WINDOW]), (0, 0))
             self.states[self.current]['draw'](screen)
             pygame.display.flip()
 
@@ -427,7 +470,7 @@ def change(new_state):
 #PART 3: SETUP FOR THE CREEPERCHASE GAME
 #Initializes the game window and game screen
 WINDOW = pygame.math.Vector2(800, 608)
-SCREEN = start(WINDOW, "CreeperChase")
+SCREEN = start(WINDOW, "Creeper Chase")
 
 #load sprites
 TILE_IMAGES = [None,                     # Sky
@@ -437,9 +480,10 @@ TILE_IMAGES = [None,                     # Sky
                None,                     # Player
                Image("assets/Coin.png")]   # Coin
 
+BACKGROUND_IMAGE = Image("assets/Background.png")
 PLAYER_IMAGE = Image("assets/player.png")
 
-#constants
+# Constants
 SKY = 0
 GROUND = 1
 HAZARD = 2
@@ -463,20 +507,96 @@ class Data:
     tilemap = []
     sky = []
     walls = []
-
     hazards = []
     doors = []
     coins = []
-    player = Object(PLAYER_IMAGE)
+    start_time = 0
+
+    ground_cookie = SpriteSheet("assets/Cookie.png", (32, 32), 0.5).image_at(0)
+    ground_cupcake = SpriteSheet("assets/Cupcake.png", (32, 32), 0.5).image_at(0)
+    ground_marshmallow = SpriteSheet("assets/Marshmallow.png", (32, 32), 0.5).image_at(0)
+    ground_marshmallow_chocolate = SpriteSheet("assets/Marshmallow_Chocolate.png", (32, 32), 0.5).image_at(0)
+    ground_orange = SpriteSheet("assets/Orange.png", (32, 32), 0.5).image_at(0)
+
+    ground_food = [ground_cookie, ground_cupcake, ground_marshmallow, ground_marshmallow_chocolate, ground_orange] 
+
+    lava_ground_pulse_sheet = SpriteSheet("assets/ground_lava.png", (32, 32), 0.5)
+    lava_ground_pulse = Animator(lava_ground_pulse_sheet, 1)
+
+    hazard_lava_pulse_sheet = SpriteSheet("assets/hazard_lava.png", (32, 32), 0.6)
+    hazard_lava_pulse = Animator(hazard_lava_pulse_sheet, 30)
+
+    hazard_pepper_pulse_sheet = SpriteSheet("assets/hazard_pepper.png", (32, 32), 0.5)
+    hazard_pepper_pulse = Animator(hazard_pepper_pulse_sheet, 8)
+
+    portal_enter_closing_sheet = SpriteSheet("assets/portal_enter_closing.png", (128, 128), 0.25)
+    portal_enter_closing = Animator(portal_enter_closing_sheet, 1)
+
+    portal_enter_pulse_sheet = SpriteSheet("assets/portal_enter_idle.png", (128, 128), 0.25)
+    portal_enter_pulse = Animator(portal_enter_pulse_sheet, 1)
+
+    portal_exit_pulse_sheet = SpriteSheet("assets/portal_exit_idle.png", (128, 128), 0.25)
+    portal_exit_pulse = Animator(portal_exit_pulse_sheet, 1)
+
+    portal_exit_closing_sheet = SpriteSheet("assets/portal_exit_closing.png", (128, 128), 0.25)
+    portal_exit_closing = Animator(portal_exit_closing_sheet, 1)
+
+    paul_idle_right_sheet = SpriteSheet("assets/paul_idle_right.png", (64, 64), 0.5)
+    paul_idle_right = Animator(paul_idle_right_sheet, 1)
+
+    paul_idle_left_sheet = SpriteSheet("assets/paul_idle_left.png", (64, 64), 0.5)
+    paul_idle_left = Animator(paul_idle_left_sheet, 1)
+
+    paul_run_right_sheet = SpriteSheet("assets/paul_run_right.png", (64, 64), 0.5)
+    paul_run_right = Animator(paul_run_right_sheet, 1)
+
+    paul_run_left_sheet = SpriteSheet("assets/paul_run_left.png", (64, 64), 0.5)
+    paul_run_left = Animator(paul_run_left_sheet, 1)
+
+    paul_fall_right_sheet = SpriteSheet("assets/paul_fall_right.png", (64, 64), 0.5)
+    paul_fall_right = Animator(paul_fall_right_sheet, 1)
+
+    paul_fall_left_sheet = SpriteSheet("assets/paul_fall_left.png", (64, 64), 0.5)
+    paul_fall_left = Animator(paul_fall_left_sheet, 1)
+
+    paul_pain_right_sheet = SpriteSheet("assets/paul_pain_right.png", (64, 64), 0.5)
+    paul_pain_right = Animator(paul_pain_right_sheet, 1)
+
+    paul_pain_left_sheet = SpriteSheet("assets/paul_pain_left.png", (64, 64), 0.5)
+    paul_pain_left = Animator(paul_pain_left_sheet, 1)
+
+    paul_jetpack_right_sheet = SpriteSheet("assets/paul_jetpack_right.png", (64, 64), 0.5)
+    paul_jetpack_right = Animator(paul_jetpack_right_sheet, 1)
+
+    paul_jetpack_left_sheet = SpriteSheet("assets/paul_jetpack_left.png", (64, 64), 0.5)
+    paul_jetpack_left = Animator(paul_jetpack_left_sheet, 1)
+
+    creeper_exit_sheet = SpriteSheet("assets/creeper_exit.png", (80, 80), 0.40)
+    creeper_exit = Animator(creeper_exit_sheet, 1, False)
+
+
+    player = Object(paul_idle_right_sheet.image_at(0))
+    player.sprite = paul_idle_right
     player_health = PLAYER_START_HEALTH
     player_max_speed = 100
     player_start_position = pygame.math.Vector2(0, 0)
+
+    creeper = Object(creeper_exit_sheet.image_at(0))
+
+    entrance = Object(portal_enter_pulse_sheet.image_at(0))
+    entrance.sprite = portal_enter_pulse
+
+    exit_portal = Object(portal_exit_pulse_sheet.image_at(0))
+    exit_portal.sprite = portal_exit_pulse
+            
     grounded = False
     can_fly = False
     level_num = 1
     window = pygame.math.Vector2(0, 0)
 
-#Initializes the data
+
+
+# Initializes the data
 MY = Data()
 
 def health_bar(screen, health, max_health, max_size, location):
@@ -494,22 +614,34 @@ def health_bar(screen, health, max_health, max_size, location):
 def load_level(level_name_as_string):
     """Cleans up resources and loads a specified level. Can be used to reload the same level."""
     cleanup()
+
     MY.tilemap = read_file("assets/"+level_name_as_string + ".txt")
     for row in range(len(MY.tilemap)):
         for column in range(len(MY.tilemap[row])):
             obj = Object(TILE_IMAGES[int(MY.tilemap[row][column])])
-            obj.location = pygame.math.Vector2(column * TILE_SIZE + 8, row * TILE_SIZE + 8)
+            obj.location = pygame.math.Vector2(column * TILE_SIZE + TILE_SIZE/2, row * TILE_SIZE + TILE_SIZE/2)
             if int(MY.tilemap[row][column]) == GROUND:
-                MY.walls.append(obj)
+                ground_obj = Object(MY.lava_ground_pulse_sheet.image_at(random.randint(0,3)))
+                ground_obj.sprite = MY.lava_ground_pulse
+                # ground_obj = Object(random.choice(MY.ground_food)) 
+                ground_obj.location = pygame.math.Vector2(column * TILE_SIZE + TILE_SIZE/2, row * TILE_SIZE + TILE_SIZE/2)
+                MY.walls.append(ground_obj)
             elif int(MY.tilemap[row][column]) == HAZARD:
-                MY.hazards.append(obj)
-            elif int(MY.tilemap[row][column]) == DOOR:
-                MY.doors.append(obj)
+                hazard_obj = Object(MY.hazard_lava_pulse_sheet.image_at(0))
+                hazard_obj.sprite = MY.hazard_lava_pulse
+                hazard_obj.location = pygame.math.Vector2(column * TILE_SIZE + TILE_SIZE/2, row * TILE_SIZE + TILE_SIZE/2)
+                MY.hazards.append(hazard_obj)
+            elif int(MY.tilemap[row][column]) == DOOR and row < len(MY.tilemap) - 1 and int(MY.tilemap[row + 1][column]) == DOOR:
+                MY.exit_portal.location = pygame.math.Vector2(column * TILE_SIZE + TILE_SIZE/2, row * TILE_SIZE + TILE_SIZE/2)
+                MY.creeper.location = pygame.math.Vector2((column - 1) * TILE_SIZE + TILE_SIZE/2, row * TILE_SIZE + TILE_SIZE/2)
             elif int(MY.tilemap[row][column]) == PLAYER_START:
                 MY.player_start_position = obj.location
             elif int(MY.tilemap[row][column]) == COINS:
                 MY.coins.append(obj)
+
     MY.player.location = MY.player_start_position
+    MY.entrance.location = MY.player_start_position
+    MY.start_time = pygame.time.get_ticks()
 
 def initialize(window):
     """Initializes the Platformer state."""
@@ -524,19 +656,50 @@ def draw(screen):
     # draw tilemap walls
     for wall in MY.walls:
         wall.draw(screen)
+
     # draw tilemap hazard
     for hazard in MY.hazards:
         hazard.draw(screen)
+    
     for door in MY.doors:
         door.draw(screen)
-    # draw player
-    MY.player.draw(screen)
+    
     # draw coins
     for coin in MY.coins:
         coin.draw(screen)
-    #draw player health_bar
-    health_bar(screen, MY.player_health, 10, (128, 16), (MY.window.x / 2, 4))
 
+    # draw player
+    MY.player.draw(screen)
+    MY.exit_portal.draw(screen)
+
+    if pygame.time.get_ticks() - MY.start_time < 1500:
+        MY.creeper.draw(screen)
+        MY.entrance.draw(screen)
+    elif pygame.time.get_ticks() - MY.start_time < 4000:
+        MY.creeper.sprite = MY.creeper_exit
+        MY.entrance.sprite = MY.portal_enter_closing
+        MY.creeper.draw(screen)
+        MY.entrance.draw(screen)
+    
+    #draw player health_bar
+    health_bar(screen, MY.player_health, 10, (128, 16), (MY.window.x * 0.75, 20))
+
+def update_level(delta_time):
+    # MY.player.update(delta_time)
+    for wall in MY.walls:
+        wall.update(delta_time)
+    for hazard in MY.hazards:
+        hazard.update(delta_time)
+    for door in MY.doors:
+        door.update(delta_time)
+    
+    MY.creeper.update(delta_time)
+    MY.entrance.update(delta_time)
+    MY.exit_portal.update(delta_time)
+    
+    # if pygame.time.get_ticks() - MY.start_time < 1000:
+    #     MY.creeper.update(delta_time)
+    
 def cleanup():
     """Cleans up the Platformer State."""
     MY.tilemap = []
@@ -551,9 +714,10 @@ class Win:
     BUTTON_IMAGE = Image("assets/WinButton.png")
 
     class Data:
-        button = Object(BUTTON_IMAGE)
+        button = Object(Image("assets/WinButton.png"))
 
     MY = Data()
+
 
     def initialize(self, window):
         """Initializes the lose menu state."""
@@ -580,7 +744,7 @@ class Lose:
     BUTTON_IMAGE = Image("assets/LoseButton.png")
 
     class Data:
-        button = Object(BUTTON_IMAGE)
+        button = Object(Image("assets/LoseButton.png"))
 
     MY = Data()
 

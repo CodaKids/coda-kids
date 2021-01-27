@@ -1,7 +1,5 @@
 """General information on your module and what it does."""
 from init import *
-import sys
-import pygame
 
 def update(delta_time):
     """Update method for platform state."""
@@ -9,13 +7,15 @@ def update(delta_time):
         if event.type == pygame.QUIT:
             stop()
         elif key_down(event, " ") and (MY.grounded or MY.level_num > 1):
-            MY.player.velocity.y = -800
+            MY.player.velocity.y = -700
             MY.grounded = False
 
     if key_held_down(pygame.K_LEFT): # move left
         MY.player.velocity.x = max(MY.player.velocity.x - PLAYER_ACCEL, -PLAYER_MAX_SPEED)
+        MY.player.sprite = MY.paul_run_left
     elif key_held_down(pygame.K_RIGHT): # move right
         MY.player.velocity.x = min(MY.player.velocity.x + PLAYER_ACCEL, PLAYER_MAX_SPEED)
+        MY.player.sprite = MY.paul_run_right
     else:
         if MY.grounded: # decel
             if MY.player.velocity.x > 0:
@@ -29,13 +29,14 @@ def update(delta_time):
                 MY.player.velocity.x = min(0, MY.player.velocity.x + PLAYER_AIR_DECEL)
     
     load = False
-    print(MY.grounded)
-    if key_held_down(pygame.K_UP):
-        for door in MY.doors:
-            if MY.player.collides_with(door):
-                load = True
+    if not MY.grounded:
+        MY.player.sprite = MY.paul_jetpack_right
 
-    if load is True:
+    if key_held_down(pygame.K_UP):
+        if MY.player.collides_with(MY.exit_portal):
+            load = True
+
+    if load:
         MY.level_num += 1
         if MY.level_num < 4:
             load_level("level" + str(MY.level_num))
@@ -55,6 +56,7 @@ def update(delta_time):
             else:
                 MY.player.location = MY.player_start_position
                 MY.player.set_velocity(0, 0)
+                MY.player.sprite = MY.paul_pain_right
                 break
     for coin in MY.coins:
         if MY.player.collides_with(coin):
@@ -89,6 +91,8 @@ def update(delta_time):
                 continue
     if not touching:
         MY.grounded = False
+    
+    update_level(delta_time)
 
 # states
 import CreeperChase
