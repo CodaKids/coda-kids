@@ -48,8 +48,6 @@ class Card:
         self.HP = self.HP - damage
         self.check_alive()
     
-    #def attack1():
-        #something here that's implemented in init file
 
 annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "assets/AnnieConda.png")
 bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "assets/BayoWolf.png")
@@ -108,6 +106,7 @@ random.shuffle(DECK)
 # player_two.HAND = DECK[int(len(DECK)/2):]
 player_one.HAND = DECK[:3]
 player_two.HAND = DECK[3:6]
+# TODO add method to add the card objects to player decks for rendering, need new card images first
 
 running = True
 turn = 1
@@ -148,6 +147,18 @@ def victory(player):
     # display victor - TODO: render victory on screen
     print("Player {} has won the game!".format(player.name))
 
+def add_to_message(msg, text_add):
+    text = textwrap.wrap(text_add, 25)
+    for line in text:
+        msg += line + "\n"
+    return msg
+    
+def check_cards(player):
+    if not player.HAND[player.current_card].alive:
+        player.current_card += 1
+    if player.current_card > 2: # TODO need to update this logic for other scenarios
+        player.active = False
+
 # Run the game
 
 draw_screen()
@@ -171,6 +182,8 @@ while running:
         # choose attack (safe or risk) - only advanced, "big hit" is default
         # player clicks on attack
 
+        # TODO player can choose which card to be active
+
         # player clicks on flip coin
         mouse_position = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -180,23 +193,34 @@ while running:
 
                 # show turn and current player in dialog box
                 message = ""
-                message += "turn {}\n".format(turn)
-                message += "current player {}\n".format(offense.name)
+                # message += "TURN {}\n".format(turn)
+                message = add_to_message(message, "TURN {}".format(turn))
+                # message += "{}\n".format("*"*30)
+                message = add_to_message(message, "*"*25)
+                # message += "Current Player: {}\n".format(offense.name)
+                message = add_to_message(message, "Current Player: {}".format(offense.name))
                 
                 # flip the coin
                 coin = flip_coin()
-                message += "coin flip result: {}\n".format(coin)
+                # message += "Coin toss: {}\n".format(coin)
+                message = add_to_message(message, "Coin toss: {}".format(coin))
+                # message += "OUTCOME\n"
+                # message += "{}\n".format("*"*30)
 
                 # show result of the turn in dialog box
                 if coin == 'heads':
                     damage = defense.HAND[defense.current_card].attack(offense.HAND[offense.current_card])
-                    message += "{} took {} damage\n".format(defense.name, damage)
+                    # message += "{} took {} damage\n".format(defense.HAND[defense.current_card].name, damage)
+                    message = add_to_message(message, "{} took {} damage\n".format(defense.HAND[defense.current_card].name, damage))
 
                 else:
-                    message += "{} took no damage\n".format(defense.name)
+                    # message += "{} took no damage\n".format(defense.HAND[defense.current_card].name)
+                    message = add_to_message(message, "{} took no damage\n".format(defense.HAND[defense.current_card].name))
 
                 # dialog box shows turn result
-                draw_screen(message)
+                draw_screen(message, player_one.HAND[player_one.current_card].HP, player_two.HAND[player_two.current_card].HP)
+                check_cards(player_one)
+                check_cards(player_two)
 
                 if check_game_end():
                     running = False

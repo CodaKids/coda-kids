@@ -6,6 +6,7 @@ import math
 import sys
 import time
 from os import path
+import textwrap
 
 # colors
 WHITE = [225, 225, 225]
@@ -250,21 +251,27 @@ WINDOW_LENGTH = 600
 WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
 SCREEN = start(WINDOW, "IncrediCards")
 BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/Table.png") 
-
+CARD_L_POS = pygame.math.Vector2(150,275)
+CARD_R_POS = pygame.math.Vector2(650,275)
 coin_font = pygame.font.SysFont('Arial', 35)
-dialog_font = pygame.font.SysFont('Arial', 12)
+dialog_font = pygame.font.Font('freesansbold.ttf', 14)
 cardshand_font = pygame.font.SysFont('Arial', 16)
 
 clock = pygame.time.Clock()
 
 class Data:
-    # coin = Object(Image("Assets/CoinFlip.png"))
+    # coin = Object(Image("Assets/CoinFlip.png")) - will need to be spritesheet object
     # card1 = Object(Image("Assets/AnnieConda.png"))
-    card225 = pygame.image.load(get_file('Assets/AnnieConda_225.png'))
-    card250 = pygame.image.load(get_file('Assets/AnnieConda_250.png'))
-    card275 = pygame.image.load(get_file('Assets/AnnieConda_275.png'))
-    card300 = pygame.image.load(get_file('Assets/AnnieConda_300.png'))
+    CARDIMG = Image('Assets/AnnieConda_300.png')
+    CARD2IMG = Image('Assets/BayoWolf_300.png')
     insignia = pygame.image.load(get_file('Assets/TypePython.png'))
+
+    CARD_R = Object(CARDIMG)
+    CARD_R.__setattr__("location", CARD_L_POS)
+    CARD_R.__setattr__("sprite", CARDIMG)
+    CARD_L = Object(CARD2IMG)
+    CARD_L.__setattr__("location", CARD_R_POS)
+    CARD_L.__setattr__("sprite", CARD2IMG)
 
 MY = Data()
 
@@ -273,13 +280,14 @@ def initialize(WINDOW):
     MY.coin.location = WINDOW / 2
     MY.card1.location = WINDOW / 4
 
-def draw_screen(message=""):
+def draw_screen(message="", p1_hp=15, p2_hp=15):
     SCREEN.fill(BLUE)
     SCREEN.blit(BACKGROUND_IMAGE, (0,0))
     draw_dialog_box()
     populate_dialog_box(message)
     draw_active_cards()
     draw_inactive_cards()
+    draw_healthbars(p1_hp, p2_hp)
     draw_coin_flip_button()
     pygame.display.update()
 
@@ -298,20 +306,18 @@ def populate_dialog_box(message):
     if message == "":
         return
     lines = message.splitlines()
-    dlg_turn = dialog_font.render(lines[0], True, (BLACK))
-    dlg_cur = dialog_font.render(lines[1], True, BLACK)
-    dlg_flip = dialog_font.render(lines[2], True, BLACK)
-    dlg_dam = dialog_font.render(lines[3], True, BLACK)
-    SCREEN.blit(dlg_turn, (320, 125))
-    SCREEN.blit(dlg_cur, (320, 140))
-    SCREEN.blit(dlg_flip, (320, 155))
-    SCREEN.blit(dlg_dam, (320, 170))
+    x = 310
+    y = 145
+    for line in lines:
+        dlg_pos = (x,y)
+        dlg_line = dialog_font.render(line, True, (BLACK))
+        SCREEN.blit(dlg_line, dlg_pos)
+        y = y + 25
 
-
-# draw active cards
+# draw active cards and health bars
 def draw_active_cards():
-    SCREEN.blit(MY.card300, (0,75))
-    SCREEN.blit(MY.card300, (500,75))
+    MY.CARD_R.draw(SCREEN)
+    MY.CARD_L.draw(SCREEN)
 
 # draw inactive cards
 def draw_inactive_cards():
@@ -319,7 +325,19 @@ def draw_inactive_cards():
     cards_in_hand = cardshand_font.render("Paul Python", True, BLACK)
     SCREEN.blit(cards_in_hand, (60, 475))
 
-# draw health bars
+def draw_healthbars(p1_hp, p2_hp):
+    p1_hp_pos = (25,50)
+    p2_hp_pos = (525,50)
+    width, height = 250, 25
+    hb_size = (width, height)
+    red = (215,65,55)
+    green = (80,150,65)
+    p1_bar = width * p1_hp / 15
+    p2_bar = width * p2_hp / 15
+    pygame.draw.rect(SCREEN, red, (p1_hp_pos, (width,height)))
+    pygame.draw.rect(SCREEN, red, (p2_hp_pos, (width,height)))
+    pygame.draw.rect(SCREEN, green, (p1_hp_pos, (p1_bar,height)))
+    pygame.draw.rect(SCREEN, green, (p2_hp_pos, (p2_bar,height)))
 
 # draw coin flip
 def draw_coin_flip_button():
