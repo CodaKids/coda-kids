@@ -54,40 +54,6 @@ def update(delta_time):
     for key in to_delete:
         del _data[key]
 
-# class Machine:
-    # """Game state machine class."""
-    # def __init__(self):
-    #     self.current = 0
-    #     self.previous = 0
-    #     self.states = []
-
-    # def register(self, module):
-    #     """Registers the state's init, update, draw, and cleanup functions."""
-    #     self.states.append({'initialize': module.initialize,
-    #                         'update': module.update,
-    #                         'draw': module.draw,
-    #                         'cleanup': module.cleanup})
-
-    # def run(self, screen, window, fill_color):
-    #     """Runs the state given machine."""
-    #     clock = pygame.time.Clock()
-        # first run initialize!
-        # self.states[self.current]['initialize'](window)
-
-        # print("before run() loop")
-        # while True:
-        #     print("run loop inf")
-        #     delta_time = clock.tick(60) / 1000
-        #     if self.current != self.previous:
-        #         self.states[self.current]['cleanup']()
-        #         self.states[self.current]['initialize'](window)
-        #         self.previous = self.current
-        #     update(delta_time)
-        #     self.states[self.current]['update'](delta_time)
-        #     screen.fill(fill_color)
-        #     self.states[self.current]['draw'](screen)
-        #     pygame.display.flip()
-
 def get_file(fileName):
     """Returns the absolute path of a file."""
     #This grabs the image files from your folder.
@@ -243,7 +209,62 @@ class Object:
         screen.blit(sprite, rect)
 #============================================================
 #PART 3: SETUP FOR THE BATTLE CARDS GAME
-# Manager = Machine()
+
+
+
+class Card:
+    def __init__(self, name, techtype, weakness, resistance, image_path):
+        self.name = name
+        self.techtype = techtype
+        self.weakness = weakness
+        self.resistance = resistance
+        self.image_path = image_path
+        self.HP = 15
+        self.alive = True
+    
+    def check_alive(self):
+        if self.HP <= 0:
+            self.HP = 0
+            self.alive = False
+
+    def attack(self, offense_card):
+        damage = 3 # default value
+
+        # check strength/weakness and determine damage
+        if offense_card.techtype == self.resistance:
+            damage = damage - 1
+        if offense_card.techtype == self.weakness:
+            damage = damage + 1
+        # take damage and return the damage amount
+        self.take_damage(damage)
+        return damage
+
+    def take_damage(self, damage):
+        self.HP = self.HP - damage
+        self.check_alive()
+
+class Player:
+    def __init__(self):
+        self.HAND = [] # array of cards
+        self.name = ""
+        self.current_card = 0
+        self.active = True
+
+    def choose_card(self, chosen_card):
+        if not HAND[chosen_card].check_alive():
+            # TODO add method to find alive card just in case
+            return
+        self.current_card = chosen_card
+    
+    def refresh_hand(self):
+        cur = 0
+        for card in self.HAND:
+            if not card.alive:
+                self.HAND.pop(cur)
+            cur += 1
+        if len(self.HAND) == 0:
+            self.active = False
+
 
 #constants for screen
 WINDOW_WIDTH = 800
@@ -262,10 +283,11 @@ clock = pygame.time.Clock()
 class Data:
     # coin = Object(Image("Assets/CoinFlip.png")) - will need to be spritesheet object
     # card1 = Object(Image("Assets/AnnieConda.png"))
-    CARDIMG = Image('Assets/AnnieConda_300.png')
+
     CARD2IMG = Image('Assets/BayoWolf_300.png')
     insignia = pygame.image.load(get_file('Assets/TypePython.png'))
 
+    CARDIMG = Image('Assets/AnnieConda_300.png')
     CARD_R = Object(CARDIMG)
     CARD_R.__setattr__("location", CARD_L_POS)
     CARD_R.__setattr__("sprite", CARDIMG)
@@ -280,14 +302,14 @@ def initialize(WINDOW):
     MY.coin.location = WINDOW / 2
     MY.card1.location = WINDOW / 4
 
-def draw_screen(message="", p1_hp=15, p2_hp=15):
+def draw_screen(p1, p2, message=""):
     SCREEN.fill(BLUE)
     SCREEN.blit(BACKGROUND_IMAGE, (0,0))
     draw_dialog_box()
     populate_dialog_box(message)
-    draw_active_cards()
-    draw_inactive_cards()
-    draw_healthbars(p1_hp, p2_hp)
+    draw_active_cards(p1, p2)
+    draw_inactive_cards(p1, p2)
+    draw_healthbars(p1, p2)
     draw_coin_flip_button()
     pygame.display.update()
 
@@ -315,17 +337,52 @@ def populate_dialog_box(message):
         y = y + 25
 
 # draw active cards and health bars
-def draw_active_cards():
+def draw_active_cards(p1, p2):
+    # TODO get cards from player's hand
+    # p1_card, p2_card = get_current_card(p1, p2)
+    # p1_card.draw(SCREEN)
+    # p2_card.draw(SCREEN)
     MY.CARD_R.draw(SCREEN)
     MY.CARD_L.draw(SCREEN)
 
-# draw inactive cards
-def draw_inactive_cards():
-    SCREEN.blit(MY.insignia, (35,475))
-    cards_in_hand = cardshand_font.render("Paul Python", True, BLACK)
-    SCREEN.blit(cards_in_hand, (60, 475))
+def get_current_card(p1, p2):
+    p1_card = p1.HAND[p1.current_card]
+    p1_card_img = Image(p1_card_img.image_path)
+    p1_card_obj = Object(p1_card_img)
+    p1_card_obj.__setattr__("location", CARD_L_POS)
+    p1_card_obj.__setattr__("sprite", p1_card_img)
+    p2_card = p2.HAND[p2.current_card]
+    p2_card_img = Image(p2_card.image_path)
+    p2_card_obj = Object(p2_card_img)
+    p2_card_obj.__setattr__("location", CARD_R_POS)
+    p2_card_obj.__setattr__("sprite", p2_card_img)
+    return p1_card_obj, p2_card_obj
 
-def draw_healthbars(p1_hp, p2_hp):
+# draw inactive cards
+def draw_inactive_cards(p1, p2):
+    # TODO skip current card
+    L_pos_x, L_pos_y = 35, 475
+    for card in p1.HAND:
+        name = card.name
+        SCREEN.blit(MY.insignia, (L_pos_x,L_pos_y))
+        card_name = cardshand_font.render(name, True, BLACK)
+        name_x = L_pos_x + 25
+        name_y = L_pos_y + 3
+        SCREEN.blit(card_name, (name_x, name_y))
+        L_pos_y = L_pos_y + 25
+    R_pos_x, R_pos_y = 535, 475
+    for card in p2.HAND:
+        name = card.name
+        SCREEN.blit(MY.insignia, (R_pos_x,R_pos_y))
+        card_name = cardshand_font.render(name, True, BLACK)
+        name_x = R_pos_x + 25
+        name_y = R_pos_y + 3
+        SCREEN.blit(card_name, (name_x, name_y))
+        R_pos_y = R_pos_y + 25
+
+def draw_healthbars(p1, p2):
+    p1_hp = p1.HAND[p1.current_card].HP
+    p2_hp = p2.HAND[p2.current_card].HP
     p1_hp_pos = (25,50)
     p2_hp_pos = (525,50)
     width, height = 250, 25
@@ -343,6 +400,7 @@ def draw_healthbars(p1_hp, p2_hp):
 def draw_coin_flip_button():
     coin_click = coin_font.render("flip the coin.", True, BLACK)
     SCREEN.blit(coin_click, (300,500))
+    # use sprite when coin flip animation resized
     
 
 def coin_flip_click():

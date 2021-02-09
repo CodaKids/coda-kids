@@ -2,53 +2,7 @@ from init import *
 import random
 
 DECK = []
-
-class Player:
-    def __init__(self):
-        self.HAND = []
-        self.name = ""
-        self.current_card = 0
-        self.active = True
-    
-    def refresh_hand(self):
-        for card in self.HAND:
-            if card.alive == False:
-                self.HAND.remove(card)
-        if len(self.HAND) == 0:
-            self.active = False
-
-class Card:
-    def __init__(self, name, techtype, weakness, resistance, image_path):
-        self.name = name
-        self.techtype = techtype
-        self.weakness = weakness
-        self.resistance = resistance
-        self.image_path = image_path
-        self.HP = 15
-        self.alive = True
-    
-    def check_alive(self):
-        if self.HP <= 0:
-            self.HP = 0
-            self.alive = False
-
-    def attack(self, offense_card):
-        damage = 3 # default value
-
-        # check strength/weakness and determine damage
-        if offense_card.techtype == self.resistance:
-            damage = damage - 1
-        if offense_card.techtype == self.weakness:
-            damage = damage + 1
-        # take damage and return the damage amount
-        self.take_damage(damage)
-        return damage
-
-    def take_damage(self, damage):
-        self.HP = self.HP - damage
-        self.check_alive()
-    
-
+# Move to Data class????
 annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "assets/AnnieConda.png")
 bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "assets/BayoWolf.png")
 captain_javo = Card('Captain Java', 'java', 'scratch', 'python', "assets/CaptainJavo.png")
@@ -73,9 +27,11 @@ woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "assets
 #create player
 player_one = Player()
 player_one.name = "P1"
+# TODO add screen to get players' names
 player_two = Player()
 player_two.name = "P2"
 
+# Move all of this to Data class in init??? makes more sense logically
 #add all cards to deck
 DECK.append(annie_conda)
 DECK.append(bayo_wolf)
@@ -98,7 +54,6 @@ DECK.append(virobotica)
 DECK.append(virobots)
 DECK.append(woodchuck_norris)
 
-#deal half of the cards to each player, randomly
 # default version is that each character gets 3 randomly chosen cards
 # challenge version could be that they program choosing their cards? or each gets half the deck
 random.shuffle(DECK)
@@ -111,9 +66,6 @@ player_two.HAND = DECK[3:6]
 running = True
 turn = 1
 
-import IncrediCodersBattleCards_Solution
-# Manager.register(IncrediCodersBattleCards_Solution)
-
 def flip_coin():
     return "heads" if random.randint(0,1) == 1 else "tails"
 
@@ -122,16 +74,6 @@ def get_active_player(turn):
         return player_one, player_two  
     else:
         return player_two, player_one
-
-def display_game_state():
-    print("player one's hand, {} cards".format(len(player_one.HAND)))
-    for card in player_one.HAND:
-        print("Card {} HP {}".format(card.name, card.HP))
-    print("player two's hand, {} cards".format(len(player_two.HAND)))
-    for card in player_two.HAND:
-        print("Card {} HP {}".format(card.name, card.HP))
-    player_one.refresh_hand()
-    player_two.refresh_hand()
 
 def check_game_end():
     # check status of both players, if one player surviving then end the game
@@ -148,7 +90,7 @@ def victory(player):
     print("Player {} has won the game!".format(player.name))
 
 def add_to_message(msg, text_add):
-    text = textwrap.wrap(text_add, 25)
+    text = textwrap.wrap(text_add, 22)
     for line in text:
         msg += line + "\n"
     return msg
@@ -161,7 +103,7 @@ def check_cards(player):
 
 # Run the game
 
-draw_screen()
+draw_screen(player_one, player_two)
 
 #Game loop below
 
@@ -191,45 +133,34 @@ while running:
             if coin_click_rect.collidepoint(mouse_position):
                 offense, defense = get_active_player(turn)
 
-                # show turn and current player in dialog box
+                # add pieces of message together to show in dialog box
                 message = ""
-                # message += "TURN {}\n".format(turn)
-                message = add_to_message(message, "TURN {}".format(turn))
-                # message += "{}\n".format("*"*30)
-                message = add_to_message(message, "*"*25)
-                # message += "Current Player: {}\n".format(offense.name)
+                message = add_to_message(message, "ROUND {}".format(turn))
+                message = add_to_message(message, "*"*22)
                 message = add_to_message(message, "Current Player: {}".format(offense.name))
                 
                 # flip the coin
                 coin = flip_coin()
-                # message += "Coin toss: {}\n".format(coin)
                 message = add_to_message(message, "Coin toss: {}".format(coin))
-                # message += "OUTCOME\n"
-                # message += "{}\n".format("*"*30)
 
-                # show result of the turn in dialog box
+                # add result of the turn to dialog box message
                 if coin == 'heads':
                     damage = defense.HAND[defense.current_card].attack(offense.HAND[offense.current_card])
-                    # message += "{} took {} damage\n".format(defense.HAND[defense.current_card].name, damage)
                     message = add_to_message(message, "{} took {} damage\n".format(defense.HAND[defense.current_card].name, damage))
-
                 else:
-                    # message += "{} took no damage\n".format(defense.HAND[defense.current_card].name)
                     message = add_to_message(message, "{} took no damage\n".format(defense.HAND[defense.current_card].name))
 
                 # dialog box shows turn result
-                draw_screen(message, player_one.HAND[player_one.current_card].HP, player_two.HAND[player_two.current_card].HP)
-                check_cards(player_one)
-                check_cards(player_two)
+                draw_screen(player_one, player_two, message)
+                player_one.refresh_hand()
+                player_two.refresh_hand()
 
                 if check_game_end():
                     running = False
+                    # TODO render some victory graphic?
+                    # TODO ask to play again before closing
                 turn = turn + 1
 
-
-    # how does resistance/weakness work? 
-        # resistance = half damage? how can you do half damage if 1 damage dealt?
-        # weakness = double damage? 
 
     #Player picks card they would like to attack. 
         # how do they pick?? can they see entire hand? how to display cards?
@@ -251,7 +182,6 @@ while running:
     #Depending on results of coin, damage is dealt to that card.
     #TODO: implement specific attacks based on the cards
     #If card health < 1, card is killed
-        # do cards do floating damage points or only ints?
         
     #If player has no cards left, player loses
     #Change player turn to the other player
