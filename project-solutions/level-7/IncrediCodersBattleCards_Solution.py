@@ -1,6 +1,48 @@
 from init import *
 import random
 
+def flip_coin():
+    return "Heads" if random.randint(0,1) == 1 else "Tails"
+
+def get_active_player(turn):
+    # TODO change logic when coinflip determines first player
+    # use player.active_turn
+    if turn%2 == 1:
+        player_one.active_turn = True
+        player_two.active_turn = False
+        return player_one, player_two  
+    else:
+        player_one.active_turn = False
+        player_two.active_turn = True
+        return player_two, player_one
+
+def check_game_end():
+    # check status of both players, if one player surviving then end the game
+    if player_one.active == False:
+        victory(player_two)
+        return True
+    elif player_two.active == False:
+        victory(player_one)
+        return True
+    return False
+
+def victory(player):
+    # display victor - TODO: render victory on screen
+    print("Player {} has won the game!".format(player.name))
+
+def add_to_message(msg, text_add):
+    # TODO play with max width, may not need to be 22 once font is smaller
+    text = textwrap.wrap(text_add, 30)
+    for line in text:
+        msg += line + "\n"
+    return msg
+    
+def check_cards(player):
+    if not player.HAND[player.current_card].alive:
+        player.current_card += 1
+    if player.current_card > 2: # TODO need to update this logic for other scenarios
+        player.active = False
+
 DECK = []
 # Move to Data class????
 annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "assets/AnnieConda.png")
@@ -9,7 +51,7 @@ captain_javo = Card('Captain Java', 'java', 'scratch', 'python', "assets/Captain
 cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'turtle', "assets/CrypticCreeper.png")
 emily_airheart = Card('Emily Airheart', 'turtle', 'bash', 'scratch', "assets/EmilyAirHeart.png")
 grafika_turtle = Card('Grafika Turtle', 'turtle', 'bash', 'scratch', "assets/GrafikaTurtle.png")
-intelli_scents = Card('Intelli Scents', 'scratch', 'turtle', 'java', "assets/IntelliScents.png")
+intelli_scents = Card('Intelli-Scents', 'scratch', 'turtle', 'java', "assets/IntelliScents.png")
 java_lynn = Card('Java Lynn', 'java', 'scratch', 'python', "assets/JavaLynn.png")
 jitter_bug = Card('Jitter Bug', 'java', 'scratch', 'python', "assets/JitterBug.png")
 justin_timbersnake = Card('Justin Timbersnake', 'python', 'java', 'bash', "assets/JustinTimbersnake.png")
@@ -23,13 +65,6 @@ viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', "assets/ViralMuto.png
 virobotica = Card('Virobotica', 'bash', 'python', 'turtle', "assets/Virobotica.png")
 virobots = Card('Virobots', 'bash', 'python', 'turtle', "assets/Virobots.png")
 woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "assets/WoodchuckNorris.png")
-
-#create player
-player_one = Player()
-player_one.name = "P1"
-# TODO add screen to get players' names
-player_two = Player()
-player_two.name = "P2"
 
 # Move all of this to Data class in init??? makes more sense logically
 #add all cards to deck
@@ -57,6 +92,22 @@ DECK.append(woodchuck_norris)
 # default version is that each character gets 3 randomly chosen cards
 # challenge version could be that they program choosing their cards? or each gets half the deck
 random.shuffle(DECK)
+
+# Intro Screen - Enter player names
+p1_name, p2_name = draw_name_screen()
+
+# skip intro screen for debugging
+# p1_name, p2_name = "p1", "p2"
+
+#create player
+player_one = Player()
+player_one.name = p1_name
+# TODO coin toss to determine who goes first, for now set P1 first
+player_one.active_turn = True
+
+player_two = Player()
+player_two.name = p2_name
+
 # player_one.HAND = DECK[:int(len(DECK)/2)]
 # player_two.HAND = DECK[int(len(DECK)/2):]
 player_one.HAND = DECK[:3]
@@ -66,50 +117,13 @@ player_two.HAND = DECK[3:6]
 running = True
 turn = 1
 
-def flip_coin():
-    return "heads" if random.randint(0,1) == 1 else "tails"
-
-def get_active_player(turn):
-    if turn%2 == 1:
-        return player_one, player_two  
-    else:
-        return player_two, player_one
-
-def check_game_end():
-    # check status of both players, if one player surviving then end the game
-    if player_one.active == False:
-        victory(player_two)
-        return True
-    elif player_two.active == False:
-        victory(player_one)
-        return True
-    return False
-
-def victory(player):
-    # display victor - TODO: render victory on screen
-    print("Player {} has won the game!".format(player.name))
-
-def add_to_message(msg, text_add):
-    text = textwrap.wrap(text_add, 22)
-    for line in text:
-        msg += line + "\n"
-    return msg
-    
-def check_cards(player):
-    if not player.HAND[player.current_card].alive:
-        player.current_card += 1
-    if player.current_card > 2: # TODO need to update this logic for other scenarios
-        player.active = False
-
-# Run the game
-
-draw_screen(player_one, player_two)
-
-#Game loop below
-
 # pick cards before game loop? see display_intro_screen() in level 3
 # choose_hand()
 
+# Run the game
+draw_screen(player_one, player_two)
+
+# Game loop below
 while running: 
     clock.tick(60)
     for event in pygame.event.get():
@@ -118,7 +132,7 @@ while running:
         
         # draw/update screen
         # draw_screen()
-        coin_click_rect = coin_flip_click()
+        coin_button_rect = draw_coin_flip_button()
 
         # turn for each character:
         # choose attack (safe or risk) - only advanced, "big hit" is default
@@ -130,25 +144,29 @@ while running:
         mouse_position = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
             
-            if coin_click_rect.collidepoint(mouse_position):
+            if coin_button_rect.collidepoint(mouse_position):
                 offense, defense = get_active_player(turn)
+                offense_card = offense.HAND[offense.current_card]
+                defense_card = defense.HAND[defense.current_card]
 
                 # add pieces of message together to show in dialog box
                 message = ""
-                message = add_to_message(message, "ROUND {}".format(turn))
-                message = add_to_message(message, "*"*22)
-                message = add_to_message(message, "Current Player: {}".format(offense.name))
+                message = add_to_message(message, "{}".format(turn))
+                message = add_to_message(message, "{}".format(offense.name))
                 
                 # flip the coin
                 coin = flip_coin()
-                message = add_to_message(message, "Coin toss: {}".format(coin))
+                message = add_to_message(message, "{}".format(coin))
 
                 # add result of the turn to dialog box message
-                if coin == 'heads':
-                    damage = defense.HAND[defense.current_card].attack(offense.HAND[offense.current_card])
-                    message = add_to_message(message, "{} took {} damage\n".format(defense.HAND[defense.current_card].name, damage))
+                if coin == 'Heads':
+                    damage = defense_card.attack(offense_card)
+                    s_flag = "" if offense_card.name.endswith('s') == 1 else "s"
+                    turn_msg = "{} took {} damage from {}'{} attack\n".format(defense_card.name, damage, offense_card.name, s_flag)
+                    message = add_to_message(message, turn_msg)
                 else:
-                    message = add_to_message(message, "{} took no damage\n".format(defense.HAND[defense.current_card].name))
+                    turn_msg = "{} took no damage from {}\n".format(defense_card.name, offense_card.name)
+                    message = add_to_message(message, turn_msg)
 
                 # dialog box shows turn result
                 draw_screen(player_one, player_two, message)
