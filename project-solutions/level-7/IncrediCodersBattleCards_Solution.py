@@ -93,11 +93,13 @@ DECK.append(woodchuck_norris)
 # challenge version could be that they program choosing their cards? or each gets half the deck
 random.shuffle(DECK)
 
+# draw_title_screen()
+
 # Intro Screen - Enter player names
-p1_name, p2_name = draw_name_screen()
+# p1_name, p2_name = draw_name_screen()
 
 # skip intro screen for debugging
-# p1_name, p2_name = "p1", "p2"
+p1_name, p2_name = "p1", "p2"
 
 #create player
 player_one = Player()

@@ -268,23 +268,34 @@ class Player:
 
 
 #constants for screen
-WINDOW_WIDTH = 800
-WINDOW_LENGTH = 600
+WINDOW_WIDTH = 1000
+X_CENTER = WINDOW_WIDTH // 2
+WINDOW_LENGTH = 700
+Y_CENTER = WINDOW_LENGTH // 2
+CENTER_COORD = (X_CENTER, Y_CENTER)
 WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
 SCREEN = start(WINDOW, "IncrediCards")
 BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/Table.png") 
-CARD_L_POS = pygame.math.Vector2(150,275)
-CARD_R_POS = pygame.math.Vector2(650,275)
+TITLE_IMAGE = pygame.image.load("project-solutions/level-7/Assets/title_screen_test_wide.png") 
+CARD_L_POS = pygame.math.Vector2(200,300)
+CARD_R_POS = pygame.math.Vector2(800,300)
 bold_font = pygame.font.SysFont('Arial', 35)
 coin_font = pygame.font.SysFont('Arial', 25)
-round_font = pygame.font.SysFont('Arial', 20, True)
+round_font = pygame.font.SysFont('Arial', 25, True)
 dialog_font = pygame.font.SysFont('Arial', 14)
 dialog_bold = pygame.font.SysFont('Arial', 14, True)
 status_font = pygame.font.SysFont('Arial', 12)
 cardshand_font = pygame.font.SysFont('Arial', 16, True)
-ondeck_font = pygame.font.SysFont('Arial', 20, True)
+ondeck_font = pygame.font.SysFont('Arial', 14, True)
 
 clock = pygame.time.Clock()
+# TODO maybe place all rects for drawing screen elements here instead
+# List of Rects:
+# name screen overlay, text entry box
+# card/shadow box and position, active player boxes
+# on deck box, inactive cards
+# dialog box
+
 
 class Data:
     # coin = Object(Image("Assets/CoinFlip.png")) - will need to be spritesheet object
@@ -304,6 +315,38 @@ MY = Data()
 def initialize(WINDOW):
     MY.coin.location = WINDOW / 2
 
+def draw_title_screen():
+    running = True
+    while running:
+        clock.tick(60)
+        SCREEN.fill(BLUE)
+        SCREEN.blit(BACKGROUND_IMAGE, (0,0))
+        SCREEN.blit(TITLE_IMAGE, (0,0))
+
+        button_pos = (425, 200)
+        button_color = (220,90,25) # orange
+        button_border_color = (170,45,10) # red-orange
+        pygame.draw.rect(SCREEN, button_color, (button_pos, (150,40)), 0, 3)
+        pygame.draw.rect(SCREEN, button_border_color, (button_pos, (150,40)), 3, 3)
+
+        highlight = pygame.Surface((140,9))
+        highlight.set_alpha(40)
+        highlight.fill(WHITE)
+        SCREEN.blit(highlight, (430,206))
+
+        start_click = round_font.render("START", True, WHITE)
+        text_pos = (455, 207)
+        SCREEN.blit(start_click, text_pos)
+        start_click_rect = start_click.get_rect(topleft=text_pos)
+
+        for event in pygame.event.get():
+            mouse_pos = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_click_rect.collidepoint(mouse_pos):
+                    running = False  
+            pygame.display.update()
+    return
+
 def draw_name_screen():
     SCREEN.fill(BLUE)
     SCREEN.blit(BACKGROUND_IMAGE, (0,0))
@@ -313,9 +356,14 @@ def draw_name_screen():
 
 def get_name(current_player):
     clock = pygame.time.Clock()
-    input_box = pygame.Rect(290, 175, 300, 50)
-    # color_inactive = pygame.Color('lightskyblue3')
-    # color_active = pygame.Color('dodgerblue2')
+    input_box = pygame.Rect(390, 375, 300, 50)
+
+    dialog_surface = pygame.Surface((600,250))
+    dialog_rect = dialog_surface.get_rect(center=CENTER_COORD)
+    dialog_surface.set_alpha(200)
+    dialog_surface.fill(WHITE)
+    SCREEN.blit(dialog_surface, dialog_rect)
+
     color_inactive = (10,55,35)
     color_active = (60,0,200)
     color = color_inactive
@@ -323,13 +371,16 @@ def get_name(current_player):
     text = ''
     done = False
     prompt_1 = "Click in the box to type in the"
-    prompt_2 = "name for {} and press enter.".format(current_player)
+    prompt_2 = "name for {} and press Enter.".format(current_player)
+    
+    prompt1_pos = (255, 125)
+    prompt2_pos = (230, 175)
     prompt1_surface = bold_font.render(prompt_1, True, BLACK)
-    prompt1_pos = (160, 250)
-    prompt2_pos = (135, 300)
     prompt2_surface = bold_font.render(prompt_2, True, BLACK)
-    SCREEN.blit(prompt1_surface, prompt1_pos)
-    SCREEN.blit(prompt2_surface, prompt2_pos)
+    text_rect = prompt1_surface.get_rect(center=(X_CENTER,275))
+    text_rect2 = prompt2_surface.get_rect(center=(X_CENTER,325))
+    SCREEN.blit(prompt1_surface, text_rect)
+    SCREEN.blit(prompt2_surface, text_rect2)
     # add other instructions?
 
     while not done:
@@ -355,8 +406,9 @@ def get_name(current_player):
                         text += event.unicode
 
         SCREEN.blit(BACKGROUND_IMAGE, (0,0))
-        SCREEN.blit(prompt1_surface, prompt1_pos)
-        SCREEN.blit(prompt2_surface, prompt2_pos)
+        SCREEN.blit(dialog_surface, dialog_rect)
+        SCREEN.blit(prompt1_surface, text_rect)
+        SCREEN.blit(prompt2_surface, text_rect2)
         pygame.draw.rect(SCREEN, WHITE, input_box)
         txt_surface = bold_font.render(text, True, color)
         # Resize the box if the text is too long.
@@ -380,22 +432,19 @@ def draw_screen(p1, p2, message=""):
     draw_coin_flip_button()
     pygame.display.update()
 
-def cleanup():
-    print("clean up")   
-
 # draw screen - composed of:
 # draw dialog box
 def draw_dialog_box():
     dialog_surface = pygame.Surface((200,350))
+    dialog_rect = dialog_surface.get_rect(center = (X_CENTER,300))
     dialog_surface.set_alpha(200)
     dialog_surface.fill(WHITE)
-    SCREEN.blit(dialog_surface, (300, 100))
+    SCREEN.blit(dialog_surface, dialog_rect)
 
 def populate_dialog_box(message):
     if message == "":
         return
-    round_color = (65,0,75)
-    div_color = (55,0,85)
+    round_color = (0,20,110) # dark blue
 
     lines = message.splitlines()
     rd = "ROUND {}".format(lines[0])
@@ -404,22 +453,23 @@ def populate_dialog_box(message):
     status = lines[3:]
     # render Round Number
     round_num = round_font.render(rd, True, round_color)
-    SCREEN.blit(round_num, (340, 145))
+    round_surf = round_num.get_rect(center=(WINDOW_WIDTH//2,170))
+    SCREEN.blit(round_num, round_surf)
     # render line separator
-    pygame.draw.rect(SCREEN, div_color, ((305,180), (190,4)))
+    pygame.draw.rect(SCREEN, round_color, ((405,200), (190,3)))
     # render current player
     current_player = dialog_bold.render("Current Player:", True, BLACK)
-    SCREEN.blit(current_player, (310, 220))
+    SCREEN.blit(current_player, (410, 240))
     player_name = dialog_font.render(player, True, BLACK)
-    SCREEN.blit(player_name, (325, 250))
+    SCREEN.blit(player_name, (425, 270))
     # render Coin Toss
     coin_toss = dialog_bold.render("Coin Toss:", True, BLACK)
-    SCREEN.blit(coin_toss, (310, 280))
+    SCREEN.blit(coin_toss, (410, 300))
     coin_result = dialog_font.render(coin, True, BLACK)
-    SCREEN.blit(coin_result, (400, 280))
+    SCREEN.blit(coin_result, (500, 300))
     # render turn result - may be over multiple lines
-    x = 310
-    y = 330
+    x = 410
+    y = 350
     for line in status:
         dlg_pos = (x,y)
         dlg_line = status_font.render(line, True, (BLACK))
@@ -427,24 +477,29 @@ def populate_dialog_box(message):
         y = y + 20
 
 def draw_active_player(p1, p2):
-    active_color = (65,255,210)
-    active_box_size = (285,465)
-    active_box_pos_L = (10,7)
-    active_box_pos_R = (510,7)
+    active_color = (65,255,210) # light cyan
+    active_box_size = (355,665)
+    active_box_size_s = (350,660)
+    active_box_pos_L = (23,17)
+    active_box_pos_R = (X_CENTER+123,17)
+    active_box_pos_L_s = (25,19)
+    active_box_pos_R_s = (X_CENTER+125,19)
     
     active_surface = pygame.Surface(active_box_size)
     active_surface.set_alpha(75)
     active_surface.fill(active_color)
+    active_surface_s = pygame.Surface(active_box_size_s)
+    active_surface_s.set_alpha(75)
+    active_surface_s.fill(active_color)
 
     if p1.active_turn:
         # draw left active box
         pygame.draw.rect(SCREEN, active_color, (active_box_pos_L, active_box_size), 3, 10)
-        # SCREEN.blit(active_surface, active_box_pos_L)
+        SCREEN.blit(active_surface_s, active_box_pos_L_s)
     else:
         # draw right active box
         pygame.draw.rect(SCREEN, active_color, (active_box_pos_R, active_box_size), 3, 10)
-        # SCREEN.blit(active_surface, active_box_pos_R)
-
+        SCREEN.blit(active_surface_s, active_box_pos_R_s)
 
 # draw active cards and health bars
 def draw_active_cards(p1, p2):
@@ -452,8 +507,8 @@ def draw_active_cards(p1, p2):
     shadow_surface = pygame.Surface((270,375))
     shadow_surface.set_alpha(50)
     shadow_surface.fill(BLACK)
-    shadow_l_pos = (20,92)
-    shadow_r_pos = (520,92)
+    shadow_l_pos = (70,117)
+    shadow_r_pos = (X_CENTER+170,117)
     SCREEN.blit(shadow_surface, shadow_l_pos)
     SCREEN.blit(shadow_surface, shadow_r_pos)
 
@@ -482,15 +537,13 @@ def draw_inactive_cards(p1, p2):
     draw_on_deck_boxes()
 
     card_box_size = (200,25)
-    # card_box_color = (160,185,255)
-    card_box_color = (255,240,225)
-    card_box_b_color = (35,180,145)
+    card_box_color = (255,240,225) # blue green
+    card_box_b_color = (35,180,145) # dark blue
     card_surface = pygame.Surface(card_box_size)
     card_surface.set_alpha(150)
     card_surface.fill(card_box_color)
-    # SCREEN.blit(deck_surface, l_box_pos)
 
-    L_pos_x, L_pos_y = 40, 505
+    L_pos_x, L_pos_y = 102, 560
     for card in p1.HAND:
         if card == p1.HAND[p1.current_card]:
             continue
@@ -498,15 +551,14 @@ def draw_inactive_cards(p1, p2):
         box_y = L_pos_y - 1
         pygame.draw.rect(SCREEN, card_box_color, ((box_x,box_y), card_box_size), 0, 8)
         pygame.draw.rect(SCREEN, card_box_b_color, ((box_x,box_y), card_box_size), 1, 8)
-        # SCREEN.blit(card_surface, (box_x, box_y))
         name = card.name
         SCREEN.blit(MY.insignia, (L_pos_x,L_pos_y))
         card_name = cardshand_font.render(name, True, BLACK)
         name_x = L_pos_x + 25
         name_y = L_pos_y + 3
         SCREEN.blit(card_name, (name_x, name_y))
-        L_pos_y = L_pos_y + 30
-    R_pos_x, R_pos_y = 540, 505
+        L_pos_y = L_pos_y + 32
+    R_pos_x, R_pos_y = 702, 560
     for card in p2.HAND:
         if card == p2.HAND[p2.current_card]:
             continue
@@ -514,49 +566,49 @@ def draw_inactive_cards(p1, p2):
         box_y = R_pos_y - 1
         pygame.draw.rect(SCREEN, card_box_color, ((box_x,box_y), card_box_size), 0, 8)
         pygame.draw.rect(SCREEN, card_box_b_color, ((box_x,box_y), card_box_size), 1, 8)
-        # SCREEN.blit(card_surface, (box_x, box_y))
         name = card.name
         SCREEN.blit(MY.insignia, (R_pos_x,R_pos_y))
         card_name = cardshand_font.render(name, True, BLACK)
         name_x = R_pos_x + 25
         name_y = R_pos_y + 3
         SCREEN.blit(card_name, (name_x, name_y))
-        R_pos_y = R_pos_y + 30
+        R_pos_y = R_pos_y + 32
 
 def draw_on_deck_boxes():
     box_size = (250,100)
-    l_box_pos = (25, 495)
-    r_box_pos = (525, 495)
-    deck_color = (160,185,255)
+    l_box_pos = (75, 552)
+    r_box_pos = (675, 552)
+    deck_color = (0,130,200)
     deck_border_color = (0,20,70)
-    text_color = (0,10,40)
+    text_color = (0,20,110)
     
     deck_surface = pygame.Surface(box_size)
-    deck_surface.set_alpha(100)
+    deck_surface.set_alpha(85)
     deck_surface.fill(deck_color)
     SCREEN.blit(deck_surface, l_box_pos)
-    # SCREEN.blit(deck_surface, r_box_pos)
-    # pygame.draw.rect(SCREEN, deck_color, (l_box_pos, box_size), 0, 3)
+    SCREEN.blit(deck_surface, r_box_pos)
     pygame.draw.rect(SCREEN, deck_border_color, (l_box_pos, box_size), 2, 3)
     pygame.draw.rect(SCREEN, deck_border_color, (r_box_pos, box_size), 2, 3)
     on_deck = ondeck_font.render("ON DECK", True, text_color)
-    od_l_pos = (95, 470)
-    od_r_pos = (595, 470)
+
+    od_l_pos = (165, 525)
+    od_r_pos = (765, 525)
     SCREEN.blit(on_deck, od_l_pos)
     SCREEN.blit(on_deck, od_r_pos)
 
 def draw_healthbars(p1, p2):
-    p1_x = 25
-    p2_x = 525
+    p1_x = 68
+    p_y = 20
+    p2_x = X_CENTER + p1_x + 100
     p1_name = bold_font.render(p1.name, True, BLACK)
-    SCREEN.blit(p1_name, (p1_x, 10))
+    SCREEN.blit(p1_name, (p1_x, p_y))
     p2_name = bold_font.render(p2.name, True, BLACK)
-    SCREEN.blit(p2_name, (p2_x, 10))
+    SCREEN.blit(p2_name, (p2_x, p_y))
     p1_hp = p1.HAND[p1.current_card].HP
     p2_hp = p2.HAND[p2.current_card].HP
-    p1_hp_pos = (p1_x,50)
-    p2_hp_pos = (p2_x,50)
-    width, height = 250, 25
+    p1_hp_pos = (p1_x,p_y+50)
+    p2_hp_pos = (p2_x,p_y+50)
+    width, height = 265, 25
     hb_size = (width, height)
     red = (150,20,10)
     green = (60,210,70)
@@ -577,8 +629,8 @@ def draw_healthbars(p1, p2):
     pygame.draw.rect(SCREEN, p2_color, (p2_hp_pos, (p2_bar,height)), 0, 2)
     # add highlight to healthbars
     p1_hl_w = p1_bar-10 if (p1_bar-10)>0 else 0
-    p1_hl_pos = (p1_x+5, 52)
-    p2_hl_pos = (p2_x+5, 52)
+    p1_hl_pos = (p1_x+5, p_y+52)
+    p2_hl_pos = (p2_x+5, p_y+52)
     p1_hl_size = (p1_hl_w,height/3)
     p1_hl = pygame.Surface(p1_hl_size)
     p1_hl.set_alpha(75)
@@ -592,22 +644,30 @@ def draw_healthbars(p1, p2):
     SCREEN.blit(p2_hl, p2_hl_pos)
     grey = (65,65,65)
     p1_health = dialog_font.render("{}/15".format(p1_hp), True, grey)
-    SCREEN.blit(p1_health, (p1_x+5, 55))
+    SCREEN.blit(p1_health, (p1_x+5, p_y+55))
     p2_health = dialog_font.render("{}/15".format(p2_hp), True, grey)
-    SCREEN.blit(p2_health, (p2_x+5, 55))
+    SCREEN.blit(p2_health, (p2_x+5, p_y+55))
 
 # draw coin flip button and text
 def draw_coin_flip_button():
-    coin_button_pos = (315, 545)
-    coin_button_color = (25,0,55)
+    coin_x, coin_y = X_CENTER-85, 585
+    coin_button_pos = (coin_x, coin_y)
+    coin_button_color = (230,200,35)
     # coin_button_border_color = (0,30,135)
-    coin_button_border_color = (115,0,110)
+    coin_button_border_color = (210,125,0)
     pygame.draw.rect(SCREEN, coin_button_color, (coin_button_pos, (170,40)), 0, 3)
     pygame.draw.rect(SCREEN, coin_button_border_color, (coin_button_pos, (170,40)), 3, 3)
-    coin_click = coin_font.render("Flip the Coin!", True, WHITE)
-    coin_text_pos = (325, 550)
+
+    highlight = pygame.Surface((160,9))
+    highlight.set_alpha(110)
+    highlight.fill(WHITE)
+    SCREEN.blit(highlight, (coin_x+5,coin_y+4))
+
+    coin_click = coin_font.render("Flip the Coin!", True, BLACK)
+    coin_text_pos = (coin_x+11, coin_y+5)
     SCREEN.blit(coin_click, coin_text_pos)
-    coin_click_rect = coin_click.get_rect(topleft=coin_text_pos)
+    coin_click_rect = coin_click.get_rect(topleft=coin_text_pos)    
+
     return coin_click_rect
     # use sprite when coin flip animation resized
     
