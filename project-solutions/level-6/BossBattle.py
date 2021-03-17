@@ -13,10 +13,10 @@ def update(delta_time):
     if MY.player.location.y > WINDOW_LENGTH - (MY.wall_height + 20):
         MY.player.location.y = WINDOW_LENGTH - (MY.wall_height + 20)
 
-    '''if MY.player.collides_with(MY.boss):
+    if MY.player.collides_with(MY.boss):
         player_pain_anim()
         MY.player_health -= 1
-        MY.player_hitbox.active = False'''
+        MY.player_hitbox.active = False
 
     if MY.player_dir == UP:
         MY.player_hitbox.location = pygame.math.Vector2(

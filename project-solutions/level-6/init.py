@@ -84,6 +84,28 @@ def health_bar(screen, health, max_health, max_size, location):
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
 
+def screen_wrap(obj, window):
+    """Wraps a given framework object around the screen, returns true if object is at edge."""
+    flag = False
+
+    # Wrap X direction
+    if obj.location.x > window.x:
+        obj.location.x = 0
+        flag = True
+    elif obj.location.x < 0:
+        obj.location.x = window.x
+        flag = True
+
+    # Wrap Y direction
+    if obj.location.y > window.y:
+        obj.location.y = 0
+        flag = True
+    elif obj.location.y < 0:
+        obj.location.y = window.y
+        flag = True
+
+    return flag
+
 def key_down(event, key):
     """
     Checks if the keyboard key is pressed.
@@ -614,44 +636,54 @@ class Data:
     is_boss_attacking = False
     #miscellaneous data
     wall_height = 45
+    pillar_top_1 = Object(Image("assets/PillarTop.png"))
+    pillar_bottom_1 = Object(Image("assets/PillarBottom.png"))
+    pillar_top_2 = Object(Image("assets/PillarTop.png"))
+    pillar_bottom_2 = Object(Image("assets/PillarBottom.png"))
+    pillar_top_3 = Object(Image("assets/PillarTop.png"))
+    pillar_bottom_3 = Object(Image("assets/PillarBottom.png"))
+    pillar_top_4 = Object(Image("assets/PillarTop.png"))
+    pillar_bottom_4 = Object(Image("assets/PillarBottom.png"))
     projectile_sheet = SpriteSheet("assets/PlasmaBall.png", (32, 32))
     projectile_anim = Animator(projectile_sheet, 6)
     projectile = Object(projectile_sheet.image_at(0))
     numberOfprojectiles = 0
     projectiles = []
-    projectile_owner = []
     state = 0
     last_state = 2
     index = 0
     game_over_sheet = SpriteSheet("assets/GameOverOverlay.png", (800, 600))
-    game_over = Animator(game_over_sheet, 10, False)
+    game_over = Animator(game_over_sheet, 0.75, False)
     you_win_sheet = SpriteSheet("assets/YouWinOverlay.png", (800, 600))
-    you_win = Animator(you_win_sheet, 10, False)
+    you_win = Animator(you_win_sheet, 0.75, False)
     ending_overlay = Object(game_over_sheet.image_at(0))
-    #ending_overlay_event = pygame.USEREVENT
-    restart_button = Object(Image("assets/Projectile.png"))
+    restart_button = Object(Image("assets/PlayAgain.png"))
     
 MY = Data()
 
 def initialize(window):
     """Initializes the game play class."""
     MY.background.location = window / 2
+    MY.pillar_top_1.location = (window.x / 2, 300)
+    MY.pillar_top_2.location = (window.x / 2, 535)
+    MY.pillar_top_3.location = (753, 300)
+    MY.pillar_top_4.location = (753, 535)
+    #MY.pillar_bottom_1.location = (window.x / 2, 300)
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
-    pygame.time.set_timer(MY.boss_attack_event, 1000)
-    #pygame.time.set_timer(MY.ending_overlay_event, 0)
+    pygame.time.set_timer(MY.boss_attack_event, 100)
     count = 0
     while count < 20:
         proj = Object(PROJECTILE_IMAGE)
         proj.location = (window.x / 2, window.y/ 2 - 35)
         proj.sprite = MY.projectile_anim
         MY.projectiles.append(proj)
-        MY.projectile_owner.append(BOSS)
         count += 1
 
 def draw(screen):
     """Draws the state to the given screen for BossBattle."""
     MY.background.draw(screen)
+    #MY.pillar_bottom_1.draw(screen)
     MY.player.draw(screen)
     if MY.player_hitbox.active:
         MY.player_hitbox.draw(screen)
@@ -661,6 +693,10 @@ def draw(screen):
             MY.projectiles[i].draw(screen)
 
     MY.boss.draw(screen)
+    MY.pillar_top_1.draw(screen)
+    MY.pillar_top_2.draw(screen)
+    MY.pillar_top_3.draw(screen)
+    MY.pillar_top_4.draw(screen)
     MY.player_text.draw(screen)
     health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
     health_bar(
@@ -742,33 +778,37 @@ def player_move_update(delta_time):
         MY.player_dir = RIGHT
         MY.player.sprite = MY.walk_right
 
-def fire_projectile():
+def fire_projectile(delta_time):
     """Updates animations for player while attacking"""
     count = -1
+    rand_x = random.randint(-5, 5) * 100
+    rand_y = random.randint(-5, 5) * 100
     for projectile in MY.projectiles:
         count += 1
         if projectile.active:
-            if MY.projectile_owner[count] == BOSS and projectile.collides_with(MY.player):
+            projectile.update(delta_time)
+            '''projectile.location.x += rand_x * delta_time
+            projectile.location.y += rand_y * delta_time
+            if projectile.location.x < MY.wall_height or projectile.location.x > WINDOW_WIDTH - MY.wall_height or projectile.location.y < MY.wall_height or projectile.location.y > WINDOW_LENGTH - (MY.wall_height + 20):
+                projectile.active = False
+                continue'''
+            if projectile.collides_with(MY.player):
                 MY.player_health -= 0.1
                 player_pain_anim()
                 projectile.active = False
                 continue
 
-def boss_explosion_update():
+def boss_attack(delta_time):
     """shoot out lots of projectiles."""
-    num_projectiles = 15
+    num_projectiles = 20
     count = 0
     while count < num_projectiles:
         MY.projectiles[count].active = True
-        fire_projectile()
+        fire_projectile(delta_time)
         count += 1
 
-def boss_attack():
-    """if rand.randint(0, 1) == 0:
-        boss_explosion_update(delta_time)
-    else:
-        boss_rotation_update(delta_time)"""
-    boss_explosion_update()
+def move(projectile):
+    pass
 
 def update_assets(delta_time):
     # background
@@ -785,7 +825,7 @@ def update_assets(delta_time):
         MY.boss.sprite = MY.boss_pain
     elif MY.is_boss_attacking:
         MY.boss.sprite = MY.boss_attack
-        boss_attack()
+        boss_attack(delta_time)
         for p in MY.projectiles:
             p.update(delta_time)
     else:
@@ -796,7 +836,7 @@ def check_win():
     """Check win condition and change state if a player has won the game"""
     if MY.boss_health < 1:
         Manager.current = 1
-        MY.state = 1
+        MY.state = 2
         MY.ending_overlay = Object(MY.you_win_sheet.image_at(0))
     elif MY.player_health < 1:
         Manager.current = 1
@@ -810,18 +850,18 @@ class GameOver:
 
     def initialize(window):
         """Initializes the restart menu state."""
-        MY.ending_overlay.location = window / 2
-        MY.restart_button.location = window / 2
         pygame.time.set_timer(MY.boss_attack_event, 0)
-        #pygame.time.set_timer(MY.ending_overlay_event, 200)
+        MY.ending_overlay.location = window / 2
+        #MY.restart_button.location = window / 2
 
     def update(delta_time):
         """Updates the restart menu state."""
         if MY.boss_health <= 0:
-            you_win_anim()
+            MY.ending_overlay.sprite = MY.you_win
         else:
-            game_over_anim()
-        #pygame.time.set_timer(MY.ending_overlay_event, 0)
+            MY.ending_overlay.sprite = MY.game_over
+        MY.background.update(delta_time)
+        MY.ending_overlay.update(delta_time)
         check_ending_events()
 
     def cleanup():
@@ -830,11 +870,8 @@ class GameOver:
 
     def draw(screen):
         """Draws the restart menu state."""
+        MY.background.draw(screen)
+        MY.player.draw(screen)
+        MY.boss.draw(screen)
         MY.ending_overlay.draw(screen)
-        MY.restart_button.draw(screen)
-
-def you_win_anim():
-    MY.ending_overlay.sprite = MY.you_win
-
-def game_over_anim():
-    MY.ending_overlay.sprite = MY.game_over
+        #MY.restart_button.draw(screen)
