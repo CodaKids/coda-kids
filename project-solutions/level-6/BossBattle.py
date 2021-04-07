@@ -1,4 +1,4 @@
-"""Runs the Init.py file and imports the libraries"""
+#Runs the Init.py file and imports the libraries
 import BossBattle
 from init import *
 
@@ -8,11 +8,14 @@ def update(delta_time):
         MY.player.location.x = MY.wall_height
     if MY.player.location.x > WINDOW_WIDTH - MY.wall_height:
         MY.player.location.x = WINDOW_WIDTH - MY.wall_height
+    #TODO: Uncomment Lines 12-13 to make sure that Paul doesn't walk through the wall on the top of the screen
     if MY.player.location.y < MY.wall_height:
         MY.player.location.y = MY.wall_height
+    #TODO: Copy the code here to make sure that Paul doesn't walk through the wall on the bottom of the screen
     if MY.player.location.y > WINDOW_LENGTH - (MY.wall_height + 20):
         MY.player.location.y = WINDOW_LENGTH - (MY.wall_height + 20)
 
+    #TODO: Copy the code here for Paul to lose health if he collides with the Creeper
     if MY.player.collides_with(MY.boss):
         player_pain_anim()
         MY.player_health -= 1
