@@ -5,33 +5,30 @@ def flip_coin():
     return "Heads" if random.randint(0,1) == 1 else "Tails"
 
 def get_active_player(turn):
-    # TODO change logic when coinflip determines first player
-    # use player.active_turn
-    if turn%2 == 1:
-        player_one.active_turn = True
-        player_two.active_turn = False
+    if player_one.active_turn == True:
         return player_one, player_two  
     else:
-        player_one.active_turn = False
-        player_two.active_turn = True
         return player_two, player_one
+
+def switch_active_player(offense, defense):
+    offense.active_turn = False
+    defense.active_turn = True
 
 def check_game_end():
     # check status of both players, if one player surviving then end the game
     if player_one.active == False:
-        victory(player_two)
-        return True
+        exiting = victory(player_two)
+        if not exiting:
+            reset_game(player_one, player_two)
+        return exiting
     elif player_two.active == False:
-        victory(player_one)
-        return True
+        exiting = victory(player_one)
+        if not exiting:
+            reset_game(player_one, player_two)
+        return exiting
     return False
 
-def victory(player):
-    # display victor - TODO: render victory on screen
-    print("Player {} has won the game!".format(player.name))
-
 def add_to_message(msg, text_add):
-    # TODO play with max width, may not need to be 22 once font is smaller
     text = textwrap.wrap(text_add, 30)
     for line in text:
         msg += line + "\n"
@@ -43,87 +40,61 @@ def check_cards(player):
     if player.current_card > 2: # TODO need to update this logic for other scenarios
         player.active = False
 
-DECK = []
-# Move to Data class????
-annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "assets/AnnieConda.png")
-bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "assets/BayoWolf.png")
-captain_javo = Card('Captain Java', 'java', 'scratch', 'python', "assets/CaptainJavo.png")
-cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'turtle', "assets/CrypticCreeper.png")
-emily_airheart = Card('Emily Airheart', 'turtle', 'bash', 'scratch', "assets/EmilyAirHeart.png")
-grafika_turtle = Card('Grafika Turtle', 'turtle', 'bash', 'scratch', "assets/GrafikaTurtle.png")
-intelli_scents = Card('Intelli-Scents', 'scratch', 'turtle', 'java', "assets/IntelliScents.png")
-java_lynn = Card('Java Lynn', 'java', 'scratch', 'python', "assets/JavaLynn.png")
-jitter_bug = Card('Jitter Bug', 'java', 'scratch', 'python', "assets/JitterBug.png")
-justin_timbersnake = Card('Justin Timbersnake', 'python', 'java', 'bash', "assets/JustinTimbersnake.png")
-mrs_scratcher = Card('Mrs. Scratcher', 'scratch', 'turtle', 'java', "assets/MrsScratcher.png")
-paul_python = Card('Paul Python', 'python', 'java', 'bash', "assets/PaulPython.png")
-queen_cobra = Card('Queen Cobra', 'python', 'java', 'bash', "assets/QueenCobra.png")
-ram_rom = Card('Ram Rom', 'java', 'scratch', 'python', "assets/RAMROM.png")
-sidewinder = Card('Sidewinder', 'python', 'java', 'bash', "assets/SideWinder.png")
-syntax_turtle = Card('Syntax Turtle', 'turtle', 'bash', 'scratch', "assets/SyntaxTurtle.png")
-viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', "assets/ViralMuto.png")
-virobotica = Card('Virobotica', 'bash', 'python', 'turtle', "assets/Virobotica.png")
-virobots = Card('Virobots', 'bash', 'python', 'turtle', "assets/Virobots.png")
-woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "assets/WoodchuckNorris.png")
+def reset_game(p1, p2):
+    # Reset cards
+    reset_cards()
 
-# Move all of this to Data class in init??? makes more sense logically
-#add all cards to deck
-DECK.append(annie_conda)
-DECK.append(bayo_wolf)
-DECK.append(captain_javo)
-DECK.append(cryptic_creeper)
-DECK.append(emily_airheart)
-DECK.append(grafika_turtle)
-DECK.append(intelli_scents)
-DECK.append(java_lynn)
-DECK.append(jitter_bug)
-DECK.append(justin_timbersnake)
-DECK.append(mrs_scratcher)
-DECK.append(paul_python)
-DECK.append(queen_cobra)
-DECK.append(ram_rom)
-DECK.append(sidewinder)
-DECK.append(syntax_turtle)
-DECK.append(viralmuto)
-DECK.append(virobotica)
-DECK.append(virobots)
-DECK.append(woodchuck_norris)
+    # reshuffle deck
+    # default version is that each character gets 3 randomly chosen cards
+    # challenge version could be that they program choosing their cards? or each gets half the deck
+    random.shuffle(MY.DECK)
+    # Deal cards to players
+    p1.HAND = MY.DECK[:3]
+    p2.HAND = MY.DECK[3:6]
 
-# default version is that each character gets 3 randomly chosen cards
-# challenge version could be that they program choosing their cards? or each gets half the deck
-random.shuffle(DECK)
+    # Reset turn
+    MY.TURN = 0
 
-# draw_title_screen()
+    # Reset players
+    p1.active = True
+    p1.active_turn = False
+    p2.active = True
+    p2.active_turn = False
+
+    # Turn Coin Flip screen - flip a coin to see who goes first
+    active = draw_turn_flip_screen(p1.name, p2.name)
+    if active == p1_name:
+        p1.active_turn = True
+    elif active == p2_name:
+        p2.active_turn = True
+    
+    # Run the game
+    draw_screen(player_one, player_two)
+
+draw_title_screen()
 
 # Intro Screen - Enter player names
 # p1_name, p2_name = draw_name_screen()
 
-# skip intro screen for debugging
+# OPTIONAL skip name screen for debugging, comment out previous line/uncomment following line
 p1_name, p2_name = "p1", "p2"
 
-#create player
+# Create players and set active player
 player_one = Player()
 player_one.name = p1_name
-# TODO coin toss to determine who goes first, for now set P1 first
-player_one.active_turn = True
 
 player_two = Player()
 player_two.name = p2_name
 
-# player_one.HAND = DECK[:int(len(DECK)/2)]
-# player_two.HAND = DECK[int(len(DECK)/2):]
-player_one.HAND = DECK[:3]
-player_two.HAND = DECK[3:6]
+reset_game(player_one, player_two)
+
 # TODO add method to add the card objects to player decks for rendering, need new card images first
 
 running = True
-turn = 1
 
 # pick cards before game loop? see display_intro_screen() in level 3
 # choose_hand()
 
-# Run the game
-draw_screen(player_one, player_two)
 
 # Game loop below
 while running: 
@@ -132,8 +103,6 @@ while running:
         # Checks to see if player clicked close button on window
         check_stop(event)
         
-        # draw/update screen
-        # draw_screen()
         coin_button_rect = draw_coin_flip_button()
 
         # turn for each character:
@@ -147,13 +116,15 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             
             if coin_button_rect.collidepoint(mouse_position):
-                offense, defense = get_active_player(turn)
+                draw_coin_animation()
+                
+                offense, defense = get_active_player(MY.TURN)
                 offense_card = offense.HAND[offense.current_card]
                 defense_card = defense.HAND[defense.current_card]
 
                 # add pieces of message together to show in dialog box
                 message = ""
-                message = add_to_message(message, "{}".format(turn))
+                message = add_to_message(message, "{}".format(MY.TURN))
                 message = add_to_message(message, "{}".format(offense.name))
                 
                 # flip the coin
@@ -175,11 +146,13 @@ while running:
                 player_one.refresh_hand()
                 player_two.refresh_hand()
 
+                # Switch active player
+                switch_active_player(offense, defense)
+
                 if check_game_end():
                     running = False
                     # TODO render some victory graphic?
-                    # TODO ask to play again before closing
-                turn = turn + 1
+                MY.TURN = MY.TURN + 1
 
 
     #Player picks card they would like to attack. 
