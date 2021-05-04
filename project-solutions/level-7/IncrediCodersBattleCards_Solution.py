@@ -53,7 +53,7 @@ def reset_game(p1, p2):
     p2.HAND = MY.DECK[3:6]
 
     # Reset turn
-    MY.TURN = 0
+    MY.TURN = 1
 
     # Reset players
     p1.active = True
@@ -65,8 +65,12 @@ def reset_game(p1, p2):
     active = draw_turn_flip_screen(p1.name, p2.name)
     if active == p1_name:
         p1.active_turn = True
+        draw_choose_hand_screen(p1)
+        draw_choose_hand_screen(p2)
     elif active == p2_name:
         p2.active_turn = True
+        draw_choose_hand_screen(p2)
+        draw_choose_hand_screen(p1)
     
     # Run the game
     draw_screen(player_one, player_two)
@@ -102,13 +106,11 @@ while running:
     for event in pygame.event.get():
         # Checks to see if player clicked close button on window
         check_stop(event)
-        
         coin_button_rect = draw_coin_flip_button()
 
         # turn for each character:
         # choose attack (safe or risk) - only advanced, "big hit" is default
         # player clicks on attack
-
         # TODO player can choose which card to be active
 
         # player clicks on flip coin
@@ -145,6 +147,12 @@ while running:
                 draw_screen(player_one, player_two, message)
                 player_one.refresh_hand()
                 player_two.refresh_hand()
+                # p1_card_check = player_one.refresh_hand()
+                # if p1_card_check:
+                #     draw_choose_twocard_screen(player_one)
+                # p2_card_check = player_two.refresh_hand()
+                # if p2_card_check:
+                #     draw_choose_twocard_screen(player_two)
 
                 # Switch active player
                 switch_active_player(offense, defense)

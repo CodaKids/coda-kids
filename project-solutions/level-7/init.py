@@ -227,6 +227,7 @@ class Card:
         if self.HP <= 0:
             self.HP = 0
             self.alive = False
+            return False
 
     def attack(self, offense_card):
         damage = 3 # default value
@@ -253,9 +254,10 @@ class Player:
         self.active_turn = False
 
     def choose_card(self, chosen_card):
-        if not HAND[chosen_card].check_alive():
-            # TODO add method to find alive card just in case
-            return
+        # chosen_card is int index of card
+        # if not HAND[chosen_card].check_alive():
+        #     # TODO add method to find alive card just in case
+        #     return
         self.current_card = chosen_card
     
     def refresh_hand(self):
@@ -263,9 +265,13 @@ class Player:
         for card in self.HAND:
             if not card.alive:
                 self.HAND.pop(cur)
+                self.current_card = 0
+                if len(self.HAND) == 2:
+                    return True
+                if len(self.HAND) == 0:
+                    self.active = False
             cur += 1
-        if len(self.HAND) == 0:
-            self.active = False
+        return False
 
 
 #constants for screen
@@ -277,8 +283,7 @@ CENTER_COORD = (X_CENTER, Y_CENTER)
 WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
 SCREEN = start(WINDOW, "IncrediCards")
 BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/Table.png") 
-TITLE_IMAGE = pygame.image.load("project-solutions/level-7/Assets/title_screen_test_wide.png") 
-# COIN_STILL = pygame.image.load("project-solutions/level-7/Assets/CoinStill.png")
+TITLE_IMAGE = pygame.image.load("project-solutions/level-7/Assets/title_screen_wide_shadows.png") 
 CARD_L_POS = pygame.math.Vector2(200,305)
 CARD_R_POS = pygame.math.Vector2(800,305)
 bold_font = pygame.font.SysFont('Arial', 35)
@@ -300,36 +305,38 @@ clock = pygame.time.Clock()
 
 
 class Data:
-    # coin = Object(Image("Assets/CoinFlip.png")) - will need to be spritesheet object
     coin_sheet = SpriteSheet("Assets/CoinFlip03.png", (200,200))
     coin_anim = Animator(coin_sheet, 2)
     coin_obj = Object(coin_sheet.image_at(0))
     coin_obj.location = (X_CENTER, 450)
     # TODO need to dynamically assign cards/type insignias
     insignia = pygame.image.load(get_file('Assets/TypePython.png'))
+    card_shadow = pygame.Surface((300,421))
+    card_shadow.set_alpha(50)
+    card_shadow.fill(BLACK)
 
     TURN = 1
 
-    annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "assets/Annie_Highlight_02.png")
-    bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "assets/Bayo_Highlight_02.png")
-    captain_javo = Card('Captain Java', 'java', 'scratch', 'python', "assets/Cpt_Javo_Highlight_02.png")
-    cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'turtle', "assets/Creeper_Highlight_02.png")
-    emily_airheart = Card('Emily Airheart', 'turtle', 'bash', 'scratch', "assets/Emily_AirHeart_Highlight_02.png")
-    grafika_turtle = Card('Grafika Turtle', 'turtle', 'bash', 'scratch', "assets/Grafika_Highlight_02.png")
-    intelli_scents = Card('Intelli-Scents', 'scratch', 'turtle', 'java', "assets/Intelliscents_Highlight_02.png")
-    java_lynn = Card('Java Lynn', 'java', 'scratch', 'python', "assets/Java_Lynn_Highlight_02.png")
-    jitter_bug = Card('Jitter Bug', 'java', 'scratch', 'python', "assets/Jitter_Bug_Highlight_02.png")
-    justin_timbersnake = Card('Justin Timbersnake', 'python', 'java', 'bash', "assets/Justin_TSnake_Highlight_02.png")
-    mrs_scratcher = Card('Mrs. Scratcher', 'scratch', 'turtle', 'java', "assets/Scratcher_Highlight_02.png")
-    paul_python = Card('Paul Python', 'python', 'java', 'bash', "assets/Paul_Highlight_02.png")
-    queen_cobra = Card('Queen Cobra', 'python', 'java', 'bash', "assets/Queen_Cobra_Highlight_02.png")
-    ram_rom = Card('Ram Rom', 'java', 'scratch', 'python', "assets/RAM_ROM_Highlight_02.png")
-    sidewinder = Card('Sidewinder', 'python', 'java', 'bash', "assets/SideWinder_Highlight_02.png")
-    syntax_turtle = Card('Syntax Turtle', 'turtle', 'bash', 'scratch', "assets/Syntax_Highlight_02.png")
-    viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', "assets/ViralMuto_Highlight_02.png")
-    virobotica = Card('Virobotica', 'bash', 'python', 'turtle', "assets/Virobotica_Highlight_02.png")
-    virobots = Card('Virobots', 'bash', 'python', 'turtle', "assets/Virobots_Highlight_02.png")
-    woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "assets/Woodchuck_Highlight_02.png")
+    annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "Assets/Annie_Highlight_02.png")
+    bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "Assets/Bayo_Highlight_02.png")
+    captain_javo = Card('Captain Javo', 'java', 'scratch', 'python', "Assets/Cpt_Javo_Highlight_02.png")
+    cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'turtle', "Assets/Creeper_Highlight_02.png")
+    emily_airheart = Card('Emily Airheart', 'turtle', 'bash', 'scratch', "Assets/Emily_AirHeart_Highlight_02.png")
+    grafika_turtle = Card('Grafika Turtle', 'turtle', 'bash', 'scratch', "Assets/Grafika_Highlight_02.png")
+    intelli_scents = Card('Intelli-Scents', 'scratch', 'turtle', 'java', "Assets/Intelliscents_Highlight_02.png")
+    java_lynn = Card('Java Lynn', 'java', 'scratch', 'python', "Assets/Java_Lynn_Highlight_02.png")
+    jitter_bug = Card('Jitter Bug', 'java', 'scratch', 'python', "Assets/Jitter_Bug_Highlight_02.png")
+    justin_timbersnake = Card('Justin Timbersnake', 'python', 'java', 'bash', "Assets/Justin_TSnake_Highlight_02.png")
+    mrs_scratcher = Card('Mrs. Scratcher', 'scratch', 'turtle', 'java', "Assets/Scratcher_Highlight_02.png")
+    paul_python = Card('Paul Python', 'python', 'java', 'bash', "Assets/Paul_Highlight_02.png")
+    queen_cobra = Card('Queen Cobra', 'python', 'java', 'bash', "Assets/Queen_Cobra_Highlight_02.png")
+    ram_rom = Card('Ram Rom', 'java', 'scratch', 'python', "Assets/RAM_ROM_Highlight_02.png")
+    sidewinder = Card('Sidewinder', 'python', 'java', 'bash', "Assets/SideWinder_Highlight_02.png")
+    syntax_turtle = Card('Syntax Turtle', 'turtle', 'bash', 'scratch', "Assets/Syntax_Highlight_02.png")
+    viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', "Assets/ViralMuto_Highlight_02.png")
+    virobotica = Card('Virobotica', 'bash', 'python', 'turtle', "Assets/Virobotica_Highlight_02.png")
+    virobots = Card('Virobots', 'bash', 'python', 'turtle', "Assets/Virobots_Highlight_02.png")
+    woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "Assets/Woodchuck_Highlight_02.png")
 
     DECK = []
     #add all cards to deck
@@ -476,22 +483,23 @@ def draw_turn_flip_screen(p1_name, p2_name):
         SCREEN.blit(BACKGROUND_IMAGE, (0,0))
 
         # draw white box for instructions
-        instr_surface = pygame.Surface((550,100))
-        instr_rect = instr_surface.get_rect(center=(X_CENTER, 200))
+        instr_surface = pygame.Surface((600,200))
+        instr_rect = instr_surface.get_rect(center=(X_CENTER, 150))
         instr_surface.set_alpha(200)
         instr_surface.fill(WHITE)
         SCREEN.blit(instr_surface, instr_rect)
 
         # draw instructions
         instruction = bold_font.render("Flip to see who goes first!", True, BLACK)
-        instruction_rect = instruction.get_rect(center=(X_CENTER, 200))
+        instruction_rect = instruction.get_rect(center=(X_CENTER, 130))
         SCREEN.blit(instruction, instruction_rect)
+        instruction_b_text = "Heads for {}, tails for {}.".format(p1_name,p2_name)
+        instruction_b = bold_font.render(instruction_b_text, True, BLACK)
+        instruction_b_rect = instruction_b.get_rect(center=(X_CENTER, 170))
+        SCREEN.blit(instruction_b, instruction_b_rect)
 
         # draw coin flip button
         coin_rect = draw_coin_flip_button(415, 500)
-
-        # draw coin image - placeholder for now
-        # SCREEN.blit(COIN_STILL, (400, 275))
         MY.coin_obj.location = (X_CENTER, 375)
         MY.coin_obj.draw(SCREEN)
 
@@ -546,7 +554,69 @@ def draw_turn_flip_screen(p1_name, p2_name):
                     first_player = False  
                     return winner
             pygame.display.update()
-  
+
+def draw_choose_hand_screen(current_player):
+    # draw table
+    # draw cards in player's hand, vertical cascade on left hand side showing top part of cards (more flexibility for more than three cards in their hand)
+    # draw instructions on right hand side
+    # once a card is clicked, should we show the card? just the name of the card?
+    # set clicked card to first card in player's hand
+    running = True
+    while running:
+        clock.tick(60)
+        SCREEN.fill(BLUE)
+        SCREEN.blit(BACKGROUND_IMAGE, (0,0))
+
+        # draw white box for instructions
+        instr_surface = pygame.Surface((300,300))
+        instr_rect = instr_surface.get_rect(center=(800, 300))
+        instr_surface.set_alpha(200)
+        instr_surface.fill(WHITE)
+        SCREEN.blit(instr_surface, instr_rect)
+
+        # draw instructions
+        name = bold_font.render("{},".format(current_player.name), True, BLACK)
+        name_rect = name.get_rect(center=(800, 260))
+        SCREEN.blit(name, name_rect)
+
+        instruction = bold_font.render("Click on the card", True, BLACK)
+        instruction_rect = instruction.get_rect(center=(800, 300))
+        SCREEN.blit(instruction, instruction_rect)
+
+        instruction_b = bold_font.render("you want to use.", True, BLACK)
+        instruction_b_rect = instruction_b.get_rect(center=(800, 340))
+        SCREEN.blit(instruction_b, instruction_b_rect)
+
+        x, y = 200, 250
+        clickable_rects = []
+        for card in current_player.HAND:
+            card_pos = pygame.math.Vector2(x,y)
+            card_img = Image(card.image_path)
+            card_obj = Object(card_img)
+            card_obj.location = card_pos
+            r = card_obj.get_transformed_rect()
+            shadow_pos = (x-144, y-204)
+            SCREEN.blit(MY.card_shadow, shadow_pos)
+            card_obj.draw(SCREEN)
+            clickable_rects.append(r)
+            y = y + 100
+            x = x + 100
+
+        for event in pygame.event.get():
+            mouse_pos = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if clickable_rects[0].collidepoint(mouse_pos):
+                    current_player.choose_card(0)
+                    running = False  
+                if clickable_rects[1].collidepoint(mouse_pos):
+                    current_player.choose_card(1)
+                    running = False  
+                if clickable_rects[2].collidepoint(mouse_pos):
+                    current_player.choose_card(2)
+                    running = False  
+            pygame.display.update()
+    return
+
 def draw_screen(p1, p2, message=""):
     SCREEN.fill(BLUE)
     SCREEN.blit(BACKGROUND_IMAGE, (0,0))
@@ -562,7 +632,7 @@ def draw_screen(p1, p2, message=""):
     pygame.display.update()
 
 def draw_dialog_box():
-    dialog_surface = pygame.Surface((200,350))
+    dialog_surface = pygame.Surface((200,320))
     dialog_rect = dialog_surface.get_rect(center = (X_CENTER,250))
     dialog_surface.set_alpha(200)
     dialog_surface.fill(WHITE)
@@ -570,6 +640,16 @@ def draw_dialog_box():
 
 def populate_dialog_box(message):
     if message == "":
+        # round 0, display initial instructions in box instead
+        inst1 = dialog_bold.render("First Player: click", True, BLACK)
+        i1_surf = inst1.get_rect(center=(WINDOW_WIDTH//2,170))
+        SCREEN.blit(inst1, i1_surf)
+        inst2 = dialog_bold.render("the button below to", True, BLACK)
+        i2_surf = inst2.get_rect(center=(WINDOW_WIDTH//2,190))
+        SCREEN.blit(inst2, i2_surf)
+        inst3 = dialog_bold.render("start the game!", True, BLACK)
+        i3_surf = inst3.get_rect(center=(WINDOW_WIDTH//2,210))
+        SCREEN.blit(inst3, i3_surf)
         return
     round_color = (0,20,110) # dark blue
 
@@ -631,30 +711,26 @@ def draw_active_player(p1, p2):
 # draw active cards and health bars
 def draw_active_cards(p1, p2):
     # draw shadow first
-    shadow_surface = pygame.Surface((300,421))
-    shadow_surface.set_alpha(50)
-    shadow_surface.fill(BLACK)
     shadow_l_pos = (57,102)
     shadow_r_pos = (X_CENTER+157,102)
-    SCREEN.blit(shadow_surface, shadow_l_pos)
-    SCREEN.blit(shadow_surface, shadow_r_pos)
+    SCREEN.blit(MY.card_shadow, shadow_l_pos)
+    SCREEN.blit(MY.card_shadow, shadow_r_pos)
 
-    p1_card, p2_card = get_current_card(p1, p2)
+    p1_card = get_current_card(p1, "L")
+    p2_card = get_current_card(p2, "R")
     p1_card.draw(SCREEN)
     p2_card.draw(SCREEN)
 
-def get_current_card(p1, p2):
-    p1_card = p1.HAND[p1.current_card]
-    p1_card_img = Image(p1_card.image_path)
-    p1_card_obj = Object(p1_card_img)
-    p1_card_obj.__setattr__("location", CARD_L_POS)
-    p1_card_obj.__setattr__("sprite", p1_card_img)
-    p2_card = p2.HAND[p2.current_card]
-    p2_card_img = Image(p2_card.image_path)
-    p2_card_obj = Object(p2_card_img)
-    p2_card_obj.__setattr__("location", CARD_R_POS)
-    p2_card_obj.__setattr__("sprite", p2_card_img)
-    return p1_card_obj, p2_card_obj
+def get_current_card(player, side):
+    p_card = player.HAND[player.current_card]
+    p_card_img = Image(p_card.image_path)
+    p_card_obj = Object(p_card_img)
+    if side == "L":
+        p_card_obj.__setattr__("location", CARD_L_POS)
+    else:
+        p_card_obj.__setattr__("location", CARD_R_POS)
+    p_card_obj.__setattr__("sprite", p_card_img)
+    return p_card_obj
 
 # draw inactive cards
 def draw_inactive_cards(p1, p2):
