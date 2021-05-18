@@ -213,65 +213,65 @@ class Object:
 
 
 
-class Card:
-    def __init__(self, name, techtype, weakness, resistance, image_path):
-        self.name = name
-        self.techtype = techtype
-        self.weakness = weakness
-        self.resistance = resistance
-        self.image_path = image_path
-        self.HP = 15
-        self.alive = True
+# class Card:
+#     def __init__(self, name, techtype, weakness, resistance, image_path):
+#         self.name = name
+#         self.techtype = techtype
+#         self.weakness = weakness
+#         self.resistance = resistance
+#         self.image_path = image_path
+#         self.HP = 15
+#         self.alive = True
     
-    def check_alive(self):
-        if self.HP <= 0:
-            self.HP = 0
-            self.alive = False
-            return False
+#     def check_alive(self):
+#         if self.HP <= 0:
+#             self.HP = 0
+#             self.alive = False
+#             return False
 
-    def attack(self, offense_card):
-        damage = 3 # default value
+#     def attack(self, offense_card):
+#         damage = 3 # default value
 
-        # check strength/weakness and determine damage
-        if offense_card.techtype == self.resistance:
-            damage = damage - 1
-        if offense_card.techtype == self.weakness:
-            damage = damage + 1
-        # take damage and return the damage amount
-        self.take_damage(damage)
-        return damage
+#         # check strength/weakness and determine damage
+#         if offense_card.techtype == self.resistance:
+#             damage = damage - 1
+#         if offense_card.techtype == self.weakness:
+#             damage = damage + 1
+#         # take damage and return the damage amount
+#         self.take_damage(damage)
+#         return damage
 
-    def take_damage(self, damage):
-        self.HP = self.HP - damage
-        self.check_alive()
+#     def take_damage(self, damage):
+#         self.HP = self.HP - damage
+#         self.check_alive()
 
-class Player:
-    def __init__(self):
-        self.HAND = [] # array of cards
-        self.name = ""
-        self.current_card = 0
-        self.active = True
-        self.active_turn = False
+# class Player:
+#     def __init__(self):
+#         self.HAND = [] # array of cards
+#         self.name = ""
+#         self.current_card = 0
+#         self.active = True
+#         self.active_turn = False
 
-    def choose_card(self, chosen_card):
-        # chosen_card is int index of card
-        # if not HAND[chosen_card].check_alive():
-        #     # TODO add method to find alive card just in case
-        #     return
-        self.current_card = chosen_card
+#     def choose_card(self, chosen_card):
+#         # chosen_card is int index of card
+#         # if not HAND[chosen_card].check_alive():
+#         #     # TODO add method to find alive card just in case
+#         #     return
+#         self.current_card = chosen_card
     
-    def refresh_hand(self):
-        cur = 0
-        for card in self.HAND:
-            if not card.alive:
-                self.HAND.pop(cur)
-                self.current_card = 0
-                if len(self.HAND) == 2:
-                    return True
-                if len(self.HAND) == 0:
-                    self.active = False
-            cur += 1
-        return False
+#     def refresh_hand(self):
+#         cur = 0
+#         for card in self.HAND:
+#             if not card.alive:
+#                 self.HAND.pop(cur)
+#                 self.current_card = 0
+#                 if len(self.HAND) == 2:
+#                     return True
+#                 if len(self.HAND) == 0:
+#                     self.active = False
+#             cur += 1
+#         return False
 
 
 #constants for screen
@@ -335,56 +335,7 @@ class Data:
 
     TURN = 1
 
-    annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "Assets/Annie_Highlight_02.png")
-    bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "Assets/Bayo_Highlight_02.png")
-    captain_javo = Card('Captain Javo', 'java', 'scratch', 'python', "Assets/Cpt_Javo_Highlight_02.png")
-    cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'turtle', "Assets/Creeper_Highlight_02.png")
-    emily_airheart = Card('Emily Airheart', 'turtle', 'bash', 'scratch', "Assets/Emily_AirHeart_Highlight_02.png")
-    grafika_turtle = Card('Grafika Turtle', 'turtle', 'bash', 'scratch', "Assets/Grafika_Highlight_02.png")
-    intelli_scents = Card('Intelli-Scents', 'scratch', 'turtle', 'java', "Assets/Intelliscents_Highlight_02.png")
-    java_lynn = Card('Java Lynn', 'java', 'scratch', 'python', "Assets/Java_Lynn_Highlight_02.png")
-    jitter_bug = Card('Jitter Bug', 'java', 'scratch', 'python', "Assets/Jitter_Bug_Highlight_02.png")
-    justin_timbersnake = Card('Justin Timbersnake', 'python', 'java', 'bash', "Assets/Justin_TSnake_Highlight_02.png")
-    mrs_scratcher = Card('Mrs. Scratcher', 'scratch', 'turtle', 'java', "Assets/Scratcher_Highlight_02.png")
-    paul_python = Card('Paul Python', 'python', 'java', 'bash', "Assets/Paul_Highlight_02.png")
-    queen_cobra = Card('Queen Cobra', 'python', 'java', 'bash', "Assets/Queen_Cobra_Highlight_02.png")
-    ram_rom = Card('Ram Rom', 'java', 'scratch', 'python', "Assets/RAM_ROM_Highlight_02.png")
-    sidewinder = Card('Sidewinder', 'python', 'java', 'bash', "Assets/SideWinder_Highlight_02.png")
-    syntax_turtle = Card('Syntax Turtle', 'turtle', 'bash', 'scratch', "Assets/Syntax_Highlight_02.png")
-    viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', "Assets/ViralMuto_Highlight_02.png")
-    virobotica = Card('Virobotica', 'bash', 'python', 'turtle', "Assets/Virobotica_Highlight_02.png")
-    virobots = Card('Virobots', 'bash', 'python', 'turtle', "Assets/Virobots_Highlight_02.png")
-    woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "Assets/Woodchuck_Highlight_02.png")
-
-    DECK = []
-    #add all cards to deck
-    DECK.append(annie_conda)
-    DECK.append(bayo_wolf)
-    DECK.append(captain_javo)
-    DECK.append(cryptic_creeper)
-    DECK.append(emily_airheart)
-    DECK.append(grafika_turtle)
-    DECK.append(intelli_scents)
-    DECK.append(java_lynn)
-    DECK.append(jitter_bug)
-    DECK.append(justin_timbersnake)
-    DECK.append(mrs_scratcher)
-    DECK.append(paul_python)
-    DECK.append(queen_cobra)
-    DECK.append(ram_rom)
-    DECK.append(sidewinder)
-    DECK.append(syntax_turtle)
-    DECK.append(viralmuto)
-    DECK.append(virobotica)
-    DECK.append(virobots)
-    DECK.append(woodchuck_norris)
-
 MY = Data()
-
-def reset_cards():
-    for card in MY.DECK:
-        card.HP = 15
-        card.alive = True
 
 def fill_screen():
     clock.tick(60)
@@ -404,20 +355,7 @@ def draw_title_screen():
         fill_screen()
         SCREEN.blit(TITLE_IMAGE, (0,0))
 
-        # draw_button(button_orange, button_red_orange, "START", 150, 40, 425, 200, round_font)
-        button_pos = (425, 200)
-        pygame.draw.rect(SCREEN, button_orange, (button_pos, (150,40)), 0, 3)
-        pygame.draw.rect(SCREEN, button_red_orange, (button_pos, (150,40)), 3, 3)
-
-        highlight = pygame.Surface((140,9))
-        highlight.set_alpha(70)
-        highlight.fill(WHITE)
-        SCREEN.blit(highlight, (430,206))
-
-        start_click = round_font.render("START", True, WHITE)
-        text_pos = (455, 207)
-        SCREEN.blit(start_click, text_pos)
-        start_click_rect = start_click.get_rect(topleft=text_pos)
+        start_click_rect = draw_button(button_orange, button_red_orange, "START", 150, 40, 425, 200, WHITE, round_font)
 
         for event in pygame.event.get():
             mouse_pos = pygame.mouse.get_pos()
@@ -528,17 +466,6 @@ def draw_turn_flip_screen(p1_name, p2_name):
         fill_screen()
 
         # draw start button
-        # button_pos = (425, 400)
-        # pygame.draw.rect(SCREEN, button_orange, (button_pos, (150,40)), 0, 3)
-        # pygame.draw.rect(SCREEN, button_red_orange, (button_pos, (150,40)), 3, 3)
-        # highlight = pygame.Surface((140,9))
-        # highlight.set_alpha(70)
-        # highlight.fill(WHITE)
-        # SCREEN.blit(highlight, (430,406))
-        # start_click = round_font.render("START", True, WHITE)
-        # start_pos = (455, 407)
-        # SCREEN.blit(start_click, start_pos)
-        # start_click_rect = start_click.get_rect(topleft=start_pos)
         start_click_rect = draw_button(button_orange, button_red_orange, "START", 150, 40, 425,400, WHITE, round_font)
 
         # draw white box for visual clarity
@@ -630,9 +557,9 @@ def draw_screen(p1, p2, message=""):
 def populate_dialog_box(message, position):
     if message == "":
         # round 0, display initial instructions in box instead
-        instructions = "Click the button to flip the coin and roll for a default attack, or click the Tech Type Attack button to use the card's special attack!"
+        instructions = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses. Or click Coded Attack to do 1 damage. Flip the coin - heads will do your card's special move!"
         text = textwrap.wrap(instructions, 25)
-        pos_y = 150
+        pos_y = 80
         for line in text:
             inst_line = dialog_bold.render(line, True, BLACK)
             inst_surf = inst_line.get_rect(center=(WINDOW_WIDTH//2,pos_y))
@@ -837,7 +764,7 @@ def draw_coin_flip_button(x=X_CENTER-85, y=625):
 
 def draw_button(button_color, button_outline, button_text, width, height, x, y, font_color = BLACK, font=button_font):
     button_pos = (x, y)
-    pygame.draw.rect(SCREEN, button_color, (button_pos, (width,height)), 0, 3)
+    button_rect = pygame.draw.rect(SCREEN, button_color, (button_pos, (width,height)), 0, 3)
     pygame.draw.rect(SCREEN, button_outline, (button_pos, (width,height)), 3, 3)
 
     highlight = pygame.Surface((width-10,height/5))
@@ -846,9 +773,10 @@ def draw_button(button_color, button_outline, button_text, width, height, x, y, 
     SCREEN.blit(highlight, (x+5,y+5))
 
     button_click = font.render(button_text, True, font_color)
-    text_pos = (x+10, y+5)
-    SCREEN.blit(button_click, text_pos)
-    click_rect = button_click.get_rect(topleft=text_pos)    
+    text_rect = button_click.get_rect()
+    text_rect.center = button_rect.center
+    SCREEN.blit(button_click, text_rect)
+    click_rect = button_click.get_rect(topleft=button_pos)    
 
     return click_rect
 
@@ -879,31 +807,11 @@ def victory(player):
         SCREEN.blit(victor_msg, victor_msg_rect)
 
         # play again button
-        play_again_button_pos = (260, 400)
-        pygame.draw.rect(SCREEN, button_orange, (play_again_button_pos, (200,40)), 0, 3)
-        pygame.draw.rect(SCREEN, button_red_orange, (play_again_button_pos, (200,40)), 3, 3)
-        again_highlight = pygame.Surface((190,9))
-        again_highlight.set_alpha(70)
-        again_highlight.fill(WHITE)
-        SCREEN.blit(again_highlight, (265,406))
-        play_again_click = round_font.render("Play Again?", True, WHITE)
-        again_pos = (280, 407)
-        SCREEN.blit(play_again_click, again_pos)
-        play_again_rect = play_again_click.get_rect(topleft=again_pos)
-
+        play_again_rect = draw_button(button_orange, button_red_orange, "Play Again?", 200, 40, 260, 400, WHITE, round_font)
+        
         # exit button
-        exit_button_pos = (600, 400)
-        pygame.draw.rect(SCREEN, button_orange, (exit_button_pos, (100,40)), 0, 3)
-        pygame.draw.rect(SCREEN, button_red_orange, (exit_button_pos, (100,40)), 3, 3)
-        exit_highlight = pygame.Surface((90,9))
-        exit_highlight.set_alpha(70)
-        exit_highlight.fill(WHITE)
-        SCREEN.blit(exit_highlight, (605, 406))
-        exit_click = round_font.render("Exit", True, WHITE)
-        exit_pos = (622, 407)
-        SCREEN.blit(exit_click, exit_pos)
-        exit_rect = exit_click.get_rect(topleft=exit_pos)
-
+        exit_rect = draw_button(button_orange, button_red_orange, "Exit", 100, 40, 600, 400, WHITE, round_font)
+        
         for event in pygame.event.get():
             mouse_pos = pygame.mouse.get_pos()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -919,3 +827,20 @@ def victory(player):
     # print("Player {} has won the game!".format(player.name))
     # # return true if play again button pressed, else return false
     # return True
+
+def switch_active_player(offense, defense):
+    offense.active_turn = False
+    defense.active_turn = True
+
+def get_active_player(player_one, player_two):
+    if player_one.active_turn:
+        return player_one, player_two  
+    else:
+        return player_two, player_one
+
+def add_to_message(msg, text_add):
+    # Helper method to build game dialog messages and wrap over lines
+    text = textwrap.wrap(text_add, 30)
+    for line in text:
+        msg += line + "\n"
+    return msg
