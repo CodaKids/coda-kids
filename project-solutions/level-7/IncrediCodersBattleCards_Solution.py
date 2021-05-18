@@ -1,20 +1,118 @@
 from init import *
-import random
+
+class Card:
+    def __init__(self, name, techtype, weakness, resistance, image_path):
+        self.name = name
+        self.techtype = techtype
+        self.weakness = weakness
+        self.resistance = resistance
+        self.image_path = image_path
+        self.HP = 15
+        self.alive = True
+    
+    def check_alive(self):
+        if self.HP <= 0:
+            self.HP = 0
+            self.alive = False
+            return False
+
+    def attack(self, offense_card):
+        damage = 3 # default value
+
+        # check strength/weakness and determine damage
+        if offense_card.techtype == self.resistance:
+            damage = damage - 1
+        if offense_card.techtype == self.weakness:
+            damage = damage + 1
+        # take damage and return the damage amount
+        self.take_damage(damage)
+        return damage
+
+    def take_damage(self, damage):
+        self.HP = self.HP - damage
+        self.check_alive()
+
+class Player:
+    def __init__(self):
+        self.HAND = [] # array of cards
+        self.name = ""
+        self.current_card = 0
+        self.active = True
+        self.active_turn = False
+
+    def choose_card(self, chosen_card):
+        # chosen_card is int index of card
+        # if not HAND[chosen_card].check_alive():
+        #     # TODO add method to find alive card just in case
+        #     return
+        self.current_card = chosen_card
+    
+    def refresh_hand(self):
+        cur = 0
+        for card in self.HAND:
+            if not card.alive:
+                self.HAND.pop(cur)
+                self.current_card = 0
+                if len(self.HAND) == 2:
+                    return True
+                if len(self.HAND) == 0:
+                    self.active = False
+            cur += 1
+        return False
+        
+annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "Assets/Annie_Highlight_02.png")
+bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "Assets/Bayo_Highlight_02.png")
+captain_javo = Card('Captain Javo', 'java', 'scratch', 'python', "Assets/Cpt_Javo_Highlight_02.png")
+cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'turtle', "Assets/Creeper_Highlight_02.png")
+emily_airheart = Card('Emily Airheart', 'turtle', 'bash', 'scratch', "Assets/Emily_AirHeart_Highlight_02.png")
+grafika_turtle = Card('Grafika Turtle', 'turtle', 'bash', 'scratch', "Assets/Grafika_Highlight_02.png")
+intelli_scents = Card('Intelli-Scents', 'scratch', 'turtle', 'java', "Assets/Intelliscents_Highlight_02.png")
+java_lynn = Card('Java Lynn', 'java', 'scratch', 'python', "Assets/Java_Lynn_Highlight_02.png")
+jitter_bug = Card('Jitter Bug', 'java', 'scratch', 'python', "Assets/Jitter_Bug_Highlight_02.png")
+justin_timbersnake = Card('Justin Timbersnake', 'python', 'java', 'bash', "Assets/Justin_TSnake_Highlight_02.png")
+mrs_scratcher = Card('Mrs. Scratcher', 'scratch', 'turtle', 'java', "Assets/Scratcher_Highlight_02.png")
+paul_python = Card('Paul Python', 'python', 'java', 'bash', "Assets/Paul_Highlight_02.png")
+queen_cobra = Card('Queen Cobra', 'python', 'java', 'bash', "Assets/Queen_Cobra_Highlight_02.png")
+ram_rom = Card('Ram Rom', 'java', 'scratch', 'python', "Assets/RAM_ROM_Highlight_02.png")
+sidewinder = Card('Sidewinder', 'python', 'java', 'bash', "Assets/SideWinder_Highlight_02.png")
+syntax_turtle = Card('Syntax Turtle', 'turtle', 'bash', 'scratch', "Assets/Syntax_Highlight_02.png")
+viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', "Assets/ViralMuto_Highlight_02.png")
+virobotica = Card('Virobotica', 'bash', 'python', 'turtle', "Assets/Virobotica_Highlight_02.png")
+virobots = Card('Virobots', 'bash', 'python', 'turtle', "Assets/Virobots_Highlight_02.png")
+woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "Assets/Woodchuck_Highlight_02.png")
+
+DECK = []
+    #add all cards to deck
+DECK.append(annie_conda)
+DECK.append(bayo_wolf)
+DECK.append(captain_javo)
+DECK.append(cryptic_creeper)
+DECK.append(emily_airheart)
+DECK.append(grafika_turtle)
+DECK.append(intelli_scents)
+DECK.append(java_lynn)
+DECK.append(jitter_bug)
+DECK.append(justin_timbersnake)
+DECK.append(mrs_scratcher)
+DECK.append(paul_python)
+DECK.append(queen_cobra)
+DECK.append(ram_rom)
+DECK.append(sidewinder)
+DECK.append(syntax_turtle)
+DECK.append(viralmuto)
+DECK.append(virobotica)
+DECK.append(virobots)
+DECK.append(woodchuck_norris)
+
+def reset_cards():
+    for card in DECK:
+        card.HP = 15
+        card.alive = True
 
 def flip_coin():
     return "Heads" if random.randint(0,1) == 1 else "Tails"
 
-def get_active_player():
-    if player_one.active_turn:
-        return player_one, player_two  
-    else:
-        return player_two, player_one
-
-def switch_active_player(offense, defense):
-    offense.active_turn = False
-    defense.active_turn = True
-
-def check_game_end():
+def check_game_end(player_one, player_two):
     # Check status of both players, if one player surviving then end the game
     exiting = True
     if player_one.active == False:
@@ -25,14 +123,6 @@ def check_game_end():
         reset_game(player_one, player_two)
     return False
 
-def add_to_message(msg, text_add):
-    # Helper method to build game dialog messages and wrap over lines
-    text = textwrap.wrap(text_add, 30)
-    for line in text:
-        msg += line + "\n"
-    return msg
-
-
 def reset_game(p1, p2):
     # Reset cards
     reset_cards()
@@ -40,10 +130,10 @@ def reset_game(p1, p2):
     # reshuffle deck
     # default version is that each character gets 3 randomly chosen cards
     # challenge version could be that they program choosing their cards? or each gets half the deck
-    random.shuffle(MY.DECK)
+    random.shuffle(DECK)
     # Deal cards to players
-    p1.HAND = MY.DECK[:3]
-    p2.HAND = MY.DECK[3:6]
+    p1.HAND = DECK[:3]
+    p2.HAND = DECK[3:6]
 
     # Reset turn
     MY.TURN = 1
@@ -71,10 +161,10 @@ def reset_game(p1, p2):
 draw_title_screen()
 
 # Intro Screen - Enter player names
-p1_name, p2_name = draw_name_screen()
+# p1_name, p2_name = draw_name_screen()
 
 # OPTIONAL skip name screen for debugging, comment out previous line/uncomment following line
-# p1_name, p2_name = "p1", "p2"
+p1_name, p2_name = "p1", "p2"
 
 # Create players and set active player
 player_one = Player()
@@ -107,7 +197,7 @@ while running:
             if coin_button_rect.collidepoint(mouse_position):
                 draw_coin_animation()
                 
-                offense, defense = get_active_player()
+                offense, defense = get_active_player(player_one, player_two)
                 offense_card = offense.HAND[offense.current_card]
                 defense_card = defense.HAND[defense.current_card]
 
@@ -144,7 +234,7 @@ while running:
                 # Switch active player
                 switch_active_player(offense, defense)
 
-                if check_game_end():
+                if check_game_end(player_one, player_two):
                     running = False
                     # TODO render some victory graphic?
                 MY.TURN = MY.TURN + 1
