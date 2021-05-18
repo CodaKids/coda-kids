@@ -4,8 +4,8 @@ import random
 def flip_coin():
     return "Heads" if random.randint(0,1) == 1 else "Tails"
 
-def get_active_player(turn):
-    if player_one.active_turn == True:
+def get_active_player():
+    if player_one.active_turn:
         return player_one, player_two  
     else:
         return player_two, player_one
@@ -15,30 +15,23 @@ def switch_active_player(offense, defense):
     defense.active_turn = True
 
 def check_game_end():
-    # check status of both players, if one player surviving then end the game
+    # Check status of both players, if one player surviving then end the game
+    exiting = True
     if player_one.active == False:
         exiting = victory(player_two)
-        if not exiting:
-            reset_game(player_one, player_two)
-        return exiting
     elif player_two.active == False:
         exiting = victory(player_one)
-        if not exiting:
-            reset_game(player_one, player_two)
-        return exiting
+    if not exiting:
+        reset_game(player_one, player_two)
     return False
 
 def add_to_message(msg, text_add):
+    # Helper method to build game dialog messages and wrap over lines
     text = textwrap.wrap(text_add, 30)
     for line in text:
         msg += line + "\n"
     return msg
-    
-def check_cards(player):
-    if not player.HAND[player.current_card].alive:
-        player.current_card += 1
-    if player.current_card > 2: # TODO need to update this logic for other scenarios
-        player.active = False
+
 
 def reset_game(p1, p2):
     # Reset cards
@@ -78,10 +71,10 @@ def reset_game(p1, p2):
 draw_title_screen()
 
 # Intro Screen - Enter player names
-# p1_name, p2_name = draw_name_screen()
+p1_name, p2_name = draw_name_screen()
 
 # OPTIONAL skip name screen for debugging, comment out previous line/uncomment following line
-p1_name, p2_name = "p1", "p2"
+# p1_name, p2_name = "p1", "p2"
 
 # Create players and set active player
 player_one = Player()
@@ -92,15 +85,9 @@ player_two.name = p2_name
 
 reset_game(player_one, player_two)
 
-# TODO add method to add the card objects to player decks for rendering, need new card images first
-
 running = True
 
-# pick cards before game loop? see display_intro_screen() in level 3
-# choose_hand()
-
-
-# Game loop below
+# Game loop 
 while running: 
     clock.tick(60)
     for event in pygame.event.get():
@@ -120,7 +107,7 @@ while running:
             if coin_button_rect.collidepoint(mouse_position):
                 draw_coin_animation()
                 
-                offense, defense = get_active_player(MY.TURN)
+                offense, defense = get_active_player()
                 offense_card = offense.HAND[offense.current_card]
                 defense_card = defense.HAND[defense.current_card]
 
