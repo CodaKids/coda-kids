@@ -18,11 +18,10 @@ class Card:
 
     def attack(self, offense_card):
         damage = 3 # default value
-
         # check strength/weakness and determine damage
         if offense_card.techtype == self.resistance:
             damage = damage - 1
-        if offense_card.techtype == self.weakness:
+        elif offense_card.techtype == self.weakness:
             damage = damage + 1
         # take damage and return the damage amount
         self.take_damage(damage)
@@ -34,17 +33,13 @@ class Card:
 
 class Player:
     def __init__(self):
-        self.HAND = [] # array of cards
+        self.HAND = [] # list of Cards
         self.name = ""
         self.current_card = 0
         self.active = True
         self.active_turn = False
 
     def choose_card(self, chosen_card):
-        # chosen_card is int index of card
-        # if not HAND[chosen_card].check_alive():
-        #     # TODO add method to find alive card just in case
-        #     return
         self.current_card = chosen_card
     
     def refresh_hand(self):
@@ -59,7 +54,8 @@ class Player:
                     self.active = False
             cur += 1
         return False
-        
+
+# Create all of the Cards        
 annie_conda = Card('Annie Conda', 'python', 'java', 'bash', "Assets/Annie_Highlight_02.png")
 bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', "Assets/Bayo_Highlight_02.png")
 captain_javo = Card('Captain Javo', 'java', 'scratch', 'python', "Assets/Cpt_Javo_Highlight_02.png")
@@ -82,7 +78,7 @@ virobots = Card('Virobots', 'bash', 'python', 'turtle', "Assets/Virobots_Highlig
 woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', "Assets/Woodchuck_Highlight_02.png")
 
 DECK = []
-    #add all cards to deck
+# Add all cards to deck
 DECK.append(annie_conda)
 DECK.append(bayo_wolf)
 DECK.append(captain_javo)
@@ -104,11 +100,6 @@ DECK.append(virobotica)
 DECK.append(virobots)
 DECK.append(woodchuck_norris)
 
-def reset_cards():
-    for card in DECK:
-        card.HP = 15
-        card.alive = True
-
 def flip_coin():
     return "Heads" if random.randint(0,1) == 1 else "Tails"
 
@@ -125,9 +116,11 @@ def check_game_end(player_one, player_two):
 
 def reset_game(p1, p2):
     # Reset cards
-    reset_cards()
+    for card in DECK:
+        card.HP = 15
+        card.alive = True
 
-    # reshuffle deck
+    # Shuffle deck
     # default version is that each character gets 3 randomly chosen cards
     # challenge version could be that they program choosing their cards? or each gets half the deck
     random.shuffle(DECK)
@@ -138,7 +131,7 @@ def reset_game(p1, p2):
     # Reset turn
     MY.TURN = 1
 
-    # Reset players
+    # Reset players to active, Active turn will be determined in next step
     p1.active = True
     p1.active_turn = False
     p2.active = True
@@ -183,14 +176,12 @@ while running:
     for event in pygame.event.get():
         # Checks to see if player clicked close button on window
         check_stop(event)
-        coin_button_rect = draw_coin_flip_button()
+        coin_button_rect = draw_tech_attack_button()
 
-        # turn for each character:
-        # choose attack (safe or risk) - only advanced, "big hit" is default
-        # player clicks on attack
-        # TODO player can choose which card to be active
+        # Turn for each player:
+        # choose attack (Tech Type Attack is default, Coded Attack is special)
+        # Player clicks on attack type to flip the coin TODO: add code for non-default attack type
 
-        # player clicks on flip coin
         mouse_position = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
             
@@ -206,11 +197,11 @@ while running:
                 message = add_to_message(message, "{}".format(MY.TURN))
                 message = add_to_message(message, "{}".format(offense.name))
                 
-                # flip the coin
+                # Flip the coin
                 coin = flip_coin()
                 message = add_to_message(message, "{}".format(coin))
 
-                # add result of the turn to dialog box message
+                # Add result of the turn to dialog box message
                 if coin == 'Heads':
                     damage = defense_card.attack(offense_card)
                     s_flag = "" if offense_card.name.endswith('s') == 1 else "s"
@@ -220,7 +211,7 @@ while running:
                     turn_msg = "{} took no damage from {}\n".format(defense_card.name, offense_card.name)
                     message = add_to_message(message, turn_msg)
 
-                # dialog box shows turn result
+                # Dialog box shows the result of the turn
                 draw_screen(player_one, player_two, message)
                 player_one.refresh_hand()
                 player_two.refresh_hand()
@@ -236,30 +227,18 @@ while running:
 
                 if check_game_end(player_one, player_two):
                     running = False
-                    # TODO render some victory graphic?
+
                 MY.TURN = MY.TURN + 1
 
+ 
+# many cards have multi-turn attack implications, have to figure out how to implement future pieces
+# how to handle 2x heads.....??????
+# emily airheart - heads 2x to restore 2 health/paul python heads 2x/ramrom/woodchuck norris
+# grafika - define shell shock for one turn - does that mean she gets two turns in a row? or does that mean that dice roll is affected? 
+# intelliscents - redo a full round? what does that imply? undo HP loss? is a round defined by each player's turns? (2 turns = round?)
+# javalynn - heads gives anyone extra turn, 
+# justin timbersnake - redo opponent's next coin flip - automatic flip on next? or choice?
+# virobotica - increasing resistance by 1 - what is the scale for resistance?
 
-    #Player picks card they would like to attack. 
-        # how do they pick?? can they see entire hand? how to display cards?
-        # do they pick one card and play til it's dead or do they pick a new card each turn? 
-            # many cards have multi-turn attack implications, have to figure out how to implement future pieces
-            # how to handle 2x heads.....??????
-            # emily airheart - heads 2x to restore 2 health/paul python heads 2x/ramrom/woodchuck norris
-            # grafika - define shell shock for one turn - does that mean she gets two turns in a row? or does that mean that dice roll is affected? 
-            # intelliscents - redo a full round? what does that imply? undo HP loss? is a round defined by each player's turns? (2 turns = round?)
-            # javalynn - heads gives anyone extra turn, 
-            # justin timbersnake - redo opponent's next coin flip - automatic flip on next? or choice?
-            # virobotica - increasing resistance by 1 - what is the scale for resistance?
-        # if both players share screen have to show all cards, right?
-        # how to display card HP? or just overall player HP? 
-        # 150 HP seems like a lot when cards do at most 3 damage
-    #Next, player picks an attack from their own card
-    #Player flips coin
-        # coin flip can help regular attack as well as risky attack
-    #Depending on results of coin, damage is dealt to that card.
-    #TODO: implement specific attacks based on the cards
-    #If card health < 1, card is killed
-        
-    #If player has no cards left, player loses
-    #Change player turn to the other player
+#TODO: implement specific attacks based on the cards
+

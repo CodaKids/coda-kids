@@ -211,69 +211,6 @@ class Object:
 #============================================================
 #PART 3: SETUP FOR THE BATTLE CARDS GAME
 
-
-
-# class Card:
-#     def __init__(self, name, techtype, weakness, resistance, image_path):
-#         self.name = name
-#         self.techtype = techtype
-#         self.weakness = weakness
-#         self.resistance = resistance
-#         self.image_path = image_path
-#         self.HP = 15
-#         self.alive = True
-    
-#     def check_alive(self):
-#         if self.HP <= 0:
-#             self.HP = 0
-#             self.alive = False
-#             return False
-
-#     def attack(self, offense_card):
-#         damage = 3 # default value
-
-#         # check strength/weakness and determine damage
-#         if offense_card.techtype == self.resistance:
-#             damage = damage - 1
-#         if offense_card.techtype == self.weakness:
-#             damage = damage + 1
-#         # take damage and return the damage amount
-#         self.take_damage(damage)
-#         return damage
-
-#     def take_damage(self, damage):
-#         self.HP = self.HP - damage
-#         self.check_alive()
-
-# class Player:
-#     def __init__(self):
-#         self.HAND = [] # array of cards
-#         self.name = ""
-#         self.current_card = 0
-#         self.active = True
-#         self.active_turn = False
-
-#     def choose_card(self, chosen_card):
-#         # chosen_card is int index of card
-#         # if not HAND[chosen_card].check_alive():
-#         #     # TODO add method to find alive card just in case
-#         #     return
-#         self.current_card = chosen_card
-    
-#     def refresh_hand(self):
-#         cur = 0
-#         for card in self.HAND:
-#             if not card.alive:
-#                 self.HAND.pop(cur)
-#                 self.current_card = 0
-#                 if len(self.HAND) == 2:
-#                     return True
-#                 if len(self.HAND) == 0:
-#                     self.active = False
-#             cur += 1
-#         return False
-
-
 #constants for screen
 WINDOW_WIDTH = 1000
 X_CENTER = WINDOW_WIDTH // 2
@@ -315,12 +252,6 @@ ondeck_text = (0,20,110)
 ondeck_titlebox = (255,235,210)
 
 clock = pygame.time.Clock()
-# TODO maybe place all rects for drawing screen elements here instead
-# List of Rects:
-# name screen overlay, text entry box
-# card/shadow box and position, active player boxes
-# on deck box, inactive cards
-# dialog box
 
 class Data:
     coin_sheet = SpriteSheet("Assets/CoinFlip03.png", (200,200))
@@ -485,11 +416,6 @@ def draw_turn_flip_screen(p1_name, p2_name):
             pygame.display.update()
 
 def draw_choose_hand_screen(current_player):
-    # draw table
-    # draw cards in player's hand, vertical cascade on left hand side showing top part of cards (more flexibility for more than three cards in their hand)
-    # draw instructions on right hand side
-    # once a card is clicked, should we show the card? just the name of the card?
-    # set clicked card to first card in player's hand
     running = True
     while running:
         fill_screen()
@@ -548,8 +474,8 @@ def draw_screen(p1, p2, message=""):
     draw_active_cards(p1, p2)
     draw_inactive_cards(p1, p2)
     draw_healthbars(p1, p2)
-    draw_coin_flip_button()
-    draw_button(ondeck_teal, active_purple, "Tech Type Attack", 210, 40, X_CENTER-105, 380)
+    draw_coded_attack_button()
+    draw_tech_attack_button()
     MY.coin_obj.location = (X_CENTER, 525)
     MY.coin_obj.draw(SCREEN) 
     pygame.display.update()
@@ -761,6 +687,12 @@ def draw_healthbars(p1, p2):
 
 def draw_coin_flip_button(x=X_CENTER-85, y=625):
     return draw_button(coin_yellow, coin_dark_yellow, "Flip the Coin!", 170, 40, x, y)
+
+def draw_coded_attack_button():
+    return draw_button(coin_yellow, coin_dark_yellow, "Coded Attack", 170, 40, X_CENTER-85, 385)
+
+def draw_tech_attack_button():
+    return draw_button(ondeck_teal, active_purple, "Tech Type Attack", 210, 40, X_CENTER-105, 625)
 
 def draw_button(button_color, button_outline, button_text, width, height, x, y, font_color = BLACK, font=button_font):
     button_pos = (x, y)
