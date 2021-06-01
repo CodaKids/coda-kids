@@ -219,10 +219,13 @@ Y_CENTER = WINDOW_LENGTH // 2
 CENTER_COORD = (X_CENTER, Y_CENTER)
 WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
 SCREEN = start(WINDOW, "IncrediCards")
-BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/Table.png") 
+BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/IncrediCards_Background.png") 
 TITLE_IMAGE = pygame.image.load("project-solutions/level-7/Assets/title_screen_wide_shadows.png") 
 CARD_L_POS = pygame.math.Vector2(200,305)
 CARD_R_POS = pygame.math.Vector2(800,305)
+INSTRUCTIONS = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses."
+CHALLENGE_INSTRUCTIONS = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses. Or click Coded Attack to do 1 damage. Flip the coin - heads will do your card's special move!"
+                
 # Fonts
 bold_font = pygame.font.SysFont('Arial', 35)
 button_font = pygame.font.SysFont('Arial', 25)
@@ -279,6 +282,7 @@ def draw_transparent_white_rect(size, center_pos, alpha_value):
     white_surface.set_alpha(alpha_value)
     white_surface.fill(WHITE)
     SCREEN.blit(white_surface, white_rect)
+    border_rect = pygame.draw.rect(SCREEN, (84,84,84), (white_rect), 3)
 
 def draw_title_screen():
     running = True
@@ -474,16 +478,32 @@ def draw_screen(p1, p2, message=""):
     draw_active_cards(p1, p2)
     draw_inactive_cards(p1, p2)
     draw_healthbars(p1, p2)
-    draw_coded_attack_button()
     draw_tech_attack_button()
-    MY.coin_obj.location = (X_CENTER, 525)
+    MY.coin_obj.location = (X_CENTER, 475)
     MY.coin_obj.draw(SCREEN) 
     pygame.display.update()
 
-def populate_dialog_box(message, position):
+def draw_challenge_screen(p1, p2, message=""):
+    fill_screen()
+    draw_transparent_white_rect((200,300), (X_CENTER,200),200)
+    populate_dialog_box(message, 80, True)
+    draw_active_player(p1, p2)
+    draw_active_cards(p1, p2)
+    draw_inactive_cards(p1, p2)
+    draw_healthbars(p1, p2)
+    draw_coded_attack_button()
+    draw_tech_attack_button()
+    MY.coin_obj.location = (X_CENTER, 475)
+    MY.coin_obj.draw(SCREEN) 
+    pygame.display.update()
+
+def populate_dialog_box(message, position, challenge_flag = False):
     if message == "":
         # round 0, display initial instructions in box instead
-        instructions = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses. Or click Coded Attack to do 1 damage. Flip the coin - heads will do your card's special move!"
+        if challenge_flag:
+            instructions = CHALLENGE_INSTRUCTIONS
+        else:
+            instructions = INSTRUCTIONS
         text = textwrap.wrap(instructions, 25)
         pos_y = 80
         for line in text:
@@ -689,10 +709,10 @@ def draw_coin_flip_button(x=X_CENTER-85, y=625):
     return draw_button(coin_yellow, coin_dark_yellow, "Flip the Coin!", 170, 40, x, y)
 
 def draw_coded_attack_button():
-    return draw_button(coin_yellow, coin_dark_yellow, "Coded Attack", 170, 40, X_CENTER-85, 385)
+    return draw_button(coin_yellow, coin_dark_yellow, "Coded Attack", 170, 40, X_CENTER-85, 625)
 
 def draw_tech_attack_button():
-    return draw_button(ondeck_teal, active_purple, "Tech Type Attack", 210, 40, X_CENTER-105, 625)
+    return draw_button(ondeck_teal, round_dark_blue, "Tech Type Attack", 210, 40, X_CENTER-105, 575)
 
 def draw_button(button_color, button_outline, button_text, width, height, x, y, font_color = BLACK, font=button_font):
     button_pos = (x, y)

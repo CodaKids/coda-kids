@@ -151,6 +151,7 @@ def reset_game(p1, p2):
     # Run the game
     draw_screen(player_one, player_two)
 
+
 draw_title_screen()
 
 # Intro Screen - Enter player names
