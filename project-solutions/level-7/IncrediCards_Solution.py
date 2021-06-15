@@ -155,10 +155,10 @@ def reset_game(p1, p2):
 draw_title_screen()
 
 # Intro Screen - Enter player names
-# p1_name, p2_name = draw_name_screen()
+p1_name, p2_name = draw_name_screen()
 
 # OPTIONAL skip name screen for debugging, comment out previous line/uncomment following line
-p1_name, p2_name = "p1", "p2"
+# p1_name, p2_name = "p1", "p2"
 
 # Create players and set active player
 player_one = Player()
