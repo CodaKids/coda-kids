@@ -2,238 +2,423 @@
 #PART 1: IMPORTING DEPENDENCIES AND ASSIGNING GLOBAL VARIABLES
 import pygame
 import random
-import math
 import sys
-import time
 from os import path
 import textwrap
 
-# colors
+base_dir = path.dirname(__file__)
+assets_path = path.join(base_dir, 'Assets')
+
 WHITE = [225, 225, 225]
 BLACK = [0, 0, 0]
 YELLOW = [255, 255, 0]
 RED = [255, 0, 0]
 GREEN = [0, 128, 0, 128]
 BLUE = [0, 192, 255, 128]
+WINDOW_WIDTH = 1000
+X_CENTER = WINDOW_WIDTH // 2
+WINDOW_HEIGHT = 700
+Y_CENTER = WINDOW_HEIGHT // 2
+CENTER_COORD = (X_CENTER, Y_CENTER)
+WINDOW = (WINDOW_WIDTH, WINDOW_HEIGHT)
+BACKGROUND_IMAGE = pygame.image.load(path.join(assets_path, "IncrediCards_Background.png")) 
+TITLE_IMAGE = pygame.image.load(path.join(assets_path, "title_screen_wide_shadows.png")) 
+TITLE_LOGO = pygame.image.load(path.join(assets_path, "IncredicodersLogo_850.png")) 
+CARD_L_POS = pygame.math.Vector2(200,305)
+CARD_R_POS = pygame.math.Vector2(800,305)
+INSTRUCTIONS = ["Click Tech Type", "Attack to flip", "the coin - heads", "does 3 damage", "(or more/less", " depending on your", "weakness and resistance)", "and tails misses."]
+CHALLENGE_INSTRUCTIONS = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses. Or click Coded Attack to do 1 damage. Flip the coin - heads will do your card's special move!"
+FPS = 30
 
-_data = {}
+pygame.init()
+SCREEN = pygame.display.set_mode(WINDOW)
+pygame.display.set_caption("IncrediCards")
 
 #============================================================
 #PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
-def start(window_size, game_name):
-    """ Initializes the library and returns a pygame screen.  """
-    pygame.init()
-    pygame.display.set_caption(game_name)
-    pygame.mixer.init()
-    return pygame.display.set_mode((int(window_size[0]), int(window_size[1])))
+class GameObject(object):
+	
+	def __init__(self, name = None, image = None, location = (0,0)):
+		self.name = name
+		self.image = image
+		self.location = location
+		
+		if self.image is not None:
+			self.rect = self.image.get_rect()
+			self.rect.center = self.location
+				
+	def set_location(self, location):
+		self.location = location
+		self.rect.center = self.location
+		
+	def update(self, dt):
+		pass
+		
+	def draw(self, surf):
+		surf.blit(self.image, self.rect)
 
-def stop():
-    """ Stops pygame and closes the window immediately. """
-    pygame.quit()
-    sys.exit()
+	def __str__(self):
+		data = "name: " + self.name + "\n"
+		data += "location: " + str(self.rect) + "\n"
+		
+		return data
 
-def check_stop(event):
-    # Checks if you closed the window
-    if event.type == pygame.QUIT:
-        stop()
+class AnimatedObject(GameObject):
+	def __init__(self, name, images, location):
+		super().__init__(name)
+		self.images = strip_from_sheet(images, (0, 0), (200, 200), 13)
+		
+		self.image = self.images[0]
+		self.location = location
+		
+		self.rect = self.image.get_rect()
+		self.rect.center = self.location
+		
+		self.current_frame = 0
+		self.anim_time = 0
+		
+	def update(self, dt):
+		pass
+				
+	def animate(self):
+		self.current_frame = (self.current_frame + 1) % len(self.images)
+		#bottom = self.rect.bottom
+		self.image = self.images[self.current_frame]			
+		#self.rect = self.image.get_rect(bottom = bottom)
+		
+	def draw(self, surf):
+		surf.blit(self.image, self.rect)
+		
+class Card(GameObject):
+	def __init__(self, name, techtype, weakness, resistance, image, typelogo):
+		super().__init__(name, image)
 
-def update(delta_time):
-    """
-    Update all of the lerps. Auto removes lerps when done.
-    Called internally by the state manager.
-    """
-    to_delete = []
-    for (obj, lerp_list) in _data.items():
-        if not lerp_list:
-            to_delete.append(obj)
-        elif lerp_list[0].update(obj, delta_time):
-            lerp_list.pop(0)
-            # remove duplicates
-            while lerp_list and lerp_list[0].end == getattr(obj, lerp_list[0].member):
-                lerp_list.pop(0)
-    for key in to_delete:
-        del _data[key]
+		self.techtype = techtype
+		self.weakness = weakness
+		self.resistance = resistance
+		self.HP = 15
+		self.alive = True
+		self.typelogo = typelogo
+	
+	def attacked_by(self, offense_card):
+		damage = 3 # default value
+		
+		# check strength/weakness and determine damage	
+		if offense_card.techtype == self.resistance:
+			damage = damage - 1
+		elif offense_card.techtype == self.weakness:
+			damage = damage + 1
+		
+		# take damage and return the damage amount
+		self.take_damage(damage)
+		return damage
 
-def get_file(fileName):
-    """Returns the absolute path of a file."""
-    #This grabs the image files from your folder.
-    return path.join(path.dirname(__file__), fileName)
+	
+	def take_damage(self, damage):
+		self.HP = self.HP - damage
+		if self.HP <= 0:
+			self.HP = 0
+			self.alive = False
 
-class SpriteSheet:
-    """
-    Sprite sheet class for managing sprite animations.
-        sheet = SpriteSheet("image.png", (16, 16));
-    """
-    def __init__(self, filename, frame_size):
-        self.sheet = pygame.image.load(get_file(filename)).convert_alpha()
-        rect = self.sheet.get_rect()
-        self.columns = rect.width / frame_size[0]
-        self.rows = rect.height / frame_size[1]
-        rect.width = frame_size[0]
-        rect.height = frame_size[1]
-        self.rectangle = rect
-    def image_at(self, index):
-        """
-        Get an image at the given 0 based index.
-            obj.sprite = sheet.image_at(0);
-        """
-        x = math.floor(index % self.columns) * self.rectangle.width
-        y = math.floor(index / self.columns) * self.rectangle.height
-        self.rectangle.centerx = x + self.rectangle.width / 2
-        self.rectangle.centery = y + self.rectangle.height / 2
-        image = Image(None)
-        image.data = pygame.Surface(self.rectangle.size, pygame.SRCALPHA, 32).convert_alpha()
-        image.data.blit(self.sheet, (0, 0), self.rectangle)
-        return image
-    def num_frames(self):
-        """
-        Return the number of frames of animation for the given sheet.
-            size = sheet.num_frames();
-        return self.columns * self.rows
-        """
-        return self.columns * self.rows
+	def __str__(self):
+		data = super().__str__()
+		
+		data += "techtype: " + str(self.techtype) + "\n"
+		data += "weakness: " + str(self.weakness) + "\n"
+		data += "resistance: " + str(self.resistance) + "\n"
+		data += "HP: " + str(self.HP) + "\n" 
+		
+		return data
 
-class Image:
-    """Loads an image object"""
-    def __init__(self, image_file_name):
-        if image_file_name is not None:
-            self.data = pygame.image.load(get_file(image_file_name)).convert_alpha()
-        else:
-            self.data = None
-    def update(self, dt):
-        return
-    def surface(self):
-        return self.data
+class Player(object):
+	def __init__(self, name):
+		self.hand = [] # list of Cards
+		self.name = name
+		self.current_card = None
+		self.active = True
+		self.active_turn = False
+		self.heads_count = 0
+		
+		self.winner = False
+		
+	def set_as_winner(self):
+		self.winner = True
+		
+	def set_card(self, chosen_card):
+		self.current_card = chosen_card
+	
+	def switch_card(self, card_name):
+		for card in self.hand:
+			if card.name == card_name:
+				self.current_card = card
+				break
+				
+	def refresh_hand(self):
+		if not self.current_card.alive:
+			self.hand.remove(self.current_card)
+			if len(self.hand) > 0:
+				self.current_card = self.hand[0]	
+			else:
+				self.active = False
 
-class Animator:
-    def __init__(self, sheet, duration_seconds):
-        self.sheet = sheet
-        self.frame_num = 0
-        self.frame_time = 0.0
-        self.playing = True
-        self.playspeed = 1.0
-        self.looping = True
-        self.reset()
-        self.set_duration(duration_seconds)
+	def get_current_card(self):
+		return self.current_card
 
-    def set_duration(self, duration_seconds):
-        self.duration = duration_seconds
-        self.transition = self.duration / self.num_frames
+	# this lets you print the player with print(self.player1)
 
-    def use_anim(self, sheet):
-        self.sheet = sheet
-        self.reset()
+	def __str__(self):
+		data = "player name: " + self.name + "\n"
+		data += "active turn: " + str(self.active_turn) + "\n"
 
-    def reset(self):
-        self.frame_num = 0
-        self.current = self.sheet.image_at(self.frame_num)
-        self.frame_time = 0
-        self.num_frames = self.sheet.num_frames()
+		for i, card in enumerate(self.hand):
+			data += "card " + str(i) + ": " + card.name + "\n"
+		
+		return data
 
-    def play(self, playspeed=1.0):
-        self.playspeed = playspeed
-        self.reset()
-        self.unpause()
+class GameState(object):
+	def __init__(self):
+		self.done = False
+		self.quit = False
+	
+	def start(self, players):
+		pass
+	
+	def update(self, dt):
+		pass
+		
+	def get_event(self, event):
+		pass
+		
+	def draw(self, surf):
+		surf.blit(BACKGROUND_IMAGE, (0,0))
 
-    def pause(self):
-        self.playing = False
+class TitleScreen(GameState):
+	def __init__(self):
+		super().__init__()
+		self.next_state = "GetNames"
 
-    def unpause(self):
-        self.playing = True
+	def start(self, players):
+		self.start_button = Button("START", 425, 225, 170, 40, button_orange, button_red_orange, WHITE, round_font, self)
+		
+	def update(self, dt):
+		pass
+	
+	def get_event(self, event):
+		self.start_button.get_event(event)
+		
+	def draw(self, surf):
+		super().draw(surf)
+		surf.blit(TITLE_IMAGE, (0,0))
+		surf.blit(TITLE_LOGO, (75,30))        
+		self.start_button.draw(surf)
 
-    def update(self, dt):
-        dt = dt * self.playspeed
-        if self.playing:
-            self.frame_time += dt
-            if self.frame_time >= self.transition:
-                self.frame_time -= self.transition
-                self.frame_num += 1
-                if self.looping:
-                    self.frame_num %= self.num_frames
-                self.current = self.sheet.image_at(self.frame_num)
-                if self.frame_num >= self.num_frames:
-                    self.playing = False
+	def button_action(self, params):
+		self.done = True
 
-    def surface(self):
-        return self.current.surface()
+class GetNameScreen(GameState):
+	def __init__(self):
+		super().__init__()
+		self.next_state = "CoinFlip" 
+		self.input_box = InputBox(X_CENTER-150, 375, 300, 50, active_purple, inactive_dark_green, parent = self)
+		
+	def start(self, players):
+		players["player1"] = Player("player 1")
+		players["player2"] = Player("player 2")
+		self.players = players
+		self.current_player = players["player1"]	
+		self.text = ""
+		
+		prompt_1 = "Click in the box to type in the"
+		prompt_2 = "name for {} and press Enter.".format(self.current_player.name)
+		
+		self.info_box = InfoBox([prompt_1, prompt_2], bold_font, BLACK, (600,300), (X_CENTER, 320), 200, True)
 
-class Object:
-    """
-    Object class used to organize and track common game object data, such as location and appearance.
-        obj = Object(IMAGE);
-    """
-    location = pygame.math.Vector2(0, 0)
-    scale = 1
-    velocity = pygame.math.Vector2(0, 0)
+	def update(self, dt):
+		
+		self.input_box.update()
+		
+		self.prompt_1 = "Click in the box to type in the"
+		self.prompt_2 = "name for {} and press Enter.".format(self.current_player.name)
 
-    def __init__(self, image):
-        self.sprite = image
-        self.rotation = 0
-        self.active = False
+		self.info_box.update([self.prompt_1, self.prompt_2])
 
-    def __setattr__(self, name, value):
-        if name == "location" or name == "velocity":
-            self.__dict__[name] = pygame.math.Vector2(value[0], value[1])
-        elif name == "rotation":
-            self.__dict__[name] = value - 360 * int(value / 360)
-        elif name == "sprite":
-            if isinstance(value, Image):
-                self.__dict__[name] = value
-            elif isinstance(value, Animator):
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+	def get_event(self, event):
+		done = self.input_box.get_event(event)
+		
+		if done:
+			if self.current_player == self.players["player1"]:
+				self.current_player = self.players["player2"]
+			else:
+				self.done = True
 
-    def get_transformed_rect(self):
-        """
-        Returns a transformed version of the object sprite. Generally for internal use only.
-            rect = obj.get_transformed_rect();
-        """
-        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.rotation, self.scale)
-        rect = sprite.get_rect()
-        rect.center = self.location
-        return rect
+	def set_name(self, name):
+		self.current_player.name = name
+		
+	def draw(self, surf):
+		super().draw(surf)
+		self.info_box.draw(surf)	
+		self.input_box.draw(surf)
 
-    def update(self, delta_time):
-        self.location += self.velocity * delta_time
-        self.sprite.update(delta_time)
+class CoinFlipScreen(GameState):
+	def __init__(self):
+		super().__init__()
+		self.next_state = "ChooseHand"
+		
+	def start(self, players):
+		self.player1 = players["player1"]
+		self.player2 = players["player2"]
+		self.flipping = False
+		self.choosing = True
+		
+		self.instructions = ["Flip to see who goes first!", "Heads for {}, tails for {}.".format(self.player1.name, self.player2.name)]
+		
+		self.flip_box = InfoBox(self.instructions, bold_font, BLACK,  (600,200), (X_CENTER, 150), 200)
+	
+		self.coin_flip_button = Button("Flip the Coin!", X_CENTER-85, 500, 170, 40, coin_yellow, coin_dark_yellow, parent = self)
+		self.start_button =  Button("START", 425, 500, 150, 40, button_orange, button_red_orange, WHITE, round_font, parent = self)
 
-    def draw(self, screen):
-        """
-        draws the object to the screen.
-            # draw the object
-            obj.draw(SCREEN);
-        """
-        sprite = pygame.transform.rotozoom(self.sprite.surface(), self.rotation, self.scale)
-        rect = sprite.get_rect()
-        rect.center = self.location
-        screen.blit(sprite, rect)
+		self.coin = Coin(coin_img, (X_CENTER, 375))
+		
+		self.winner = self.player1 if random.random() < 0.5 else self.player2
+		self.winner.active_turn = True
+		
+	def get_event(self, event):
+		if self.choosing and not self.flipping:
+			self.coin_flip_button.get_event(event)
+		else:
+			self.start_button.get_event(event)
+			
+	def update(self, dt):
+		if self.flipping:
+			self.flipping = self.coin.update(dt)
+			if not self.flipping:
+				self.choosing = False
+		else:
+			self.winner_box = InfoBox(["{} will go first!".format(self.winner.name)], bold_font, BLACK, (550,100),(X_CENTER,200),200)
+		
+	def button_action(self, params):
+		if self.choosing and not self.flipping:
+			self.flipping = True
+			if self.winner == self.player1:
+				self.coin.set_side("Heads")
+			else:
+				self.coin.set_side("Tails")
+		else:
+			self.done = True
+			
+	def draw(self, surf):
+		super().draw(surf)		
+		if self.choosing:
+			self.flip_box.draw(surf)
+			self.coin_flip_button.draw(surf)
+			self.coin.draw(surf)	
+		else:
+			self.coin.draw(surf)	
+			self.winner_box.draw(surf)
+			self.start_button.draw(surf)
+
+class VictoryScreen(GameState):
+	def __init__(self):
+		super().__init__()
+		self.next_state = "GetNames"
+			
+	def start(self, players):
+		self.player1 = players["player1"]
+		self.player2 = players["player1"]
+		
+		self.winner = self.player1 if self.player1.winner else self.player2
+
+		self.victor_msg = bold_font.render("{} has won!".format(self.winner.name), True, BLACK)
+		self.victor_msg_rect = self.victor_msg.get_rect(center=(X_CENTER, 240))
+		
+		self.play_button = Button("Play Again?", 260, 400, 200, 40, button_orange, button_red_orange, WHITE, round_font, self)
+		self.play_button.action_params = "play"
+		self.exit_button = Button("Exit", 600, 400, 100, 40, button_orange, button_red_orange, parent = self)
+		self.exit_button.action_params = "exit"
+		
+	def get_event(self, event):
+		self.play_button.get_event(event)
+		self.exit_button.get_event(event)
+
+	def update(self, dt):
+		pass
+		
+	def button_action(self, params):
+		if params == "exit":
+			self.quit = True
+		else:
+			self.done = True
+			
+	def draw(self, surf):
+		super().draw(surf)
+		surf.blit(self.victor_msg, self.victor_msg_rect)
+		self.play_button.draw(surf)
+		self.exit_button.draw(surf)
+
+class GameRunner(object):	
+	def __init__(self, screen, states, start_state):
+		self.screen = screen
+		self.states = states
+		self.start_state = start_state
+		self.state = self.states[self.start_state]
+		self.players = { }
+		self.state.start(self.players)
+		self.clock = pygame.time.Clock()
+		self.run()
+		
+	def run(self):
+		self.running = True
+
+		while self.running:
+			dt = self.clock.tick(FPS)
+			self.get_events()
+			self.update(dt)
+			self.draw()
+			
+	def get_events(self):
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				self.quit()
+				
+			self.state.get_event(event)
+			
+	def update(self, dt):
+		self.state.update(dt)
+		
+		if self.state.done:
+			self.next_state()
+		
+		if self.state.quit:
+			self.running = False
+			
+	def next_state(self):
+		next_state = self.state.next_state
+		self.state.done = False
+		self.state_name = next_state
+		self.state = self.states[self.state_name]
+		self.state.start(self.players)
+				
+	def quit(self):
+		pygame.quit()
+		sys.exit()
+
+	def draw(self):
+		self.state.draw(self.screen)
+		pygame.display.update()
+
 #============================================================
 #PART 3: SETUP FOR THE BATTLE CARDS GAME
 
-#constants for screen
-WINDOW_WIDTH = 1000
-X_CENTER = WINDOW_WIDTH // 2
-WINDOW_LENGTH = 700
-Y_CENTER = WINDOW_LENGTH // 2
-CENTER_COORD = (X_CENTER, Y_CENTER)
-WINDOW = pygame.math.Vector2(WINDOW_WIDTH, WINDOW_LENGTH)
-SCREEN = start(WINDOW, "IncrediCards")
-BACKGROUND_IMAGE = pygame.image.load("project-solutions/level-7/Assets/IncrediCards_Background.png") 
-TITLE_IMAGE = pygame.image.load("project-solutions/level-7/Assets/title_screen_wide_shadows.png") 
-CARD_L_POS = pygame.math.Vector2(200,305)
-CARD_R_POS = pygame.math.Vector2(800,305)
-INSTRUCTIONS = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses."
-CHALLENGE_INSTRUCTIONS = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses. Or click Coded Attack to do 1 damage. Flip the coin - heads will do your card's special move!"
-                
 # Fonts
 bold_font = pygame.font.SysFont('Arial', 35)
 button_font = pygame.font.SysFont('Arial', 25)
 round_font = pygame.font.SysFont('Arial', 25, True)
 dialog_font = pygame.font.SysFont('Arial', 14)
 dialog_bold = pygame.font.SysFont('Arial', 14, True)
+dialog_inst = pygame.font.SysFont('Arial', 16)
 status_font = pygame.font.SysFont('Arial', 12)
 cardshand_font = pygame.font.SysFont('Arial', 16, True)
+
 # Colors
 button_orange = (220,90,25)
 button_red_orange = (170,45,10)
@@ -255,540 +440,595 @@ ondeck_text = (0,20,110)
 ondeck_titlebox = (255,235,210)
 
 clock = pygame.time.Clock()
+TURN = 1
 
-class Data:
-    coin_sheet = SpriteSheet("Assets/CoinFlip03.png", (200,200))
-    coin_anim = Animator(coin_sheet, 2)
-    coin_obj = Object(coin_sheet.image_at(0))
-    coin_obj.location = (X_CENTER, 450)
-    # TODO need to dynamically assign type insignias
-    insignia = pygame.image.load(get_file('Assets/TypePython.png'))
-    card_shadow = pygame.Surface((300,421))
-    card_shadow.set_alpha(50)
-    card_shadow.fill(BLACK)
+# box sizes
+active_box_size = (355,670)
+active_box_size_s = (350,665)
+	
+# on deck box 
+on_deck_box_size = (250,100)
 
-    TURN = 1
+# healthbar locations		
+player1_healthbar_data = {
+					"name_x" : 68,
+					"name_y" : 17,
+					"healthbar_pos" : (68, 62),
+					"width" : 265,
+					"height" : 25,
+					"change_val" : 8,
+					"health_inc" : 15,
+					"font" : dialog_font,
+					"font_color" : hb_grey	
+					}	
 
-MY = Data()
+player2_healthbar_data = {
+					"name_x" : X_CENTER + 168,
+					"name_y" : 17,
+					"healthbar_pos" : (X_CENTER + 168, 62),
+					"width" : 265,
+					"height" : 25,
+					"change_val" : 8,
+					"health_inc" : 15,
+					"font" : dialog_font,
+					"font_color" : hb_grey	
+					}	
 
-def fill_screen():
-    clock.tick(60)
-    SCREEN.fill(BLUE)
-    SCREEN.blit(BACKGROUND_IMAGE, (0,0))
-    
-def draw_transparent_white_rect(size, center_pos, alpha_value):
-    white_surface = pygame.Surface(size)
-    white_rect = white_surface.get_rect(center = center_pos)
-    white_surface.set_alpha(alpha_value)
-    white_surface.fill(WHITE)
-    SCREEN.blit(white_surface, white_rect)
-    border_rect = pygame.draw.rect(SCREEN, (84,84,84), (white_rect), 3)
+# card display locations and sizes
+player1_card_display_data = {
+					"active_box_pos" : (23, 15),
+					"active_box_pos_s" : (25, 17),
+					"shadow_pos" : (57, 102),
+					"card_x" : 200,
+					"card_y" : 305
+					}
 
-def draw_title_screen():
-    running = True
-    while running:
-        fill_screen()
-        SCREEN.blit(TITLE_IMAGE, (0,0))
+player2_card_display_data = {
+					"active_box_pos" : (X_CENTER+123, 15),
+					"active_box_pos_s" : (X_CENTER+125, 17),
+					"shadow_pos" : (X_CENTER+157, 102),
+					"card_x" : 800,
+					"card_y" : 305
+					}
 
-        start_click_rect = draw_button(button_orange, button_red_orange, "START", 150, 40, 425, 200, WHITE, round_font)
+# ondeck boxes locations and sizes					
+player1_ondeck_data = {
+					"box_size" : (250, 100),
+					"box_pos" : (75, 562),
+					
+					"title_x" : 130,
+					"title_y" : 525,
+					"title_w" : 150,
+					"title_h" : 30,
+					
+					"card_box_size" : (200, 25),
+					"on_deck_label_pos" : (24, 10),
+					}
 
-        for event in pygame.event.get():
-            mouse_pos = pygame.mouse.get_pos()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if start_click_rect.collidepoint(mouse_pos):
-                    running = False  
-            pygame.display.update()
-    return
+player2_ondeck_data = {
+					"box_size" : (250, 100),
+					"box_pos" : (675, 562),
+					
+					"title_x" : 730,
+					"title_y" : 525,
+					"title_w" : 150,
+					"title_h" : 30,
+					
+					"card_box_size" : (200, 25),
+					"on_deck_label_pos" : (24, 10),
+					}
 
-def draw_name_screen():
-    fill_screen()
-    p1 = get_name("Player 1")
-    p2 = get_name("Player 2")
-    return p1, p2
-  
-def get_name(current_player):
-    clock = pygame.time.Clock()
-    input_box = pygame.Rect(390, 375, 300, 50)
+coin_img = pygame.image.load(path.join(assets_path, "CoinFlip03.png"))
 
-    draw_transparent_white_rect((600,250),CENTER_COORD,200)
+# icon images
+icon_bash = pygame.image.load(path.join(assets_path, "icon_bash.png"))
+icon_java = pygame.image.load(path.join(assets_path, "icon_java.png"))
+icon_python = pygame.image.load(path.join(assets_path, "icon_python.png"))
+icon_scratch = pygame.image.load(path.join(assets_path, "icon_scratch.png"))
+icon_smallbasic = pygame.image.load(path.join(assets_path, "icon_smallbasic.png"))
+icon_ondeck = pygame.image.load(path.join(assets_path, "icon_ondeck.png"))
+icon_codedattack = pygame.image.load(path.join(assets_path, "icon_codedattack.png"))
 
-    color = inactive_dark_green
-    active = False
-    text = ''
-    done = False
-    prompt_1 = "Click in the box to type in the"
-    prompt_2 = "name for {} and press Enter.".format(current_player)
+# card images
+annie_conda_img = pygame.image.load(path.join(assets_path, "Annie_Highlight_02.png")).convert()
+bayo_wolf_img = pygame.image.load(path.join(assets_path, "Bayo_Highlight_02.png")).convert()
+captain_javo_img = pygame.image.load(path.join(assets_path, "Cpt_Javo_Highlight_02.png")).convert()
+cryptic_creeper_img = pygame.image.load(path.join(assets_path, "Creeper_Highlight_02.png")).convert()
+emily_airheart_img = pygame.image.load(path.join(assets_path, "Emily_AirHeart_Highlight_02.png")).convert()
+grafika_turtle_img = pygame.image.load(path.join(assets_path, "Grafika_Highlight_02.png")).convert()
+intelli_scents_img = pygame.image.load(path.join(assets_path, "Intelliscents_Highlight_02.png")).convert()
+java_lynn_img = pygame.image.load(path.join(assets_path, "Java_Lynn_Highlight_02.png")).convert()
+jitter_bug_img = pygame.image.load(path.join(assets_path, "Jitter_Bug_Highlight_02.png")).convert()
+justin_timbersnake_img = pygame.image.load(path.join(assets_path, "Justin_TSnake_Highlight_02.png")).convert()
+mrs_scratcher_img = pygame.image.load(path.join(assets_path, "Scratcher_Highlight_02.png")).convert()
+paul_python_img = pygame.image.load(path.join(assets_path, "Paul_Highlight_02.png")).convert()
+queen_cobra_img = pygame.image.load(path.join(assets_path, "Queen_Cobra_Highlight_02.png")).convert()
+ram_rom_img = pygame.image.load(path.join(assets_path, "RAM_ROM_Highlight_02.png")).convert()
+sidewinder_img = pygame.image.load(path.join(assets_path, "SideWinder_Highlight_02.png")).convert()
+syntax_turtle_img = pygame.image.load(path.join(assets_path, "Syntax_Highlight_02.png")).convert()
+viralmuto_img = pygame.image.load(path.join(assets_path, "ViralMuto_Highlight_02.png")).convert()
+virobotica_img = pygame.image.load(path.join(assets_path, "Virobotica_Highlight_02.png")).convert()
+virobots_img = pygame.image.load(path.join(assets_path, "ViroBots_Highlight_02.png")).convert()
+woodchuck_norris_img = pygame.image.load(path.join(assets_path, "Woodchuck_Highlight_02.png")).convert()
 
-    prompt1_surface = bold_font.render(prompt_1, True, BLACK)
-    prompt2_surface = bold_font.render(prompt_2, True, BLACK)
-    text_rect = prompt1_surface.get_rect(center=(X_CENTER,275))
-    text_rect2 = prompt2_surface.get_rect(center=(X_CENTER,325))
-    SCREEN.blit(prompt1_surface, text_rect)
-    SCREEN.blit(prompt2_surface, text_rect2)
+class Button(object):
+	def __init__(self, text, x, y, width, height, color, outline_color, font_color = BLACK, font = button_font, parent = None):
+		self.rect = pygame.Rect(x, y, width, height)
+		self.text = text
+		self.color = color
+		self.outline_color = outline_color
+		self.font_color = font_color
+		self.font = font
+		self.parent = parent
+		self.action_params = None
+		
+		self.highlight_x = x + 3
+		self.highlight_y = y + 3
+		
+		self.highlight = pygame.Surface((width-10, height/5))
+		self.highlight.set_alpha(150)
+		self.highlight.fill(WHITE)
+		
+		self.text_surf = font.render(self.text, True, self.font_color)
+		self.text_rect = self.text_surf.get_rect()
+		self.text_rect.center = self.rect.center
+		
+	def get_event(self, event):
+		if event.type == pygame.MOUSEBUTTONDOWN:
+			if self.rect.collidepoint(event.pos):
+				self.parent.button_action(self.action_params)
+			
+	def draw(self, surf):
+		pygame.draw.rect(surf, self.color, self.rect, 0, 3)
+		surf.blit(self.highlight, (self.highlight_x, self.highlight_y))
+		surf.blit(self.text_surf, self.text_rect)
+		pygame.draw.rect(surf, self.outline_color, self.rect, 3, 3)
 
-    while not done:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_box.collidepoint(event.pos):
-                    active = not active
-                else:
-                    active = False
-                # Change the current color of the input box.
-                color = active_purple if active else inactive_dark_green
-            if event.type == pygame.KEYDOWN:
-                if active:
-                    if event.key == pygame.K_RETURN:
-                        if len(text) > 15:
-                            text = text [:15]
-                        return text
-                    elif event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
-                    else:
-                        text += event.unicode
+class Coin(AnimatedObject):
+	def __init__(self, images, location):
+		super().__init__("coin", images, location)
 
-        SCREEN.blit(BACKGROUND_IMAGE, (0,0))
-        draw_transparent_white_rect((600,300),(X_CENTER,320),200)
-        SCREEN.blit(prompt1_surface, text_rect)
-        SCREEN.blit(prompt2_surface, text_rect2)
-        pygame.draw.rect(SCREEN, WHITE, input_box)
-        txt_surface = bold_font.render(text, True, color)
-        # Resize the box if the text is too long.
-        width = max(200, txt_surface.get_width()+10)
-        input_box.w = width
-        SCREEN.blit(txt_surface, (input_box.x+5, input_box.y+5))
-        pygame.draw.rect(SCREEN, color, input_box, 2)
+		self.spinning = False
+		self.visible_side = "Heads"
+		self.frames = 0
+		
+	def set_side(self, side):
+		if self.visible_side == "Heads":
+			if side == "Heads":
+				self.frames = 13
+			else:
+				self.frames = 6
+	
+			self.visible_side = side	
+		
+		elif self.visible_side == "Tails":
+			if side == "Heads":
+				self.frames = 7
+			else:
+				self.frames = 13
+			
+			self.visible_side = side
+	
+	# this it where it is animated. To change the speed change:
+	#	if self.anim_time > 200:
+	# to a number other than 200
+	# it returns true and false to let the calling funtion know whether
+	# it has finished animating
+	
+	def update(self, dt):
+		if self.frames > 0:
+			self.anim_time += dt
+			if self.anim_time > 200:
+				self.animate()
+				self.frames -= 1
+				self.anim_time = 0
+				
+			return True
+		else:
+			return False
+			
+	def draw(self, surf):
+		super().draw(surf)
 
-        pygame.display.flip()
-        clock.tick(30)
+class InputBox(pygame.Surface):	
+	def __init__(self, x, y, width, height, active_border_color, inactive_border_color, parent = None):
+		super().__init__((width, height))
+		self.fill(WHITE)
+		self.rect = self.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		self.active_border_color = active_border_color
+		self.inactive_border_color = inactive_border_color
+		self.text = ""
+		self.parent = parent
+		self.text_color = BLACK
+		
+		self.active = False
+		self.text_surface = bold_font.render(self.text, True, self.text_color)
+		
+	def get_event(self, event):
+		if event.type == pygame.MOUSEBUTTONDOWN:
+			if self.rect.collidepoint(event.pos):
+				self.active = not self.active
+				return
+			
+		if event.type == pygame.KEYDOWN:
+			if self.active:
+				if event.key == pygame.K_RETURN:
+					if len(self.text) > 15:
+						self.text = self.text [:15]
+					self.parent.set_name(self.text)
+					self.clear()
+					return True
+					
+				elif event.key == pygame.K_BACKSPACE:
+					self.text = self.text[:-1]
+				else:
+					self.text += event.unicode
+	
+			return False
+	
+	def update(self):
+		self.color = active_purple if self.active else inactive_dark_green
+		pygame.draw.rect(self, self.color, (0, 0, self.rect.width - 1 , self.rect.height - 1), 2)
+		
+		self.text_surface = bold_font.render(self.text, True, self.color)
+		
+		# Resize the box if the text is too long.
+		width = max(200, self.text_surface.get_width()+10)
+		if width > self.rect.width:
+			self.rect.width = width
+			super().__init__((self.rect.width, self.rect.height))
+		
+	def clear(self):
+		self.fill(WHITE)
+		self.text = ""
+		self.text_surface = bold_font.render(self.text, True, self.text_color)
+			
+	def draw(self, surf):
+		self.blit(self.text_surface, (5, 5))
+		surf.blit(self, self.rect)
+ 
+class InfoBox(pygame.Surface):
+	def __init__(self, text, font, font_color, size, center_pos, alpha, input_box = False):
+		super().__init__(size)
+		self.fill(WHITE)
+		
+		self.text = text
+		self.font = font
+		self.font_color = font_color
+		self.alpha = alpha
+		self.set_alpha(alpha)
+		self.input_box = input_box # used if there is a text box on the panel
+		self.rect = self.get_rect(center = center_pos)
 
-def draw_turn_flip_screen(p1_name, p2_name):
-    # display coin, instruction and flip button
-    flipping = True
-    while flipping:
-        fill_screen()
+		self.set_text_surfs(self.text)
+		
+	def set_text_surfs(self, text):
+		self.text_surfs = []
+		
+		index = 1
+		for line in text:
+			surf = self.font.render(line, True, self.font_color, WHITE)
+		
+			# this calculates the spacing and positioning of the lines of text, taking into account
+			# whether there is an input box drawn on the surface.
+			if self.input_box:
+				division = (self.rect.height // (len(text) + 2))
+			else:
+				division = (self.rect.height // (len(text) + 1))
+				
+			rect = surf.get_rect(centery = division * index)
+			rect.centerx = self.rect.width//2
+			self.text_surfs.append([surf, rect])
+			index += 1
+			
+	def update(self, new_text):
+		self.set_text_surfs(new_text)
+	
+	def change_line(self, text, line_number):
+		surf = self.font.render(text, True, self.font_color, WHITE)
+		self.text_surfs[line_number][0] = surf
+		old_rect = self.text_surfs[line_number][1]
+		rect = surf.get_rect(centery = old_rect.centery)
+		rect.centerx = self.rect.width//2
+		self.text_surfs[line_number][1] = rect
+		
+	def draw(self, surf):
+		self.fill(WHITE)
+		for line in self.text_surfs:
+			self.blit(line[0], line[1])
+		surf.blit(self, self.rect)
+		pygame.draw.rect(surf, (84,84,84), self.rect, 3)
 
-        # draw white box for instructions
-        draw_transparent_white_rect((600,200), (X_CENTER, 150), 200)
+class Label(object):
+	def __init__(self, text, img = None, x = 0, y = 0, width = 50, height = 27, label_font = cardshand_font, font_color = BLACK, alpha = 255):
+		self.text = text
+		self.img = img
+		self.rect = pygame.Rect(x, y, width, height)
+		self.font = label_font
+		self.font_color = font_color
+		self.alpha = alpha
+		
+		self.text_surf = self.font.render(self.text, True, self.font_color, ondeck_box_color)
+		self.text_rect = self.text_surf.get_rect()
 
-        # draw instructions
-        instruction = bold_font.render("Flip to see who goes first!", True, BLACK)
-        instruction_rect = instruction.get_rect(center=(X_CENTER, 130))
-        SCREEN.blit(instruction, instruction_rect)
-        instruction_b_text = "Heads for {}, tails for {}.".format(p1_name,p2_name)
-        instruction_b = bold_font.render(instruction_b_text, True, BLACK)
-        instruction_b_rect = instruction_b.get_rect(center=(X_CENTER, 170))
-        SCREEN.blit(instruction_b, instruction_b_rect)
+		if self.img is not icon_ondeck:
+			self.img_x = self.rect.x + 3
+			self.img_y = self.rect.y + 1
 
-        # draw coin flip button
-        coin_rect = draw_coin_flip_button(415, 500)
-        MY.coin_obj.location = (X_CENTER, 375)
-        MY.coin_obj.draw(SCREEN)
+			self.text_rect.x = self.rect.x + 30
+			self.text_rect.y = self.rect.y + 4
+		
+		else:
+			self.img_x = self.rect.x + 15
+			self.img_y = self.rect.y + 3
 
-        for event in pygame.event.get():
-            mouse_pos = pygame.mouse.get_pos()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if coin_rect.collidepoint(mouse_pos):
-                    draw_coin_animation()
-                    winner = p1_name if random.randint(0,1) == 1 else p2_name
-                    flipping = False  
-            pygame.display.update()
+			self.text_rect.x = self.rect.x + 50
+			self.text_rect.y = self.rect.y + 5
+			
+	def draw(self, surf):
+		pygame.draw.rect(surf, ondeck_box_color, self.rect, 0, 8)
+		pygame.draw.rect(surf, ondeck_teal, self.rect, 1, 8)
 
-    # display result and show start button
-    first_player = True
-    while first_player:
-        fill_screen()
+		if self.img is not None:
+			surf.blit(self.img, (self.img_x, self.img_y))
 
-        # draw start button
-        start_click_rect = draw_button(button_orange, button_red_orange, "START", 150, 40, 425,400, WHITE, round_font)
+		surf.blit(self.text_surf, (self.text_rect.x, self.text_rect.y))
 
-        # draw white box for visual clarity
-        draw_transparent_white_rect((550,100),(X_CENTER,300),200)
+class OnDeck(pygame.Surface):
+	def __init__(self, player, deck_dict):
+		self.player = player
+		
+		for key, val in deck_dict.items():
+			
+			if key == "box_size":
+				self.box_size = val
+				
+			if key == "box_pos":
+				self.pos = val
+				
+			if key == "title_x":
+				title_x = val
+				
+			if key == "title_y":
+				title_y = val
 
-        # draw first player name
-        first_player = bold_font.render("{} will go first!".format(winner), True, BLACK)
-        fp_rect = first_player.get_rect(center=(X_CENTER, 300))
-        SCREEN.blit(first_player, fp_rect)
+			if key == "title_w":
+				title_w = val
 
-        for event in pygame.event.get():
-            mouse_pos = pygame.mouse.get_pos()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if start_click_rect.collidepoint(mouse_pos):
-                    first_player = False  
-                    return winner
-            pygame.display.update()
+			if key == "title_h":
+				title_h = val
+			
+			if key == "card_box_size":
+				self.card_box_size = val
+				self.box_x = val[0]
+				self.box_y = val[1]
+			
+			if key == "on_deck_label_pos":
+				self.label_x = self.pos[0] + val[0]
+				self.label_y = self.pos[1] + val[1]
+			
+		super().__init__(self.box_size)
+		self.fill(ondeck_ltblue)
+		self.set_alpha(85)
+		
+		# on deck title box
+		self.ondeck_title = Label("On Deck", icon_ondeck, title_x, title_y, title_w, title_h, cardshand_font, ondeck_text)
+		
+		self.update()
+		
+	def get_event(self, event):
+		if event.type == pygame.MOUSEBUTTONDOWN:
+			for card_label in self.cards:
+				if card_label.rect.collidepoint(event.pos):
+					self.player.switch_card(card_label.text)
+					break
+					
+	def update(self):	
+		self.cards = []
+		label_y = self.label_y
+		
+		for card in self.player.hand:
+			if card.alive:
+				if card == self.player.current_card:
+					continue
+	
+				card_label = Label(card.name, card.typelogo, self.label_x, label_y, 200, 27, cardshand_font, BLACK)	
+				self.cards.append(card_label)
+				label_y += 32
+			else:
+				for card_label in self.cards:
+					if card_label.text == card.name:
+						self.cards.remove(card_label)
+						break
+			
+	def draw(self, surf):
+		self.ondeck_title.draw(surf)
+		
+		surf.blit(self, self.pos)
+		
+		pygame.draw.rect(surf, ondeck_outline_blue, (self.pos, self.box_size), 2, 3)
+		
+		for card in self.cards:
+			card.draw(surf)
+	
+class Healthbar(object):
+	def __init__(self, player, settings_dict):
+		self.player = player
+		self.player_health = 15
+		self.settings_dict = settings_dict
+		self.setup()
+		
+	def setup(self):
+	
+		for key, val in self.settings_dict.items():
+				
+			if key == "name_x":
+				self.name_x = val
+			
+			if key == "name_y":
+				self.name_y = val
+			
+			if key == "healthbar_pos":
+				self.healthbar_pos = val
+				self.healthbar_x = val[0]
+				self.healthbar_y = val[1]
+		
+			if key == "width":
+				self.width = val
+				
+			if key == "height":
+				self.height = val
+				
+			if key == "change_val":
+				self.color_change_val = val
+				
+			if key == "health_inc":
+				self.health_inc = val
+				
+			if key == "font":
+				self.font = val
+				
+			if key == "font_color":
+				self.font_color = val
 
-def draw_choose_hand_screen(current_player):
-    running = True
-    while running:
-        fill_screen()
+	def update(self):
+		self.player_health = self.player.current_card.HP
+		
+	def draw(self, surf):
+		name = bold_font.render(self.player.name, True, BLACK)
+		surf.blit(name, (self.name_x, self.name_y))
 
-        # draw white box for instructions
-        draw_transparent_white_rect((300,300),(800,300),200)
+		hb_size = (self.width, self.height)
 
-        # draw instructions
-        name = bold_font.render("{},".format(current_player.name), True, BLACK)
-        name_rect = name.get_rect(center=(800, 260))
-        SCREEN.blit(name, name_rect)
+		if self.player_health < 8:
+			p1_color = hb_yellow
+		else:
+			p1_color = hb_green
 
-        instruction = bold_font.render("Click on the card", True, BLACK)
-        instruction_rect = instruction.get_rect(center=(800, 300))
-        SCREEN.blit(instruction, instruction_rect)
+		p1_bar = self.width * self.player_health / self.health_inc
 
-        instruction_b = bold_font.render("you want to use.", True, BLACK)
-        instruction_b_rect = instruction_b.get_rect(center=(800, 340))
-        SCREEN.blit(instruction_b, instruction_b_rect)
+		pygame.draw.rect(surf, hb_red, (self.healthbar_pos, (self.width, self.height)), 0, 2)
+		pygame.draw.rect(surf, p1_color, (self.healthbar_pos, (p1_bar, self.height)), 0, 2)
+		
+		# add highlight to healthbars
+		hl_w = p1_bar-10 if (p1_bar-10) >0 else 0
+		hl_pos = (self.name_x + 5, self.name_y + 48)
+		hl_size = (hl_w, self.height/3)
+		hl = pygame.Surface(hl_size)
+		hl.set_alpha(75)
+		hl.fill(WHITE)
 
-        x, y = 200, 250
-        clickable_rects = []
-        for card in current_player.HAND:
-            card_pos = pygame.math.Vector2(x,y)
-            card_img = Image(card.image_path)
-            card_obj = Object(card_img)
-            card_obj.location = card_pos
-            r = card_obj.get_transformed_rect()
-            shadow_pos = (x-144, y-204)
-            SCREEN.blit(MY.card_shadow, shadow_pos)
-            card_obj.draw(SCREEN)
-            clickable_rects.append(r)
-            y = y + 100
-            x = x + 100
+		surf.blit(hl, hl_pos)
+		
+		health = dialog_font.render("{}/15".format(self.player_health), True, hb_grey)
+		surf.blit(health, (self.name_x + 5, self.name_y + 50))
 
-        for event in pygame.event.get():
-            mouse_pos = pygame.mouse.get_pos()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if clickable_rects[0].collidepoint(mouse_pos):
-                    current_player.choose_card(0)
-                    running = False  
-                if clickable_rects[1].collidepoint(mouse_pos):
-                    current_player.choose_card(1)
-                    running = False  
-                if clickable_rects[2].collidepoint(mouse_pos):
-                    current_player.choose_card(2)
-                    running = False  
-            pygame.display.update()
-    return
+class CardDisplay(object):
+	def __init__(self, player, data_dict):
+		self.player = player
+		self.cards = player.hand
+		self.active_card = self.player.get_current_card()
+		
+		self.active_surface = pygame.Surface(active_box_size)
+		self.active_surface.set_alpha(75)
+		self.active_surface.fill(active_cyan)
+		
+		self.active_surface_s = pygame.Surface(active_box_size_s)
+		self.active_surface_s.set_alpha(75)
+		self.active_surface_s.fill(active_cyan)
+	
+		self.card_shadow = pygame.Surface((300,421))
+		self.card_shadow.fill(BLACK)
+		self.card_shadow.set_alpha(50)
+	
+		self.active_box_size = active_box_size
+		self.active_box_size_s = active_box_size_s
+		
+		for key, val in data_dict.items():
+			
+			if key == "active_box_pos":
+				self.box_pos = val
+				
+			if key == "active_box_pos_s":
+				self.box_pos_s = val
+				
+			if key == "shadow_pos":
+				self.shadow_pos = val
+				
+			if key == "card_x":
+				self.card_x = val
+				
+			if key == "card_y":
+				self.card_y = val
+				
+		self.active_card.set_location((self.card_x, self.card_y))
 
-def draw_screen(p1, p2, message=""):
-    fill_screen()
-    draw_transparent_white_rect((200,300), (X_CENTER,200),200)
-    populate_dialog_box(message, 80)
-    draw_active_player(p1, p2)
-    draw_active_cards(p1, p2)
-    draw_inactive_cards(p1, p2)
-    draw_healthbars(p1, p2)
-    draw_tech_attack_button()
-    MY.coin_obj.location = (X_CENTER, 475)
-    MY.coin_obj.draw(SCREEN) 
-    pygame.display.update()
+	def update(self):
+		self.active_card = self.player.get_current_card()
+		self.active_card.set_location((self.card_x, self.card_y))
 
-def draw_challenge_screen(p1, p2, message=""):
-    fill_screen()
-    draw_transparent_white_rect((200,300), (X_CENTER,200),200)
-    populate_dialog_box(message, 80, True)
-    draw_active_player(p1, p2)
-    draw_active_cards(p1, p2)
-    draw_inactive_cards(p1, p2)
-    draw_healthbars(p1, p2)
-    draw_coded_attack_button()
-    draw_tech_attack_button()
-    MY.coin_obj.location = (X_CENTER, 475)
-    MY.coin_obj.draw(SCREEN) 
-    pygame.display.update()
+	def draw(self, surf):
+		if self.player.active_turn:
+			pygame.draw.rect(surf, active_cyan, (self.box_pos, active_box_size), 3, 10)
+			surf.blit(self.active_surface_s, self.box_pos_s)
+	
+		# draw shadow first
+		surf.blit(self.card_shadow, self.shadow_pos)
+		self.active_card.draw(surf)
 
-def populate_dialog_box(message, position, challenge_flag = False):
-    if message == "":
-        # round 0, display initial instructions in box instead
-        if challenge_flag:
-            instructions = CHALLENGE_INSTRUCTIONS
-        else:
-            instructions = INSTRUCTIONS
-        text = textwrap.wrap(instructions, 25)
-        pos_y = 80
-        for line in text:
-            inst_line = dialog_bold.render(line, True, BLACK)
-            inst_surf = inst_line.get_rect(center=(WINDOW_WIDTH//2,pos_y))
-            SCREEN.blit(inst_line, inst_surf)
-            pos_y = pos_y + 20 
-        return
-
-    lines = message.splitlines()
-    rd = "ROUND {}".format(lines[0])
-    player = lines[1]
-    coin = lines[2]
-    status = lines[3:]
-    # render Round Number
-    round_num = round_font.render(rd, True, round_dark_blue)
-    round_surf = round_num.get_rect(center=(WINDOW_WIDTH//2,position))
-    SCREEN.blit(round_num, round_surf)
-    # render line separator
-    pygame.draw.rect(SCREEN, round_dark_blue, ((405,position+20), (190,3)))
-    # render current player
-    current_player = dialog_bold.render("Current Player:", True, BLACK)
-    SCREEN.blit(current_player, (410, position+60))
-    player_name = dialog_font.render(player, True, BLACK)
-    SCREEN.blit(player_name, (425, position+90))
-    # render Coin Toss
-    coin_toss = dialog_bold.render("Coin Toss:", True, BLACK)
-    SCREEN.blit(coin_toss, (410, position+120))
-    coin_result = dialog_font.render(coin, True, BLACK)
-    SCREEN.blit(coin_result, (500, position+120))
-    # render turn result - may be over multiple lines
-    x = 410
-    y = position+170
-    for line in status:
-        dlg_pos = (x,y)
-        dlg_line = status_font.render(line, True, (BLACK))
-        SCREEN.blit(dlg_line, dlg_pos)
-        y = y + 20
-
-def draw_active_player(p1, p2):
-    active_box_size = (355,665)
-    active_box_size_s = (350,660)
-    active_box_pos_L = (23,17)
-    active_box_pos_R = (X_CENTER+123,17)
-    active_box_pos_L_s = (25,19)
-    active_box_pos_R_s = (X_CENTER+125,19)
-    
-    active_surface = pygame.Surface(active_box_size)
-    active_surface.set_alpha(75)
-    active_surface.fill(active_cyan)
-    active_surface_s = pygame.Surface(active_box_size_s)
-    active_surface_s.set_alpha(75)
-    active_surface_s.fill(active_cyan)
-
-    if p1.active_turn:
-        # draw left active box
-        pygame.draw.rect(SCREEN, active_cyan, (active_box_pos_L, active_box_size), 3, 10)
-        SCREEN.blit(active_surface_s, active_box_pos_L_s)
-    elif p2.active_turn:
-        # draw right active box
-        pygame.draw.rect(SCREEN, active_cyan, (active_box_pos_R, active_box_size), 3, 10)
-        SCREEN.blit(active_surface_s, active_box_pos_R_s)
-
-def draw_active_cards(p1, p2):
-    # draw shadow first
-    shadow_l_pos = (57,102)
-    shadow_r_pos = (X_CENTER+157,102)
-    SCREEN.blit(MY.card_shadow, shadow_l_pos)
-    SCREEN.blit(MY.card_shadow, shadow_r_pos)
-
-    p1_card = get_current_card(p1, "L")
-    p2_card = get_current_card(p2, "R")
-    p1_card.draw(SCREEN)
-    p2_card.draw(SCREEN)
-
-def get_current_card(player, side):
-    p_card = player.HAND[player.current_card]
-    p_card_img = Image(p_card.image_path)
-    p_card_obj = Object(p_card_img)
-    if side == "L":
-        p_card_obj.__setattr__("location", CARD_L_POS)
-    else:
-        p_card_obj.__setattr__("location", CARD_R_POS)
-    p_card_obj.__setattr__("sprite", p_card_img)
-    return p_card_obj
-
-def draw_inactive_cards(p1, p2):
-    draw_on_deck_boxes()
-
-    card_box_size = (200,25)
-    card_surface = pygame.Surface(card_box_size)
-    card_surface.set_alpha(150)
-    card_surface.fill(ondeck_box_color)
-
-    L_pos_x, L_pos_y = 102, 570
-    for card in p1.HAND:
-        if card == p1.HAND[p1.current_card]:
-            continue
-        box_x = L_pos_x - 3
-        box_y = L_pos_y - 1
-        pygame.draw.rect(SCREEN, ondeck_box_color, ((box_x,box_y), card_box_size), 0, 8)
-        pygame.draw.rect(SCREEN, ondeck_teal, ((box_x,box_y), card_box_size), 1, 8)
-        name = card.name
-        SCREEN.blit(MY.insignia, (L_pos_x,L_pos_y))
-        card_name = cardshand_font.render(name, True, BLACK)
-        name_x = L_pos_x + 25
-        name_y = L_pos_y + 3
-        SCREEN.blit(card_name, (name_x, name_y))
-        L_pos_y = L_pos_y + 32
-    R_pos_x, R_pos_y = 702, 570
-    for card in p2.HAND:
-        if card == p2.HAND[p2.current_card]:
-            continue
-        box_x = R_pos_x - 3
-        box_y = R_pos_y - 1
-        pygame.draw.rect(SCREEN, ondeck_box_color, ((box_x,box_y), card_box_size), 0, 8)
-        pygame.draw.rect(SCREEN, ondeck_teal, ((box_x,box_y), card_box_size), 1, 8)
-        name = card.name
-        SCREEN.blit(MY.insignia, (R_pos_x,R_pos_y))
-        card_name = cardshand_font.render(name, True, BLACK)
-        name_x = R_pos_x + 25
-        name_y = R_pos_y + 3
-        SCREEN.blit(card_name, (name_x, name_y))
-        R_pos_y = R_pos_y + 32
-
-def draw_on_deck_boxes():
-    box_size = (250,100)
-    l_box_pos = (75, 562)
-    r_box_pos = (675, 562)
-    
-    deck_surface = pygame.Surface(box_size)
-    deck_surface.set_alpha(85)
-    deck_surface.fill(ondeck_ltblue)
-    SCREEN.blit(deck_surface, l_box_pos)
-    SCREEN.blit(deck_surface, r_box_pos)
-    pygame.draw.rect(SCREEN, ondeck_outline_blue, (l_box_pos, box_size), 2, 3)
-    pygame.draw.rect(SCREEN, ondeck_outline_blue, (r_box_pos, box_size), 2, 3)
-
-    # on deck title boxes
-    title_box_size = (150,30)
-    title_surface = pygame.Surface(title_box_size)
-    title_surface.fill(ondeck_titlebox)
-    pygame.draw.rect(SCREEN, ondeck_titlebox, ((130,525), title_box_size), 0, 8)
-    pygame.draw.rect(SCREEN, ondeck_titlebox, ((730,525), title_box_size), 0, 8)
-
-    od_l_pos = (165, 530)
-    od_r_pos = (765, 530)
-    on_deck = cardshand_font.render("ON DECK", True, ondeck_text)
-    SCREEN.blit(on_deck, od_l_pos)
-    SCREEN.blit(on_deck, od_r_pos)
-
-def draw_healthbars(p1, p2):
-    p1_x = 68
-    p_y = 17
-    p2_x = X_CENTER + p1_x + 100
-    p1_name = bold_font.render(p1.name, True, BLACK)
-    SCREEN.blit(p1_name, (p1_x, p_y))
-    p2_name = bold_font.render(p2.name, True, BLACK)
-    SCREEN.blit(p2_name, (p2_x, p_y))
-    p1_hp = p1.HAND[p1.current_card].HP
-    p2_hp = p2.HAND[p2.current_card].HP
-    p1_hp_pos = (p1_x,p_y+45)
-    p2_hp_pos = (p2_x,p_y+45)
-    width, height = 265, 25
-    hb_size = (width, height)
-
-    if p1_hp < 8:
-        p1_color = hb_yellow
-    else:
-        p1_color = hb_green
-    if p2_hp < 8:
-        p2_color = hb_yellow
-    else:
-        p2_color = hb_green
-    p1_bar = width * p1_hp / 15
-    p2_bar = width * p2_hp / 15
-    pygame.draw.rect(SCREEN, hb_red, (p1_hp_pos, (width,height)), 0, 2)
-    pygame.draw.rect(SCREEN, hb_red, (p2_hp_pos, (width,height)), 0, 2)
-    pygame.draw.rect(SCREEN, p1_color, (p1_hp_pos, (p1_bar,height)), 0, 2)
-    pygame.draw.rect(SCREEN, p2_color, (p2_hp_pos, (p2_bar,height)), 0, 2)
-    # add highlight to healthbars
-    p1_hl_w = p1_bar-10 if (p1_bar-10)>0 else 0
-    p1_hl_pos = (p1_x+5, p_y+48)
-    p2_hl_pos = (p2_x+5, p_y+48)
-    p1_hl_size = (p1_hl_w,height/3)
-    p1_hl = pygame.Surface(p1_hl_size)
-    p1_hl.set_alpha(75)
-    p1_hl.fill(WHITE)
-    SCREEN.blit(p1_hl, p1_hl_pos)
-    p2_hl_w = p2_bar-10 if (p2_bar-10)>0 else 0
-    p2_hl_size = (p2_hl_w,height/3)
-    p2_hl = pygame.Surface(p2_hl_size)
-    p2_hl.set_alpha(75)
-    p2_hl.fill(WHITE)
-    SCREEN.blit(p2_hl, p2_hl_pos)
-    
-    p1_health = dialog_font.render("{}/15".format(p1_hp), True, hb_grey)
-    SCREEN.blit(p1_health, (p1_x+5, p_y+50))
-    p2_health = dialog_font.render("{}/15".format(p2_hp), True, hb_grey)
-    SCREEN.blit(p2_health, (p2_x+5, p_y+50))
-
-def draw_coin_flip_button(x=X_CENTER-85, y=625):
-    return draw_button(coin_yellow, coin_dark_yellow, "Flip the Coin!", 170, 40, x, y)
-
-def draw_coded_attack_button():
-    return draw_button(coin_yellow, coin_dark_yellow, "Coded Attack", 170, 40, X_CENTER-85, 625)
-
-def draw_tech_attack_button():
-    return draw_button(ondeck_teal, round_dark_blue, "Tech Type Attack", 210, 40, X_CENTER-105, 575)
-
-def draw_button(button_color, button_outline, button_text, width, height, x, y, font_color = BLACK, font=button_font):
-    button_pos = (x, y)
-    button_rect = pygame.draw.rect(SCREEN, button_color, (button_pos, (width,height)), 0, 3)
-    pygame.draw.rect(SCREEN, button_outline, (button_pos, (width,height)), 3, 3)
-
-    highlight = pygame.Surface((width-10,height/5))
-    highlight.set_alpha(150)
-    highlight.fill(WHITE)
-    SCREEN.blit(highlight, (x+5,y+5))
-
-    button_click = font.render(button_text, True, font_color)
-    text_rect = button_click.get_rect()
-    text_rect.center = button_rect.center
-    SCREEN.blit(button_click, text_rect)
-    click_rect = button_click.get_rect(topleft=button_pos)    
-
-    return click_rect
-
-def draw_coin_animation():
-    # MY.coin_obj.sprite = MY.coin_anim
-    # MY.coin_obj.update(10)
-    MY.coin_anim.play(.01)
-    MY.coin_anim.frame_time = 10000
-    MY.coin_anim.set_duration(20)
-    # MY.coin_anim.update(10)
-    for i in range(100):
-        MY.coin_anim.update(1)
-        MY.coin_obj.sprite = MY.coin_anim
-        MY.coin_obj.draw(SCREEN)
-    MY.coin_anim.reset()
-
-def victory(player):
-    # draw screen
-    # draw victory message and victor's name
-    # draw play again button and exit game button
-
-    running = True
-    while running:
-        fill_screen()
-
-        victor_msg = bold_font.render("{} HAS WON!".format(player.name), True, BLACK)
-        victor_msg_rect = victor_msg.get_rect(center=(X_CENTER, 240))
-        SCREEN.blit(victor_msg, victor_msg_rect)
-
-        # play again button
-        play_again_rect = draw_button(button_orange, button_red_orange, "Play Again?", 200, 40, 260, 400, WHITE, round_font)
-        
-        # exit button
-        exit_rect = draw_button(button_orange, button_red_orange, "Exit", 100, 40, 600, 400, WHITE, round_font)
-        
-        for event in pygame.event.get():
-            mouse_pos = pygame.mouse.get_pos()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if play_again_rect.collidepoint(mouse_pos):
-                    running = False 
-                    return False 
-                if exit_rect.collidepoint(mouse_pos):
-                    running = False 
-                    return True 
-            pygame.display.update()
-
-    # # display victor - TODO: render victory on screen
-    # print("Player {} has won the game!".format(player.name))
-    # # return true if play again button pressed, else return false
-    # return True
-
-def switch_active_player(offense, defense):
-    offense.active_turn = False
-    defense.active_turn = True
-
-def get_active_player(player_one, player_two):
-    if player_one.active_turn:
-        return player_one, player_two  
-    else:
-        return player_two, player_one
+class DialogBox(object):
+	def __init__(self, size, position):
+		self.size = size
+		self.position = position
+		self.surface = pygame.Surface(size)
+		self.surface.set_alpha(200)
+		self.surface.fill(WHITE)
+		self.rect = self.surface.get_rect(center=(X_CENTER, position[1]+150))
+		self.message = None
+			
+	def set_message(self, message):
+		self.message = message
+		self.lines = message.splitlines()
+		self.rd = "ROUND {}".format(self.lines[0])
+		self.player = self.lines[1]
+		self.coin = self.lines[2]
+		self.status = self.lines[3:]
+	
+	def draw(self, surf):
+		if self.message is not None:
+			surf.blit(self.surface, self.rect)
+			pygame.draw.rect(surf, (84,84,84), self.rect, 3)
+			
+			# render Round Number
+			round_num = round_font.render(self.rd, True, round_dark_blue)
+			round_surf = round_num.get_rect()
+			round_surf.top = self.position[1] + 10
+			round_surf.centerx = WINDOW_WIDTH//2
+			
+			surf.blit(round_num, round_surf)
+		
+			# render line separator
+			pygame.draw.rect(surf, round_dark_blue, ((self.position[0] + 5, self.position[1] + 40), (190, 3)))
+			# render current player
+			current_player = dialog_bold.render("Player:", True, BLACK)
+			surf.blit(current_player, (self.position[0] + 10, self.position[1] + 70))
+			player_name = dialog_font.render(self.player, True, BLACK)
+			surf.blit(player_name, (self.position[0] + current_player.get_width() + 12, self.position[1] + 70))
+			# render Coin Toss
+			coin_toss = dialog_bold.render("Coin Toss:", True, BLACK)
+			surf.blit(coin_toss, (self.position[0] + 10, self.position[1] + 100))
+			coin_result = dialog_font.render(self.coin, True, BLACK)
+			surf.blit(coin_result, (self.position[0] + 10 + coin_toss.get_width(), self.position[1] + 100))
+			# render turn result - may be over multiple lines
+			x = self.position[0] + 10
+			y = self.position[1] + 130
+			for line in self.status:
+				dlg_pos = (x,y)
+				dlg_line = status_font.render(line, True, (BLACK))
+				surf.blit(dlg_line, dlg_pos)
+				y = y + 20
 
 def add_to_message(msg, text_add):
     # Helper method to build game dialog messages and wrap over lines
@@ -796,3 +1036,18 @@ def add_to_message(msg, text_add):
     for line in text:
         msg += line + "\n"
     return msg
+
+def strip_from_sheet(sheet, start, size, columns, rows=1):
+	"""Strips individual frames from a sprite sheet given a start location,
+		sprite size, and number of columns and rows."""
+
+	frames = []
+
+	for j in range(rows):
+		for i in range(columns):
+			location = (start[0]+size[0]*i, start[1]+size[1]*j)
+			img = sheet.subsurface(pygame.Rect(location, size))
+			frames.append(img)
+
+	return frames
+
