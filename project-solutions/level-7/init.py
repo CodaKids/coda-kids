@@ -26,7 +26,7 @@ TITLE_IMAGE = pygame.image.load(path.join(assets_path, "title_screen_wide_shadow
 TITLE_LOGO = pygame.image.load(path.join(assets_path, "IncredicodersLogo_850.png")) 
 CARD_L_POS = pygame.math.Vector2(200,305)
 CARD_R_POS = pygame.math.Vector2(800,305)
-INSTRUCTIONS = ["Click Tech Type", "Attack to flip", "the coin - heads", "does 3 damage", "(or more/less", " depending on your", "weakness and resistance)", "and tails misses."]
+INSTRUCTIONS = ["Click Tech Type Attack", "to flip the coin: heads", "does 3 damage and", "tails misses.", "Be sure to check out", "your card's weaknesses", "and resistance. You can", "give more damage to a", "weak Tech Type, and you", "can receive less damage if", "you're resistant to a", "Tech Type."]
 CHALLENGE_INSTRUCTIONS = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses. Or click Coded Attack to do 1 damage. Flip the coin - heads will do your card's special move!"
 FPS = 30
 
@@ -317,6 +317,87 @@ class CoinFlipScreen(GameState):
 			self.winner_box.draw(surf)
 			self.start_button.draw(surf)
 
+class ChooseHandScreen(GameState):
+	def __init__(self, deck):
+		super().__init__()
+		self.next_state = "Game"
+		self.card_shadow = pygame.Surface((300,421))
+		self.card_shadow.fill(BLACK)
+		self.card_shadow.set_alpha(50)
+		self.shadows = []
+		self.deck = deck
+		
+	def start(self, players):
+		self.players = players
+		self.player1 = players["player1"]
+		self.player2 = players["player2"]
+				
+		self.current_player = self.player1 if self.player1.active_turn else self.player2
+	
+		self.reset_cards()
+	
+		name = "{},".format(self.current_player.name)
+		instructions_1 = "Click on the card"
+		instructions_2 = "you want to use."
+		
+		self.info_box = InfoBox([name, instructions_1, instructions_2], bold_font, BLACK, (300,300), (800,300), 200)
+		self.set_card_locations(self.player1)
+		self.set_card_locations(self.player2)
+		
+	def set_card_locations(self, player):
+		x, y = 200, 250
+		self.count = 0
+			
+		for card in player.hand:
+			card.set_location((x,y))
+			shadow_pos = (x-144, y-204)
+			self.shadows.append(shadow_pos)
+			y = y + 100
+			x = x + 100
+	
+	def get_event(self, event):
+		if event.type == pygame.MOUSEBUTTONDOWN:
+			for card in self.current_player.hand[::-1]:
+				if card.rect.collidepoint(event.pos):
+					self.current_player.set_card(card)
+	
+					self.count += 1
+					if self.count == 2:
+						break
+					
+					self.current_player = self.player2 if self.player1.active_turn else self.player1
+					
+					name = "{},".format(self.current_player.name)
+					self.info_box.change_line(name, 0)
+					return
+					
+			if self.current_player == self.player2:
+				self.done = True
+			
+	def update(self, dt):
+		if self.count == 2:
+			self.done = True
+		
+	def draw(self, surf):
+		super().draw(surf)		
+		self.info_box.draw(surf)
+		for i, card in enumerate(self.current_player.hand):
+			surf.blit(self.card_shadow, self.shadows[i])
+			card.draw(surf)
+			
+	def reset_cards(self):
+		# Reset cards
+		for card in self.deck:
+			card.HP = 15
+			card.alive = True
+
+		# Shuffle deck
+		random.shuffle(self.deck)
+		
+		# Deal cards to players
+		self.player1.hand = self.deck[:1]
+		self.player2.hand = self.deck[1:2]
+				
 class VictoryScreen(GameState):
 	def __init__(self):
 		super().__init__()
@@ -328,13 +409,12 @@ class VictoryScreen(GameState):
 		
 		self.winner = self.player1 if self.player1.winner else self.player2
 
-		self.victor_msg = bold_font.render("{} has won!".format(self.winner.name), True, BLACK)
-		self.victor_msg_rect = self.victor_msg.get_rect(center=(X_CENTER, 240))
-		
-		self.play_button = Button("Play Again?", 260, 400, 200, 40, button_orange, button_red_orange, WHITE, round_font, self)
+		self.victor_box = InfoBox(["{} has won!".format(self.winner.name)], bold_font, WHITE, (300,75), (X_CENTER, 225), 150, bg_color = BLACK)
+		self.play_button = Button("Play Again?", 250, 400, 200, 40, button_orange, button_red_orange, WHITE, round_font, self)
 		self.play_button.action_params = "play"
-		self.exit_button = Button("Exit", 600, 400, 100, 40, button_orange, button_red_orange, parent = self)
+		self.exit_button = Button("Exit", 625, 400, 100, 40, button_orange, button_red_orange, WHITE, round_font, self)
 		self.exit_button.action_params = "exit"
+        # self, text, x, y, width, height, color, outline_color, font_color = BLACK, font = button_font, parent = None
 		
 	def get_event(self, event):
 		self.play_button.get_event(event)
@@ -351,7 +431,8 @@ class VictoryScreen(GameState):
 			
 	def draw(self, surf):
 		super().draw(surf)
-		surf.blit(self.victor_msg, self.victor_msg_rect)
+		# surf.blit(self.victor_msg, self.victor_msg_rect)
+		self.victor_box.draw(surf)
 		self.play_button.draw(surf)
 		self.exit_button.draw(surf)
 
@@ -525,7 +606,7 @@ icon_bash = pygame.image.load(path.join(assets_path, "icon_bash.png"))
 icon_java = pygame.image.load(path.join(assets_path, "icon_java.png"))
 icon_python = pygame.image.load(path.join(assets_path, "icon_python.png"))
 icon_scratch = pygame.image.load(path.join(assets_path, "icon_scratch.png"))
-icon_smallbasic = pygame.image.load(path.join(assets_path, "icon_smallbasic.png"))
+icon_small_basic = pygame.image.load(path.join(assets_path, "icon_smallbasic.png"))
 icon_ondeck = pygame.image.load(path.join(assets_path, "icon_ondeck.png"))
 icon_codedattack = pygame.image.load(path.join(assets_path, "icon_codedattack.png"))
 
@@ -690,9 +771,10 @@ class InputBox(pygame.Surface):
 		surf.blit(self, self.rect)
  
 class InfoBox(pygame.Surface):
-	def __init__(self, text, font, font_color, size, center_pos, alpha, input_box = False):
+	def __init__(self, text, font, font_color, size, center_pos, alpha, input_box = False, bg_color = WHITE):
 		super().__init__(size)
-		self.fill(WHITE)
+		self.bg_color = bg_color
+		self.fill(bg_color)
 		
 		self.text = text
 		self.font = font
@@ -709,7 +791,7 @@ class InfoBox(pygame.Surface):
 		
 		index = 1
 		for line in text:
-			surf = self.font.render(line, True, self.font_color, WHITE)
+			surf = self.font.render(line, True, self.font_color, self.bg_color)
 		
 			# this calculates the spacing and positioning of the lines of text, taking into account
 			# whether there is an input box drawn on the surface.
@@ -735,7 +817,7 @@ class InfoBox(pygame.Surface):
 		self.text_surfs[line_number][1] = rect
 		
 	def draw(self, surf):
-		self.fill(WHITE)
+		self.fill(self.bg_color)
 		for line in self.text_surfs:
 			self.blit(line[0], line[1])
 		surf.blit(self, self.rect)

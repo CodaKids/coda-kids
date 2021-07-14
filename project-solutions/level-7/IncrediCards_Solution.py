@@ -2,25 +2,25 @@ from init import *
 
 # Create all of the Cards		
 annie_conda = Card('Annie Conda', 'python', 'java', 'bash', annie_conda_img, icon_python)
-bayo_wolf = Card('Bayo Wolf', 'scratch', 'turtle', 'java', bayo_wolf_img, icon_scratch)
+bayo_wolf = Card('Bayo Wolf', 'scratch', 'small_basic', 'java', bayo_wolf_img, icon_scratch)
 captain_javo = Card('Captain Javo', 'java', 'scratch', 'python', captain_javo_img, icon_java)
-cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'turtle', cryptic_creeper_img, icon_bash)
-emily_airheart = Card('Emily Airheart', 'turtle', 'bash', 'scratch', emily_airheart_img, icon_smallbasic)
-grafika_turtle = Card('Grafika Turtle', 'turtle', 'bash', 'scratch', grafika_turtle_img, icon_smallbasic)
-intelli_scents = Card('Intelli-Scents', 'scratch', 'turtle', 'java', intelli_scents_img, icon_scratch)
+cryptic_creeper = Card('Cryptic Creeper', 'bash', 'python', 'small_basic', cryptic_creeper_img, icon_bash)
+emily_airheart = Card('Emily Airheart', 'small_basic', 'bash', 'scratch', emily_airheart_img, icon_small_basic)
+grafika_turtle = Card('Grafika Turtle', 'small_basic', 'bash', 'scratch', grafika_turtle_img, icon_small_basic)
+intelli_scents = Card('Intelli-Scents', 'scratch', 'small_basic', 'java', intelli_scents_img, icon_scratch)
 java_lynn = Card('Java Lynn', 'java', 'scratch', 'python', java_lynn_img, icon_java)
 jitter_bug = Card('Jitter Bug', 'java', 'scratch', 'python', jitter_bug_img, icon_java)
 justin_timbersnake = Card('Justin Timbersnake', 'python', 'java', 'bash', justin_timbersnake_img, icon_python)
-mrs_scratcher = Card('Mrs. Scratcher', 'scratch', 'turtle', 'java', mrs_scratcher_img, icon_scratch)
+mrs_scratcher = Card('Mrs. Scratcher', 'scratch', 'small_basic', 'java', mrs_scratcher_img, icon_scratch)
 paul_python = Card('Paul Python', 'python', 'java', 'bash', paul_python_img, icon_python)
 queen_cobra = Card('Queen Cobra', 'python', 'java', 'bash', queen_cobra_img, icon_python)
 ram_rom = Card('Ram Rom', 'java', 'scratch', 'python', ram_rom_img, icon_java)
 sidewinder = Card('Sidewinder', 'python', 'java', 'bash', sidewinder_img, icon_python)
-syntax_turtle = Card('Syntax Turtle', 'turtle', 'bash', 'scratch', syntax_turtle_img, icon_smallbasic)
+syntax_turtle = Card('Syntax Turtle', 'small_basic', 'bash', 'scratch', syntax_turtle_img, icon_small_basic)
 viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', viralmuto_img, icon_bash)
-virobotica = Card('Virobotica', 'bash', 'python', 'turtle', virobotica_img, icon_bash)
-virobots = Card('Virobots', 'bash', 'python', 'turtle', virobots_img, icon_bash)
-woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'turtle', 'java', woodchuck_norris_img, icon_scratch)
+virobotica = Card('Virobotica', 'bash', 'python', 'small_basic', virobotica_img, icon_bash)
+virobots = Card('Virobots', 'bash', 'python', 'small_basic', virobots_img, icon_bash)
+woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'small_basic', 'java', woodchuck_norris_img, icon_scratch)
 
 DECK = []
 
@@ -46,86 +46,8 @@ DECK.append(virobotica)
 DECK.append(virobots)
 DECK.append(woodchuck_norris)
 
-class ChooseHandScreen(GameState):
-	def __init__(self):
-		super().__init__()
-		self.next_state = "Game"
-		self.card_shadow = pygame.Surface((300,421))
-		self.card_shadow.fill(BLACK)
-		self.card_shadow.set_alpha(50)
-		self.shadows = []
-		
-	def start(self, players):
-		self.players = players
-		self.player1 = players["player1"]
-		self.player2 = players["player2"]
-				
-		self.current_player = self.player1 if self.player1.active_turn else self.player2
-	
-		self.reset_cards()
-	
-		name = "{},".format(self.current_player.name)
-		instructions_1 = "Click on the card"
-		instructions_2 = "you want to use."
-		
-		self.info_box = InfoBox([name, instructions_1, instructions_2], bold_font, BLACK, (300,300), (800,300), 200)
-		self.set_card_locations(self.player1)
-		self.set_card_locations(self.player2)
-		
-	def set_card_locations(self, player):
-		x, y = 200, 250
-		self.count = 0
-			
-		for card in player.hand:
-			card.set_location((x,y))
-			shadow_pos = (x-144, y-204)
-			self.shadows.append(shadow_pos)
-			y = y + 100
-			x = x + 100
-	
-	def get_event(self, event):
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			for card in self.current_player.hand[::-1]:
-				if card.rect.collidepoint(event.pos):
-					self.current_player.set_card(card)
-	
-					self.count += 1
-					if self.count == 2:
-						break
-					
-					self.current_player = self.player2 if self.player1.active_turn else self.player1
-					
-					name = "{},".format(self.current_player.name)
-					self.info_box.change_line(name, 0)
-					return
-					
-			if self.current_player == self.player2:
-				self.done = True
-			
-	def update(self, dt):
-		if self.count == 2:
-			self.done = True
-		
-	def draw(self, surf):
-		super().draw(surf)		
-		self.info_box.draw(surf)
-		for i, card in enumerate(self.current_player.hand):
-			surf.blit(self.card_shadow, self.shadows[i])
-			card.draw(surf)
-			
-	def reset_cards(self):
-		# Reset cards
-		for card in DECK:
-			card.HP = 15
-			card.alive = True
+random.shuffle(DECK)
 
-		# Shuffle deck
-		random.shuffle(DECK)
-		
-		# Deal cards to players
-		self.player1.hand = DECK[:3]
-		self.player2.hand = DECK[3:6]
-				
 class GameScreen(GameState):
 	
 	def __init__(self):
@@ -276,7 +198,6 @@ class GameScreen(GameState):
 		
 		self.coin.draw(surf)
 		self.tech_attack_button.draw(surf)
-		# self.coded_attack_button.draw(surf)
 		
 if __name__=="__main__":		
 	
@@ -284,7 +205,7 @@ if __name__=="__main__":
 			"Title" : TitleScreen(),
 			"GetNames": GetNameScreen(),
 			"CoinFlip": CoinFlipScreen(),
-			"ChooseHand" : ChooseHandScreen(),
+			"ChooseHand" : ChooseHandScreen(DECK),
 			"Game" : GameScreen(),
 			"Victory" : VictoryScreen()
 			 }
