@@ -1,3 +1,6 @@
+# CHALLENGE 2 - ADD CODED ATTACKS
+# TODO still
+
 from init import *
 
 # Create all of the Cards		
@@ -55,6 +58,7 @@ class GameScreen(GameState):
 		self.next_state = "Victory"
 
 		self.tech_attack_button = Button("Tech Type Attack", X_CENTER-105, 575, 210, 40, ondeck_teal, round_dark_blue, parent = self)		
+		self.coded_attack_button = Button("Coded Attack", X_CENTER-85, 625, 170, 40, coin_yellow, coin_dark_yellow, parent = self)
 		self.instructions_box = InfoBox(INSTRUCTIONS, dialog_inst, BLACK, (200, 300), (X_CENTER, 200), 200)
 
 		self.coin = Coin(coin_img, (X_CENTER, 475))
@@ -130,9 +134,11 @@ class GameScreen(GameState):
 				message = add_to_message(message, turn_msg)
 			
 			# Dialog box shows the result of the turn
+
 			self.dialog_box.set_message(message)
 			
 			# update player hands
+			
 			self.player1.refresh_hand()
 			self.player2.refresh_hand()
 			
@@ -149,6 +155,11 @@ class GameScreen(GameState):
 			
 	def flip_coin(self):
 		side = "Heads" if random.random() < 0.5 else "Tails"
+		if side == "Heads":
+			self.attacker.heads_count += 1
+		else:
+			self.attacker.heads_count = 0
+	
 		return side
 
 	def switch_active_player(self):

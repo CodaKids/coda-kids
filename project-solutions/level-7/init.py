@@ -137,7 +137,6 @@ class Player(object):
 		self.current_card = None
 		self.active = True
 		self.active_turn = False
-		self.heads_count = 0
 		
 		self.winner = False
 		
@@ -318,7 +317,7 @@ class CoinFlipScreen(GameState):
 			self.start_button.draw(surf)
 
 class ChooseHandScreen(GameState):
-	def __init__(self, deck):
+	def __init__(self, deck, flag = False):
 		super().__init__()
 		self.next_state = "Game"
 		self.card_shadow = pygame.Surface((300,421))
@@ -326,6 +325,7 @@ class ChooseHandScreen(GameState):
 		self.card_shadow.set_alpha(50)
 		self.shadows = []
 		self.deck = deck
+		self.challenge_flag = flag
 		
 	def start(self, players):
 		self.players = players
@@ -345,15 +345,22 @@ class ChooseHandScreen(GameState):
 		self.set_card_locations(self.player2)
 		
 	def set_card_locations(self, player):
-		x, y = 200, 250
 		self.count = 0
-			
+		
+		if self.challenge_flag:
+			x, y = 175, 225
+			x_delta = 60
+			y_delta = 60	
+		else:
+			x, y = 200, 250
+			x_delta = 100
+			y_delta = 100
 		for card in player.hand:
 			card.set_location((x,y))
 			shadow_pos = (x-144, y-204)
 			self.shadows.append(shadow_pos)
-			y = y + 100
-			x = x + 100
+			y = y + y_delta
+			x = x + x_delta
 	
 	def get_event(self, event):
 		if event.type == pygame.MOUSEBUTTONDOWN:
@@ -395,8 +402,12 @@ class ChooseHandScreen(GameState):
 		random.shuffle(self.deck)
 		
 		# Deal cards to players
-		self.player1.hand = self.deck[:1]
-		self.player2.hand = self.deck[1:2]
+		if self.challenge_flag:
+			self.player1.hand = self.deck[:5]
+			self.player2.hand = self.deck[5:10]
+		else:
+			self.player1.hand = self.deck[:3]
+			self.player2.hand = self.deck[3:6]
 				
 class VictoryScreen(GameState):
 	def __init__(self):
@@ -414,7 +425,6 @@ class VictoryScreen(GameState):
 		self.play_button.action_params = "play"
 		self.exit_button = Button("Exit", 625, 400, 100, 40, button_orange, button_red_orange, WHITE, round_font, self)
 		self.exit_button.action_params = "exit"
-        # self, text, x, y, width, height, color, outline_color, font_color = BLACK, font = button_font, parent = None
 		
 	def get_event(self, event):
 		self.play_button.get_event(event)
@@ -522,10 +532,6 @@ ondeck_titlebox = (255,235,210)
 
 clock = pygame.time.Clock()
 TURN = 1
-
-# box sizes
-active_box_size = (355,670)
-active_box_size_s = (350,665)
 	
 # on deck box 
 on_deck_box_size = (250,100)
@@ -561,7 +567,9 @@ player1_card_display_data = {
 					"active_box_pos_s" : (25, 17),
 					"shadow_pos" : (57, 102),
 					"card_x" : 200,
-					"card_y" : 305
+					"card_y" : 305,
+					"active_box_size" : (355,670),
+					"active_box_size_s" : (350,665)
 					}
 
 player2_card_display_data = {
@@ -569,7 +577,29 @@ player2_card_display_data = {
 					"active_box_pos_s" : (X_CENTER+125, 17),
 					"shadow_pos" : (X_CENTER+157, 102),
 					"card_x" : 800,
-					"card_y" : 305
+					"card_y" : 305,
+					"active_box_size" : (355,670),
+					"active_box_size_s" : (350,665)
+					}
+
+player1_card_display_data_challenge = {
+					"active_box_pos" : (23, 15),
+					"active_box_pos_s" : (25, 17),
+					"shadow_pos" : (57, 102),
+					"card_x" : 200,
+					"card_y" : 305,
+					"active_box_size" : (355,680),
+					"active_box_size_s" : (350,675)
+					}
+
+player2_card_display_data_challenge = {
+					"active_box_pos" : (X_CENTER+123, 15),
+					"active_box_pos_s" : (X_CENTER+125, 17),
+					"shadow_pos" : (X_CENTER+157, 102),
+					"card_x" : 800,
+					"card_y" : 305,
+					"active_box_size" : (355,680),
+					"active_box_size_s" : (350,675)
 					}
 
 # ondeck boxes locations and sizes					
@@ -599,6 +629,31 @@ player2_ondeck_data = {
 					"on_deck_label_pos" : (24, 10),
 					}
 
+player1_ondeck_data_challenge = {
+					"box_size" : (250, 130),
+					"box_pos" : (75, 558),
+					
+					"title_x" : 130,
+					"title_y" : 525,
+					"title_w" : 150,
+					"title_h" : 30,
+					
+					"card_box_size" : (200, 25),
+					"on_deck_label_pos" : (24, 6),
+					}
+
+player2_ondeck_data_challenge = {
+					"box_size" : (250, 130),
+					"box_pos" : (675, 558),
+					
+					"title_x" : 730,
+					"title_y" : 525,
+					"title_w" : 150,
+					"title_h" : 30,
+					
+					"card_box_size" : (200, 25),
+					"on_deck_label_pos" : (24, 6),
+					}
 coin_img = pygame.image.load(path.join(assets_path, "CoinFlip03.png"))
 
 # icon images
@@ -643,11 +698,11 @@ class Button(object):
 		self.parent = parent
 		self.action_params = None
 		
-		self.highlight_x = x + 3
-		self.highlight_y = y + 3
+		self.highlight_x = x + 5
+		self.highlight_y = y + 6
 		
 		self.highlight = pygame.Surface((width-10, height/5))
-		self.highlight.set_alpha(150)
+		self.highlight.set_alpha(125)
 		self.highlight.fill(WHITE)
 		
 		self.text_surf = font.render(self.text, True, self.font_color)
@@ -918,7 +973,7 @@ class OnDeck(pygame.Surface):
 	
 				card_label = Label(card.name, card.typelogo, self.label_x, label_y, 200, 27, cardshand_font, BLACK)	
 				self.cards.append(card_label)
-				label_y += 32
+				label_y += 30
 			else:
 				for card_label in self.cards:
 					if card_label.text == card.name:
@@ -1012,21 +1067,9 @@ class CardDisplay(object):
 		self.player = player
 		self.cards = player.hand
 		self.active_card = self.player.get_current_card()
-		
-		self.active_surface = pygame.Surface(active_box_size)
-		self.active_surface.set_alpha(75)
-		self.active_surface.fill(active_cyan)
-		
-		self.active_surface_s = pygame.Surface(active_box_size_s)
-		self.active_surface_s.set_alpha(75)
-		self.active_surface_s.fill(active_cyan)
-	
 		self.card_shadow = pygame.Surface((300,421))
 		self.card_shadow.fill(BLACK)
 		self.card_shadow.set_alpha(50)
-	
-		self.active_box_size = active_box_size
-		self.active_box_size_s = active_box_size_s
 		
 		for key, val in data_dict.items():
 			
@@ -1044,7 +1087,21 @@ class CardDisplay(object):
 				
 			if key == "card_y":
 				self.card_y = val
-				
+			
+			if key == "active_box_size":
+				self.active_box_size = val
+			
+			if key == "active_box_size_s":
+				self.active_box_size_s = val
+				self.active_surface = pygame.Surface(self.active_box_size)
+
+		self.active_surface.set_alpha(75)
+		self.active_surface.fill(active_cyan)
+		
+		self.active_surface_s = pygame.Surface(self.active_box_size_s)
+		self.active_surface_s.set_alpha(75)
+		self.active_surface_s.fill(active_cyan)
+
 		self.active_card.set_location((self.card_x, self.card_y))
 
 	def update(self):
@@ -1053,7 +1110,7 @@ class CardDisplay(object):
 
 	def draw(self, surf):
 		if self.player.active_turn:
-			pygame.draw.rect(surf, active_cyan, (self.box_pos, active_box_size), 3, 10)
+			pygame.draw.rect(surf, active_cyan, (self.box_pos, self.active_box_size), 3, 10)
 			surf.blit(self.active_surface_s, self.box_pos_s)
 	
 		# draw shadow first
