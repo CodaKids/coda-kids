@@ -1,4 +1,4 @@
-"""Runs the Init.py file and imports the libraries"""
+# Runs the Init.py file and imports the libraries"""
 import BossBattle
 from init import *
 
@@ -10,8 +10,10 @@ def update(delta_time):
         MY.player.location.x = WINDOW_WIDTH - MY.wall_height
     if MY.player.location.y < MY.wall_height:
         MY.player.location.y = MY.wall_height
-    if MY.player.location.y > WINDOW_LENGTH - (MY.wall_height + 20):
-        MY.player.location.y = WINDOW_LENGTH - (MY.wall_height + 20)
+    if MY.player.location.y > WINDOW_LENGTH - (MY.wall_height + 15):
+        MY.player.location.y = WINDOW_LENGTH - (MY.wall_height + 15)
+
+    handle_pillar_collision()
 
     if MY.player.collides_with(MY.boss):
         player_pain_anim()
@@ -35,6 +37,8 @@ def update(delta_time):
         MY.boss_health -= 1
         MY.player_hitbox.active = False
 
+    player_attack_update()
+
     update_assets(delta_time)
     
     check_win()
@@ -44,6 +48,7 @@ def update(delta_time):
 # States
 Manager.register(BossBattle)
 Manager.register(GameOver)
+Manager.register(PlayAgain)
 
 # Run the game
 Manager.run(SCREEN, WINDOW, BLACK)
