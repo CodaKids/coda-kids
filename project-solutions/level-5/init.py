@@ -580,6 +580,7 @@ class Data:
     player_health = PLAYER_START_HEALTH
     player_max_speed = 100
     player_start_position = pygame.math.Vector2(0, 0)
+    player_direction = RIGHT
 
     creeper = Object(creeper_exit_sheet.image_at(0))
 
@@ -615,7 +616,7 @@ def load_level(level_name_as_string):
     """Cleans up resources and loads a specified level. Can be used to reload the same level."""
     cleanup()
 
-    MY.tilemap = read_file("assets/"+level_name_as_string + ".txt")
+    MY.tilemap = read_file("assets/"+level_name_as_string + ".txt") # to move out to main
     for row in range(len(MY.tilemap)):
         for column in range(len(MY.tilemap[row])):
             obj = Object(TILE_IMAGES[int(MY.tilemap[row][column])])

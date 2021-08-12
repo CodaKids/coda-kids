@@ -1,53 +1,44 @@
-"""General information on your module and what it does."""
+#Runs the Init.py file and imports the libraries
 from init import *
 
 def update(delta_time):
-    """Update method for platform state."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             stop()
         elif key_down(event, " ") and (MY.grounded or MY.level_num > 1):
             MY.player.velocity.y = -700
             MY.grounded = False
-
-    if key_held_down(pygame.K_LEFT): # move left
+    if key_held_down(pygame.K_LEFT): 
         MY.player.velocity.x = max(MY.player.velocity.x - PLAYER_ACCEL, -PLAYER_MAX_SPEED)
         MY.player.sprite = MY.paul_run_left
-    elif key_held_down(pygame.K_RIGHT): # move right
+    elif key_held_down(pygame.K_RIGHT): 
         MY.player.velocity.x = min(MY.player.velocity.x + PLAYER_ACCEL, PLAYER_MAX_SPEED)
         MY.player.sprite = MY.paul_run_right
     else:
-        if MY.grounded: # decel
+        if MY.grounded: 
             if MY.player.velocity.x > 0:
                 MY.player.velocity.x = max(0, MY.player.velocity.x - PLAYER_DECEL)
             elif MY.player.velocity.x < 0:
                 MY.player.velocity.x = min(0, MY.player.velocity.x + PLAYER_DECEL)
+            else:
+                MY.player.sprite = MY.paul_idle_right
         else:
             if MY.player.velocity.x > 0:
                 MY.player.velocity.x = max(0, MY.player.velocity.x - PLAYER_AIR_DECEL)
             elif MY.player.velocity.x < 0:
                 MY.player.velocity.x = min(0, MY.player.velocity.x + PLAYER_AIR_DECEL)
     
-    load = False
     if not MY.grounded:
-        MY.player.sprite = MY.paul_jetpack_right
+        if MY.player.velocity.x > 0:
+            MY.player.sprite = MY.paul_jetpack_right
+        elif MY.player.velocity.x < 0:
+            MY.player.sprite = MY.paul_jetpack_left
 
-    if key_held_down(pygame.K_UP):
-        if MY.player.collides_with(MY.exit_portal):
-            load = True
 
-    if load:
-        MY.level_num += 1
-        if MY.level_num < 4:
-            load_level("level" + str(MY.level_num))
-        else:
-            change(2)
-        return
-
-    # Gravity
+    #Gravity
     MY.player.velocity.y = min(MY.player.velocity.y + GRAVITY_ACCEL, PLAYER_TERMINAL_VEL)
 
-    # Check for hazard collisions
+    #Check for hazard collisions
     for hazard in MY.hazards:
         if MY.player.collides_with(hazard):
             MY.player_health -= 2

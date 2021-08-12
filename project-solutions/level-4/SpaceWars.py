@@ -1,7 +1,5 @@
 """Runs the Init.py file and imports the libraries"""
 from init import *
-import random
-import pygame
 
 def update(delta_time):
     """The Update method checks for all the key presses and button clicks"""
