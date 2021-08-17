@@ -60,7 +60,7 @@ def check_ending_events():
         if event.type == pygame.QUIT:
             stop()
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if MY.restart_button.collides_with_point(pygame.mouse.get_pos()):
+            if MY.background.collides_with_point(pygame.mouse.get_pos()):
                 Manager.current = 0
                 MY.boss_health = 300
                 MY.player_health = 100
@@ -251,7 +251,7 @@ class SpriteSheet:
 
 class Animator:
     """Animator class for animation functions"""
-    def __init__(self, sheet, duration_seconds, looping = True):
+    def __init__(self, sheet, duration_seconds, looping = True, ending=False):
         self.sheet = sheet
         self.frame_num = 0
 
@@ -260,6 +260,7 @@ class Animator:
         self.playing = True
         self.playspeed = 1.0
         self.looping = looping
+        self.ending = ending
 
         self.reset()
         self.set_duration(duration_seconds)
@@ -288,6 +289,7 @@ class Animator:
 
     def unpause(self):
         self.playing = True
+        self.shown = True
 
     def update(self, d_t):
         d_t = d_t * self.playspeed
@@ -298,6 +300,10 @@ class Animator:
             if self.frame_time >= self.transition:
                 self.frame_time -= self.transition
                 self.frame_num += 1
+
+                if self.ending:
+                    if self.current == self.num_frames - 1:
+                        self.playing = False
 
                 if self.looping:
                     self.frame_num %= self.num_frames
@@ -583,7 +589,7 @@ class Data:
     background_sheet = SpriteSheet("assets/Background.png", (800, 600))
     background_anim = Animator(background_sheet, 0.75)
     background = Object(background_sheet.image_at(0))
-    #player data
+    # player data
     player_idle_forward_sheet = SpriteSheet("assets/paul/PaulIdleFront.png", (64, 68))
     player_idle_backward_sheet = SpriteSheet("assets/paul/PaulIdleBack.png", (64, 68))
     player_idle_left_sheet = SpriteSheet("assets/paul/PaulIdleLeft.png", (64, 68))
@@ -622,7 +628,7 @@ class Data:
     player_dir = DOWN
     player_text = TextObject(BLACK, 24, "Player: ")
     player_hitbox = Object(HITBOX_IMAGE)
-    #boss data
+    # boss data
     boss_attack_sheet = SpriteSheet("assets/creeper/CreeperAttack.png", (100, 100))
     boss_attack = Animator(boss_attack_sheet, 2)
     boss_idle_sheet = SpriteSheet("assets/creeper/CreeperIdle.png", (100, 100))
@@ -634,16 +640,15 @@ class Data:
     boss_health = 300
     boss_attack_event = pygame.USEREVENT
     is_boss_attacking = False
-    #miscellaneous data
-    wall_height = 45
-    pillar_top_1 = Object(Image("assets/PillarTop.png"))
-    pillar_bottom_1 = Object(Image("assets/PillarBottom.png"))
-    pillar_top_2 = Object(Image("assets/PillarTop.png"))
-    pillar_bottom_2 = Object(Image("assets/PillarBottom.png"))
-    pillar_top_3 = Object(Image("assets/PillarTop.png"))
-    pillar_bottom_3 = Object(Image("assets/PillarBottom.png"))
-    pillar_top_4 = Object(Image("assets/PillarTop.png"))
-    pillar_bottom_4 = Object(Image("assets/PillarBottom.png"))
+    # miscellaneous data
+    wall_height = 70
+    pillar_width = 28
+    pillar_height = 112
+    pillar_top_left = Object(Image("assets/PillarTop.png"))
+    pillar_top_right = Object(Image("assets/PillarTop.png"))
+    pillar_bottom_left = Object(Image("assets/PillarTop.png"))
+    pillar_bottom_right = Object(Image("assets/PillarTop.png"))
+    pillars = [pillar_top_left, pillar_top_right, pillar_bottom_left, pillar_bottom_right]
     projectile_sheet = SpriteSheet("assets/PlasmaBall.png", (32, 32))
     projectile_anim = Animator(projectile_sheet, 6)
     projectile = Object(projectile_sheet.image_at(0))
@@ -653,22 +658,22 @@ class Data:
     last_state = 2
     index = 0
     game_over_sheet = SpriteSheet("assets/GameOverOverlay.png", (800, 600))
-    game_over = Animator(game_over_sheet, 0.75, False)
+    game_over = Animator(game_over_sheet, 0.75, False, True)
     you_win_sheet = SpriteSheet("assets/YouWinOverlay.png", (800, 600))
-    you_win = Animator(you_win_sheet, 0.75, False)
+    you_win = Animator(you_win_sheet, 0.75, False, True)
     ending_overlay = Object(game_over_sheet.image_at(0))
     restart_button = Object(Image("assets/PlayAgain.png"))
     
+
 MY = Data()
 
 def initialize(window):
     """Initializes the game play class."""
     MY.background.location = window / 2
-    MY.pillar_top_1.location = (window.x / 2, 300)
-    MY.pillar_top_2.location = (window.x / 2, 535)
-    MY.pillar_top_3.location = (753, 300)
-    MY.pillar_top_4.location = (753, 535)
-    #MY.pillar_bottom_1.location = (window.x / 2, 300)
+    MY.pillar_top_left.location = (207, 140)
+    MY.pillar_top_right.location = (560, 140)
+    MY.pillar_bottom_left.location = (207, 375)
+    MY.pillar_bottom_right.location = (560, 375)
     MY.player.location = (window.x / 2, window.y / 4)
     MY.boss.location = window / 2
     pygame.time.set_timer(MY.boss_attack_event, 100)
@@ -683,7 +688,6 @@ def initialize(window):
 def draw(screen):
     """Draws the state to the given screen for BossBattle."""
     MY.background.draw(screen)
-    #MY.pillar_bottom_1.draw(screen)
     MY.player.draw(screen)
     if MY.player_hitbox.active:
         MY.player_hitbox.draw(screen)
@@ -693,10 +697,10 @@ def draw(screen):
             MY.projectiles[i].draw(screen)
 
     MY.boss.draw(screen)
-    MY.pillar_top_1.draw(screen)
-    MY.pillar_top_2.draw(screen)
-    MY.pillar_top_3.draw(screen)
-    MY.pillar_top_4.draw(screen)
+    MY.pillar_top_left.draw(screen)
+    MY.pillar_top_right.draw(screen)
+    MY.pillar_bottom_left.draw(screen)
+    MY.pillar_bottom_right.draw(screen)
     MY.player_text.draw(screen)
     health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
     health_bar(
@@ -779,19 +783,18 @@ def player_move_update(delta_time):
         MY.player.sprite = MY.walk_right
 
 def fire_projectile(delta_time):
-    """Updates animations for player while attacking"""
     count = -1
-    rand_x = random.randint(-5, 5) * 100
-    rand_y = random.randint(-5, 5) * 100
+    rand_x = random.randint(-5, 5)
+    rand_y = random.randint(-5, 5)
     for projectile in MY.projectiles:
         count += 1
         if projectile.active:
             projectile.update(delta_time)
-            '''projectile.location.x += rand_x * delta_time
-            projectile.location.y += rand_y * delta_time
+            projectile.location.x += rand_x
+            projectile.location.y += rand_y
             if projectile.location.x < MY.wall_height or projectile.location.x > WINDOW_WIDTH - MY.wall_height or projectile.location.y < MY.wall_height or projectile.location.y > WINDOW_LENGTH - (MY.wall_height + 20):
                 projectile.active = False
-                continue'''
+                continue
             if projectile.collides_with(MY.player):
                 MY.player_health -= 0.1
                 player_pain_anim()
@@ -804,11 +807,28 @@ def boss_attack(delta_time):
     count = 0
     while count < num_projectiles:
         MY.projectiles[count].active = True
-        fire_projectile(delta_time)
+        #fire_projectile(delta_time)
         count += 1
 
-def move(projectile):
-    pass
+def handle_pillar_collision():
+    if MY.player.location.y > 160 and MY.player.location.y < 260:
+        if MY.player.location.x <= 207 and MY.player.collides_with(MY.pillar_top_left):
+            MY.player.location.x = 170
+        elif MY.player.location.x >= 207 + MY.pillar_width and MY.player.collides_with(MY.pillar_top_left):
+            MY.player.location.x = 240
+        elif MY.player.location.x <= 560 and MY.player.collides_with(MY.pillar_top_right):
+            MY.player.location.x = 523
+        elif MY.player.location.x >= 560 + MY.pillar_width and MY.player.collides_with(MY.pillar_top_right):
+            MY.player.location.x = 593
+    elif MY.player.location.y > 390 and MY.player.location.y < 490:
+        if MY.player.location.x <= 207 and MY.player.collides_with(MY.pillar_bottom_left):
+            MY.player.location.x = 170
+        elif MY.player.location.x >= 207 + MY.pillar_width and MY.player.collides_with(MY.pillar_bottom_left):
+            MY.player.location.x = 240
+        elif MY.player.location.x <= 560 and MY.player.collides_with(MY.pillar_bottom_right):
+            MY.player.location.x = 523
+        elif MY.player.location.x >= 560 + MY.pillar_width and MY.player.collides_with(MY.pillar_bottom_right):
+            MY.player.location.x = 593
 
 def update_assets(delta_time):
     # background
@@ -852,7 +872,6 @@ class GameOver:
         """Initializes the restart menu state."""
         pygame.time.set_timer(MY.boss_attack_event, 0)
         MY.ending_overlay.location = window / 2
-        #MY.restart_button.location = window / 2
 
     def update(delta_time):
         """Updates the restart menu state."""
@@ -867,6 +886,8 @@ class GameOver:
     def cleanup():
         """Cleans up the restart menu state."""
         MY.projectiles = []
+        Manager.current = 2
+        MY.state = 3
 
     def draw(screen):
         """Draws the restart menu state."""
@@ -874,4 +895,31 @@ class GameOver:
         MY.player.draw(screen)
         MY.boss.draw(screen)
         MY.ending_overlay.draw(screen)
-        #MY.restart_button.draw(screen)
+
+class PlayAgain:
+    MY = Data()
+
+    def initialize(window):
+        """Initializes the restart menu state."""
+        pygame.time.set_timer(MY.boss_attack_event, 0)
+        MY.ending_overlay.location = window / 2
+
+    def update(delta_time):
+        """Updates the restart menu state."""
+        if MY.boss_health <= 0:
+            MY.ending_overlay.sprite = MY.you_win_sheet.image_at(3)
+        else:
+            MY.ending_overlay.sprite = MY.game_over_sheet.image_at(3)
+        MY.background.update(delta_time)
+        check_ending_events()
+
+    def cleanup():
+        """Cleans up the restart menu state."""
+        MY.projectiles = []
+
+    def draw(screen):
+        """Draws the restart menu state."""
+        MY.background.draw(screen)
+        MY.player.draw(screen)
+        MY.boss.draw(screen)
+        MY.ending_overlay.draw(screen)
