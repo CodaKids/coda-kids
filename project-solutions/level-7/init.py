@@ -90,7 +90,7 @@ class AnimatedObject(GameObject):
 		surf.blit(self.image, self.rect)
 		
 class Card(GameObject):
-	def __init__(self, name, techtype, weakness, resistance, image, typelogo):
+	def __init__(self, name, techtype, weakness, resistance, image, typelogo, coded_type = 'none', coded_attack = ""):
 		super().__init__(name, image)
 
 		self.techtype = techtype
@@ -99,6 +99,9 @@ class Card(GameObject):
 		self.HP = 15
 		self.alive = True
 		self.typelogo = typelogo
+		self.coded_type = coded_type
+		self.coded_attack = coded_attack
+		# coded types are: extra_hit, extra_turn, gain_health, opponent_tails
 	
 	def attacked_by(self, offense_card):
 		damage = 3 # default value
@@ -113,7 +116,13 @@ class Card(GameObject):
 		self.take_damage(damage)
 		return damage
 
-	
+	def gain_hp(self, gained_hp):
+		self.HP = self.HP + gained_hp
+
+	def check_max_hp(self):
+		if self.HP > 15:
+			self.HP = 15
+
 	def take_damage(self, damage):
 		self.HP = self.HP - damage
 		if self.HP <= 0:
@@ -163,7 +172,18 @@ class Player(object):
 	def get_current_card(self):
 		return self.current_card
 
-	# this lets you print the player with print(self.player1)
+	def gain_health(self, health_gained):
+		if self.current_card.HP<15:
+			self.current_card.gain_hp(health_gained)
+			self.current_card.check_max_hp()
+			return self.current_card
+		else:
+			for card in self.hand:
+				if card.HP < 15:
+					card.gain_hp(health_gained)
+					card.check_max_hp()
+					return card
+		return None
 
 	def __str__(self):
 		data = "player name: " + self.name + "\n"
