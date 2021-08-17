@@ -765,16 +765,10 @@ class Coin(AnimatedObject):
 			
 			self.visible_side = side
 	
-	# this it where it is animated. To change the speed change:
-	#	if self.anim_time > 200:
-	# to a number other than 200
-	# it returns true and false to let the calling funtion know whether
-	# it has finished animating
-	
 	def update(self, dt):
 		if self.frames > 0:
 			self.anim_time += dt
-			if self.anim_time > 200:
+			if self.anim_time > 75: # change number for speed, larger number = slower speed for coin flip animation
 				self.animate()
 				self.frames -= 1
 				self.anim_time = 0
