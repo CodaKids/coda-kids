@@ -47,6 +47,9 @@ def check_events():
     Checks for pygame events, including boss attacks and if you closed the window.
     """
     for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN: #TO DO: REMOVE. used for testing only.
+            print(pygame.mouse.get_pos())
+
         if event.type == pygame.QUIT:
             stop()
         elif event.type == MY.boss_attack_event:
@@ -701,6 +704,13 @@ def draw(screen):
     MY.pillar_top_right.draw(screen)
     MY.pillar_bottom_left.draw(screen)
     MY.pillar_bottom_right.draw(screen)
+
+    #TO DO: REMOVE. for testing only.
+    # upper_left_pillar = pygame.Rect(192, 422, 30, 24)
+    # player_rect = pygame.Rect(MY.player.location.x - 10, MY.player.location.y + 22, 20, 10)
+    # pygame.draw.rect(SCREEN, (255,255,255), upper_left_pillar)
+    # pygame.draw.rect(SCREEN, (255,255,255), player_rect)
+    
     MY.player_text.draw(screen)
     health_bar(screen, MY.player_health, 100, (100, 20), (85, 3))
     health_bar(
@@ -810,25 +820,30 @@ def boss_attack(delta_time):
         #fire_projectile(delta_time)
         count += 1
 
+def check_pillar_collision(player_rect, pillar):
+    if player_rect.colliderect(pillar):
+        if MY.player_dir == LEFT:
+            MY.player.location.x += 3
+        elif MY.player_dir == RIGHT:
+            MY.player.location.x -= 3
+        elif MY.player_dir == DOWN:
+            MY.player.location.y -= 3
+        elif MY.player_dir == UP:
+            MY.player.location.x += 3
+
 def handle_pillar_collision():
-    if MY.player.location.y > 160 and MY.player.location.y < 260:
-        if MY.player.location.x <= 207 and MY.player.collides_with(MY.pillar_top_left):
-            MY.player.location.x = 170
-        elif MY.player.location.x >= 207 + MY.pillar_width and MY.player.collides_with(MY.pillar_top_left):
-            MY.player.location.x = 240
-        elif MY.player.location.x <= 560 and MY.player.collides_with(MY.pillar_top_right):
-            MY.player.location.x = 523
-        elif MY.player.location.x >= 560 + MY.pillar_width and MY.player.collides_with(MY.pillar_top_right):
-            MY.player.location.x = 593
-    elif MY.player.location.y > 390 and MY.player.location.y < 490:
-        if MY.player.location.x <= 207 and MY.player.collides_with(MY.pillar_bottom_left):
-            MY.player.location.x = 170
-        elif MY.player.location.x >= 207 + MY.pillar_width and MY.player.collides_with(MY.pillar_bottom_left):
-            MY.player.location.x = 240
-        elif MY.player.location.x <= 560 and MY.player.collides_with(MY.pillar_bottom_right):
-            MY.player.location.x = 523
-        elif MY.player.location.x >= 560 + MY.pillar_width and MY.player.collides_with(MY.pillar_bottom_right):
-            MY.player.location.x = 593
+    upper_left_pillar = pygame.Rect(192, 190, 30, 24)
+    upper_right_pillar = pygame.Rect(545, 190, 30, 24)
+    lower_left_pillar = pygame.Rect(192, 422, 30, 24)
+    lower_right_pillar = pygame.Rect(545, 422, 30, 24)
+
+    player_rect = pygame.Rect(MY.player.location.x - 10, MY.player.location.y + 22, 20, 10)
+
+    check_pillar_collision(player_rect, upper_left_pillar)
+    check_pillar_collision(player_rect, upper_right_pillar)
+    check_pillar_collision(player_rect, lower_left_pillar)
+    check_pillar_collision(player_rect, lower_right_pillar)
+
 
 def update_assets(delta_time):
     # background
