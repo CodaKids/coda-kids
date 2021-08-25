@@ -57,11 +57,11 @@ class GameScreen(GameState):
 		super().__init__()
 		self.next_state = "Victory"
 
-		self.tech_attack_button = Button("Tech Type Attack", X_CENTER-105, 575, 210, 40, ondeck_teal, round_dark_blue, parent = self)	
+		self.tech_attack_button = Button("TechType Attack", X_CENTER-105, 625, 210, 40, ondeck_teal, round_dark_blue, parent = self)	
 		self.tech_attack_button.action_params = "tech"	
-		self.coded_attack_button = Button("Coded Attack", X_CENTER-85, 625, 170, 40, coin_yellow, coin_dark_yellow, parent = self)
+		self.coded_attack_button = Button("Coded Attack", X_CENTER-85, 575, 170, 40, coin_yellow, coin_dark_yellow, parent = self)
 		self.coded_attack_button.action_params = "coded"
-		self.instructions_box = InfoBox(INSTRUCTIONS, dialog_inst, BLACK, (200, 300), (X_CENTER, 200), 200)
+		self.instructions_box = InfoBox(CHALLENGE_INSTRUCTIONS, dialog_inst, BLACK, (200, 300), (X_CENTER, 200), 200)
 
 		self.coin = Coin(coin_img, (X_CENTER, 475))
 		self.turn_counter = 1
@@ -100,7 +100,6 @@ class GameScreen(GameState):
 	def button_action(self, params):
 		if params == "coded":
 			self.coded_attack = True
-			print("coded button clicked")
 		self.coin_side = self.flip_coin()
 		self.coin.set_side(self.coin_side)
 		self.flipping = True

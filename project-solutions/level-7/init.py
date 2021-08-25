@@ -22,12 +22,13 @@ Y_CENTER = WINDOW_HEIGHT // 2
 CENTER_COORD = (X_CENTER, Y_CENTER)
 WINDOW = (WINDOW_WIDTH, WINDOW_HEIGHT)
 BACKGROUND_IMAGE = pygame.image.load(path.join(assets_path, "IncrediCards_Background.png")) 
-TITLE_IMAGE = pygame.image.load(path.join(assets_path, "title_screen_wide_shadows.png")) 
+TITLE_IMAGE = pygame.image.load(path.join(assets_path, "title_screen_wide_highlight.png")) 
 TITLE_LOGO = pygame.image.load(path.join(assets_path, "IncredicodersLogo_850.png")) 
 CARD_L_POS = pygame.math.Vector2(200,305)
 CARD_R_POS = pygame.math.Vector2(800,305)
-INSTRUCTIONS = ["Click Tech Type Attack", "to flip the coin: heads", "does 3 damage and", "tails misses.", "Be sure to check out", "your card's weaknesses", "and resistance. You can", "give more damage to a", "weak Tech Type, and you", "can receive less damage if", "you're resistant to a", "Tech Type."]
-CHALLENGE_INSTRUCTIONS = "Click Tech Type Attack to flip the coin - heads does 3 damage (or more/less depending on your weakness and resistance) and tails misses. Or click Coded Attack to do 1 damage. Flip the coin - heads will do your card's special move!"
+INSTRUCTIONS = ["Click TechType Attack", "to flip the coin: heads", "does 3 damage and", "tails misses.", "Be sure to check out", "your card's weaknesses", "and resistance. You can", "give more damage to a", "weak Tech Type, and you", "can receive less damage if", "you're resistant to a", "Tech Type."]
+CHALLENGE_INSTRUCTIONS = ["TechType Attack will do", "3 damage if you land on", "heads, while tails misses.", "Your card's resistance and", "weakness affects the", "damage done!", "Coded Attack is your card's", "special move and is not", "affected by cards'", "resistance and weakness.", "Coded Attacks deal at", "least 1 damage and have", "a special effect determined", "by the coin flip."]
+# TechType Attack will do 3 damage if you land on heads, while tails misses. Your card's resistance and weakness affects the damage done! Coded Attack is your card's special move and is not affected by cards' resistance and weakness. Coded Attacks deal at least 1 damage and have a special effect determined by the coin flip.
 FPS = 30
 
 pygame.init()
