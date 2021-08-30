@@ -34,6 +34,7 @@ def update(delta_time):
     elif MY.player_dir == LEFT:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x - 20, MY.player.location.y)
+    #TODO: Write the code here, to add the hit box to the right of Paul
     elif MY.player_dir == RIGHT:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x + 20, MY.player.location.y)
