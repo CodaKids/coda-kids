@@ -11,6 +11,7 @@ def update(delta_time):
     #TODO: Uncomment Lines 12-13 to make sure that Paul doesn't walk through the wall on the top of the screen
     if MY.player.location.y < MY.wall_height:
         MY.player.location.y = MY.wall_height
+    #TODO: Copy the code here to make sure that Paul doesn't walk through the wall on the bottom of the screen.
     if MY.player.location.y > WINDOW_LENGTH - (MY.wall_height + 15):
         MY.player.location.y = WINDOW_LENGTH - (MY.wall_height + 15)
 

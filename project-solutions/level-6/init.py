@@ -792,33 +792,29 @@ def player_move_update(delta_time):
         MY.player_dir = RIGHT
         MY.player.sprite = MY.walk_right
 
-def fire_projectile(delta_time):
-    count = -1
-    rand_x = random.randint(-5, 5)
-    rand_y = random.randint(-5, 5)
-    for projectile in MY.projectiles:
-        count += 1
-        if projectile.active:
-            projectile.update(delta_time)
-            projectile.location.x += rand_x
-            projectile.location.y += rand_y
-            if projectile.location.x < MY.wall_height or projectile.location.x > WINDOW_WIDTH - MY.wall_height or projectile.location.y < MY.wall_height or projectile.location.y > WINDOW_LENGTH - (MY.wall_height + 20):
-                projectile.active = False
-                continue
-            if projectile.collides_with(MY.player):
-                MY.player_health -= 0.1
-                player_pain_anim()
-                projectile.active = False
-                continue
+def fire_projectile(delta_time, projectile):
+    rand_x = random.randint(-3, 3)
+    rand_y = random.randint(-3, 3)
+    if projectile.active:
+        projectile.update(delta_time)
+        projectile.location.x += rand_x
+        projectile.location.y += rand_y
+        if projectile.location.x < MY.wall_height or projectile.location.x > WINDOW_WIDTH - MY.wall_height or projectile.location.y < MY.wall_height or projectile.location.y > WINDOW_LENGTH - (MY.wall_height + 20):
+            projectile.active = False
+        if projectile.collides_with(MY.player):
+            MY.player_health -= 0.1
+            player_pain_anim()
+            projectile.active = False
 
 def boss_attack(delta_time):
     """shoot out lots of projectiles."""
-    num_projectiles = 20
+    num_projectiles = 10
     count = 0
     while count < num_projectiles:
-        MY.projectiles[count].active = True
-        #fire_projectile(delta_time)
-        count += 1
+        for p in MY.projectiles:
+            p.active = True
+            fire_projectile(delta_time, p)
+            count += 1
 
 def check_pillar_collision(player_rect, pillar):
     if player_rect.colliderect(pillar):
