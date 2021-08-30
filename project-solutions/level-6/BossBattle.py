@@ -26,6 +26,7 @@ def update(delta_time):
     if MY.player_dir == UP:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x + 20, MY.player.location.y - 20)
+    #TODO: Copy the code here, to add the hit box below Paul
     elif MY.player_dir == DOWN:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x - 10, MY.player.location.y + 25)
