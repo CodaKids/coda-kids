@@ -47,6 +47,7 @@ DECK.append(virobotica)
 DECK.append(virobots)
 DECK.append(woodchuck_norris)
 
+#TODO: Copy the code here to shuffle the cards
 random.shuffle(DECK)
 
 class GameScreen(GameState):
