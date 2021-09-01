@@ -57,7 +57,7 @@ class GameScreen(GameState):
 		super().__init__()
 		self.next_state = "Victory"
 
-		self.tech_attack_button = Button("Tech Type Attack", X_CENTER-105, 575, 210, 40, ondeck_teal, round_dark_blue, parent = self)		
+		self.tech_attack_button = Button("TechType Attack", X_CENTER-105, 575, 210, 40, ondeck_teal, round_dark_blue, parent = self)		
 		self.instructions_box = InfoBox(INSTRUCTIONS, dialog_inst, BLACK, (200, 300), (X_CENTER, 200), 200)
 
 		self.coin = Coin(coin_img, (X_CENTER, 475))
@@ -123,9 +123,13 @@ class GameScreen(GameState):
 
 			if self.coin_side == 'Heads':
 				damage = defense_card.attacked_by(offense_card)
-			
 				s_flag = "" if offense_card.name.endswith('s') else "s"
-				turn_msg = "{} took {} damage from {}'{} attack\n".format(defense_card.name, damage, offense_card.name, s_flag)
+				if damage == 2:
+					turn_msg = "{} is resistant to {}'{} attack! They only take 2 damage.".format(defense_card.name, offense_card.name, s_flag)
+				elif damage == 4:
+					turn_msg = "{} is weak to {}'{} attack! They receive 4 damage.".format(defense_card.name, offense_card.name, s_flag)
+				else:
+					turn_msg = "{} took {} damage from {}'{} attack\n".format(defense_card.name, damage, offense_card.name, s_flag)
 				message = add_to_message(message, turn_msg)
 			else:
 	

@@ -134,9 +134,13 @@ class GameScreen(GameState):
 			if not self.coded_attack:
 				if self.coin_side == 'Heads':
 					damage = defense_card.attacked_by(offense_card)
-				
 					s_flag = "" if offense_card.name.endswith('s') else "s"
-					turn_msg = "{} took {} damage from {}'{} attack\n".format(defense_card.name, damage, offense_card.name, s_flag)
+					if damage == 2:
+						turn_msg = "{} is resistant to {}'{} attack! They only take 2 damage.".format(defense_card.name, offense_card.name, s_flag)
+					elif damage == 4:
+						turn_msg = "{} is weak to {}'{} attack! They receive 4 damage.".format(defense_card.name, offense_card.name, s_flag)
+					else:
+						turn_msg = "{} took {} damage from {}'{} attack\n".format(defense_card.name, damage, offense_card.name, s_flag)
 					message = add_to_message(message, turn_msg)
 				else:
 					turn_msg = "{} took no damage from {}\n".format(defense_card.name, offense_card.name)

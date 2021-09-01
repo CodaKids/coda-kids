@@ -28,7 +28,6 @@ CARD_L_POS = pygame.math.Vector2(200,305)
 CARD_R_POS = pygame.math.Vector2(800,305)
 INSTRUCTIONS = ["Click TechType Attack", "to flip the coin: heads", "does 3 damage and", "tails misses.", "Be sure to check out", "your card's weaknesses", "and resistance. You can", "give more damage to a", "weak Tech Type, and you", "can receive less damage if", "you're resistant to a", "Tech Type."]
 CHALLENGE_INSTRUCTIONS = ["TechType Attack will do", "3 damage if you land on", "heads, while tails misses.", "Your card's resistance and", "weakness affects the", "damage done!", "Coded Attack is your card's", "special move and is not", "affected by cards'", "resistance and weakness.", "Coded Attacks deal at", "least 1 damage and have", "a special effect determined", "by the coin flip."]
-# TechType Attack will do 3 damage if you land on heads, while tails misses. Your card's resistance and weakness affects the damage done! Coded Attack is your card's special move and is not affected by cards' resistance and weakness. Coded Attacks deal at least 1 damage and have a special effect determined by the coin flip.
 FPS = 30
 
 pygame.init()
