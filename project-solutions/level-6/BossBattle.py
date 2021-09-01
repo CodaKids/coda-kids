@@ -11,6 +11,7 @@ def update(delta_time):
     #TODO: Uncomment Lines 12-13 to make sure that Paul doesn't walk through the wall on the top of the screen
     if MY.player.location.y < MY.wall_height:
         MY.player.location.y = MY.wall_height
+    #TODO: Copy the code here to make sure that Paul doesn't walk through the wall on the bottom of the screen.
     if MY.player.location.y > WINDOW_LENGTH - (MY.wall_height + 15):
         MY.player.location.y = WINDOW_LENGTH - (MY.wall_height + 15)
 
@@ -25,12 +26,15 @@ def update(delta_time):
     if MY.player_dir == UP:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x + 20, MY.player.location.y - 20)
+    #TODO: Copy the code here, to add the hit box below Paul
     elif MY.player_dir == DOWN:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x - 10, MY.player.location.y + 25)
+    #TODO: Copy the code here, to add the hit box to the left of Paul
     elif MY.player_dir == LEFT:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x - 20, MY.player.location.y)
+    #TODO: Write the code here, to add the hit box to the right of Paul
     elif MY.player_dir == RIGHT:
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x + 20, MY.player.location.y)
