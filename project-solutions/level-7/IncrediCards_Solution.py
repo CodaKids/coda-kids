@@ -19,6 +19,7 @@ sidewinder = Card('Sidewinder', 'python', 'java', 'bash', sidewinder_img, icon_p
 syntax_turtle = Card('Syntax Turtle', 'small_basic', 'bash', 'scratch', syntax_turtle_img, icon_small_basic)
 viralmuto = Card('Viralmuto', 'bash', 'python', 'scratch', viralmuto_img, icon_bash)
 virobotica = Card('Virobotica', 'bash', 'python', 'small_basic', virobotica_img, icon_bash)
+#TODO: Copy the code here to add the Virobots and Woodchuck Norris cards
 virobots = Card('Virobots', 'bash', 'python', 'small_basic', virobots_img, icon_bash)
 woodchuck_norris = Card('Woodchuck Norris', 'scratch', 'small_basic', 'java', woodchuck_norris_img, icon_scratch)
 
