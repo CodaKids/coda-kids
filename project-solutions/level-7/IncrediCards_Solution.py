@@ -88,6 +88,7 @@ class GameScreen(GameState):
 		if not self.flipping:
 			self.tech_attack_button.get_event(event)
 	
+		#TODO: Add the code here to check if the players click an On Deck card
 		self.player1_ondeck.get_event(event)
 		self.player2_ondeck.get_event(event)
 		
