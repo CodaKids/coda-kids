@@ -93,6 +93,7 @@ class GameScreen(GameState):
 		self.player2_ondeck.get_event(event)
 		
 	def button_action(self, params):
+		#TODO: Write the code here to flip the coin when the player clicks the button
 		self.coin_side = self.flip_coin()
 		self.coin.set_side(self.coin_side)
 		self.flipping = True
