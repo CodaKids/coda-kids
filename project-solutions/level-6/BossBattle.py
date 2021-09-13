@@ -39,6 +39,7 @@ def update(delta_time):
         MY.player_hitbox.location = pygame.math.Vector2(
             MY.player.location.x + 20, MY.player.location.y)
 
+    #TODO: Copy the code here, to reduce Creeper's health when he gets attacked
     if MY.player_hitbox.active and MY.boss.collides_with(MY.player_hitbox):
         MY.boss_health -= 1
         MY.player_hitbox.active = False
