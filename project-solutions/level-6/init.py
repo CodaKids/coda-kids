@@ -36,10 +36,6 @@ def start(window, name):
     return pygame.display.set_mode((int(window[0]), int(window[1])))
 
 def stop():
-    """
-    Stops pygame and closes the window immediately.
-        coda.stop();
-    """
     sys.exit()
 
 def check_events():
@@ -69,10 +65,6 @@ def check_ending_events():
                 MY.player_health = 100
 
 def draw_rect(screen, color, top_left, size):
-    """
-    Draw's a rectangle with the given values. Doesn't return.
-        coda.draw_rect(SCREEN, (r, g, b, a), (0, 0), (10, 10));
-    """
     pygame.draw.rect(screen, color, (top_left[0], top_left[1], size[0], size[1]))
 
 def health_bar(screen, health, max_health, max_size, location):
@@ -110,24 +102,11 @@ def screen_wrap(obj, window):
     return flag
 
 def key_down(event, key):
-    """
-    Checks if the keyboard key is pressed.
-        for ev in coda.event.listing():
-            # Space key pressed.
-            if coda.event.key_down(ev, " "):
-                do_things();
-    """
     if isinstance(key, str):
         return event.type == pygame.KEYDOWN and event.key == key
     return event.type == pygame.KEYDOWN and event.key == key
 
 def key_held_down(key):
-    """
-    Checks if a key is being held down over multiple frames.
-        # 'a' key held down.
-        if coda.key_held_down("a"):
-            do_things();
-    """
     if isinstance(key, str):
         return pygame.key.get_pressed()[ord(key)]
     return pygame.key.get_pressed()[key]
@@ -486,9 +465,6 @@ class Object:
 
             # point
             obj.collides_with_point(10, 10);
-
-            # Mouse position
-            obj.collides_with_point(coda.event.mouse_position());
         """
         sprite = pygame.transform.rotate(self.sprite.surface(), self.rotation)
         rect = sprite.get_rect()
