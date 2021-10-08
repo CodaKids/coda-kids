@@ -24,6 +24,9 @@ DOWN = 3
 # data used to store all lerps
 _data = {}
 
+#Path to level file
+LEVEL_FILE_PATH = ''
+
 #============================================================
 # PART 2: CREATING A FRAMEWORK OF GENERAL CLASSES AND FUNCTIONS
 
@@ -440,9 +443,14 @@ class Machine:
                             'draw': module.draw,
                             'cleanup': module.cleanup})
 
-    def run(self, screen, window, fill_color):
+    def run(self, screen, window, fill_color, tilemap):
         """Runs the state given machine."""
         clock = pygame.time.Clock()
+
+        #Save filepath to level's tilemap
+        global LEVEL_FILE_PATH
+        LEVEL_FILE_PATH = tilemap
+
         # first run initialize!
         self.states[self.current]['initialize'](window)
 
@@ -612,11 +620,11 @@ def health_bar(screen, health, max_health, max_size, location):
     width = max_size[0] * (health / max_health)
     draw_rect(screen, bar_color, location, (width, max_size[1]))
 
-def load_level(level_name_as_string):
+def load_level(level_file_path):
     """Cleans up resources and loads a specified level. Can be used to reload the same level."""
     cleanup()
 
-    MY.tilemap = read_file("assets/"+level_name_as_string + ".txt") # to move out to main
+    MY.tilemap = level_file_path 
     for row in range(len(MY.tilemap)):
         for column in range(len(MY.tilemap[row])):
             obj = Object(TILE_IMAGES[int(MY.tilemap[row][column])])
@@ -649,7 +657,7 @@ def initialize(window):
     MY.player_health = PLAYER_START_HEALTH
     MY.player.velocity = pygame.math.Vector2(0, 0)
     MY.level_num = 1
-    load_level("level" + str(MY.level_num))
+    load_level(LEVEL_FILE_PATH)
     MY.window = window
 
 def draw(screen):

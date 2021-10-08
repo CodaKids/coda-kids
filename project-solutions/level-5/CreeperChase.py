@@ -100,5 +100,9 @@ Manager.register(CreeperChase)
 Manager.register(Lose)
 Manager.register(Win)
 
+#Load level's tilemap file
+level_name_as_string = 'level1'
+tilemap = read_file("assets/" + level_name_as_string + ".txt")
+
 # run the game!
-Manager.run(SCREEN, WINDOW, BLUE)
+Manager.run(SCREEN, WINDOW, BLUE, tilemap)
